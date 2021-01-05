@@ -12,12 +12,5 @@ namespace Assignment1
         public String city { get; set; }
         public String postcode { get; set; }
         public List<Account> Accounts { get; set; }
-
-        public User()
-        {
-            Accounts = new List<Account>();
-            this.Accounts.Add(new Account(12346789, 'S', CustomerID, 100000.01));
-            this.Accounts.Add(new Account(987654321, 'C', CustomerID, 1.43));
-        }
     }
 }

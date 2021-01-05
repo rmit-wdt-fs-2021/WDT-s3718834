@@ -9,6 +9,8 @@ namespace Assignment1
         public void Start(BankingController controller);
 
         public User LoginAttempt(string loginID, string password);
+
+        public List<Account> GetAccounts(User user);
     }
 
     public class LoginAttemptsExcededException : Exception

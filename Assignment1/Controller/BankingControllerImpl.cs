@@ -41,7 +41,7 @@
 
         public override void CheckBalance()
         {
-            View.ShowAccountBalances(LoggedInUser.Accounts.ToArray());
+            View.ShowAccountBalances(Engine.GetAccounts(LoggedInUser).ToArray());
         }
 
         public override void TransactionHistory()

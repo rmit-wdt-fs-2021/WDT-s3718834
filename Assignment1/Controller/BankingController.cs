@@ -6,8 +6,8 @@ namespace Assignment1
 {
     public abstract class BankingController
     {
-        public BankingEngine Engine { get; private set; }
-        public BankingView View { get; private set; }
+        public BankingEngine Engine { get; protected set; }
+        public BankingView View { get; protected set; }
 
         public BankingController(BankingEngine engine, BankingView view)
         {
@@ -16,6 +16,7 @@ namespace Assignment1
         }
 
         public abstract void start();
+        public abstract void login();
 
     }
 }

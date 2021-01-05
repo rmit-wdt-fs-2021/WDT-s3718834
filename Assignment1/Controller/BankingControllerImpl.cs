@@ -78,6 +78,7 @@ namespace Assignment1
         public override void Logout()
         {
             LoggedInUser = null;
+            View.Clear();
             View.Login();
         }
     }

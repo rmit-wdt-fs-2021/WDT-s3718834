@@ -151,10 +151,15 @@ namespace Assignment1
             Console.WriteLine("*************************************************************");
         }
 
-        void LoginAttemptedExceded()
+        public void LoginAttemptedExceded()
         {
             Console.WriteLine("Exceded max password attempts. Press Enter to close window");
             Console.ReadLine(); // Stops the terminal from closing immediately, allowing the user to read the output
+        }
+
+        public void Clear()
+        {
+            Console.Clear();
         }
 
         private List<Char> generateAlphabetArray(int length)

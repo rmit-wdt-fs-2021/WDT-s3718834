@@ -19,6 +19,7 @@ namespace Assignment1
         public Account SelectAccount(List<Account> accounts);
 
         public void showTransactions(List<Transaction> transactions);
+        public void Clear();
 
     }
 }

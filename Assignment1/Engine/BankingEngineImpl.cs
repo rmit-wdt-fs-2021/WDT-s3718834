@@ -6,9 +6,13 @@ namespace Assignment1
 {
     public class BankingEngineImpl : BankingEngine
     {
+
+        private BankingController Controller { get; set; }
+
         public User LoginAttempt(string loginID, string password)
         {
-            if(password.Equals("a"))
+            // Temporary password checking for terminal testing
+            if (password.Equals("a"))
             {
                 throw new LoginFailedException();
             } else if(password.Equals("b"))
@@ -17,6 +21,11 @@ namespace Assignment1
             }
 
             return null;
+        }
+
+        public void Start(BankingController controller)
+        {
+            this.Controller = controller;
         }
     }
 }

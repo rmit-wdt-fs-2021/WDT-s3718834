@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,18 +8,22 @@ namespace Assignment1
     class TerminalBankingView : BankingView
     {
 
+        private BankingController Controller { get; set; }
+
+
         // TODO Is there a better way to do this?
         delegate bool FieldValidator(String loginId);
         private FieldValidator loginIdValidator = login => login.Length == 8 && int.TryParse(login, out var discard); 
         private FieldValidator passwordValidator = login => true;
 
 
-        void BankingView.Start()
+        public void Start(BankingController controller)
         {
             Console.WriteLine("Welcome to MCBA Banking Applicaiton");
+            this.Controller = controller;
         }
 
-        (string login, string password) BankingView.Login()
+        public (string login, string password) Login()
         {
             string loginId = GetValue("Please provide your loginID\n", "LoginID must all digits and 8 characters in length\n", loginIdValidator);
             string password = GetValue("Please provide your password\n", "Invalid password provided", passwordValidator);
@@ -27,15 +32,66 @@ namespace Assignment1
 
         }
 
-        void BankingView.LoginFailed()
+        public void LoginFailed()
         {
             Console.WriteLine("Login attempt failed");
         }
 
-        void BankingView.MainMenu()
+        public void MainMenu()
         {
-            Console.WriteLine("Main menu here. Press Enter to close window");
-            Console.ReadLine();  // Stops the terminal from closing immediately, allowing the user to read the output
+
+            char[] acceptableCharacters = {'A', 'B', 'C', 'D', 'E', 'F'};
+
+            string input = GetValue("Please provide input one of the options below (single character):\n" +
+                "A: Check balance\n" +
+                "B: Transaction History\n" +
+                "C: Make transaction\n" + "" +
+                "D: Make transfer\n" +
+                "E: Modify profile\n" +
+                "F: Apply for loan\n",
+                "Please provide on a single character. Accepted characters are listed on the left\n",
+
+                generateAcceptableInputsLambda(new List<char>(acceptableCharacters)));
+
+            switch (input.ToUpper())
+            {
+                case "A":
+                    Controller.CheckBalance();
+                    break;
+                case "B":
+                    Controller.TransactionHistory();
+                    break;
+                case "C":
+                    Controller.Transaction();
+                    break;
+                case "D":
+                    Controller.Transfer();
+                    break;
+                case "E":
+                    Controller.ModifyProfile();
+                    break;
+                case "F":
+                    Controller.ApplyForLoan();
+                    break;
+            }
+            
+        }
+
+        public void ShowAccountBalances(Account[] accounts)
+        {
+            foreach(Account account in accounts)
+            {
+                String accountType;
+                if(account.AccountType == 'S')
+                {
+                    accountType = "Savings";
+                } else
+                {
+                    accountType = "Checking";
+                }
+                Console.WriteLine($"Account number: {account.AccountNumber} ({accountType})");
+                Console.WriteLine($"Balance: {account.Balance}\n");
+            }
         }
 
         void BankingView.LoginAttemptedExceded()
@@ -44,6 +100,16 @@ namespace Assignment1
             Console.ReadLine(); // Stops the terminal from closing immediately, allowing the user to read the output
         }
 
+
+        private FieldValidator generateAcceptableInputsLambda(List<Char> acceptableCharacters)
+        {
+            return login => login.Length == 1 && acceptableCharacters.Contains(login.ToUpper().ToCharArray()[0]);
+        }
+
+        private FieldValidator generateAcceptableInputsLambda(List<String> acceptableCharacters)
+        {
+            return login => acceptableCharacters.Contains(login.ToUpper());
+        }
 
 
         /*
@@ -99,5 +165,6 @@ namespace Assignment1
             }
         }
 
+     
     }
 }

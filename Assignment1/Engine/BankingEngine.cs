@@ -6,10 +6,7 @@ namespace Assignment1
 {
     public interface BankingEngine
     {
-        public virtual void Start()
-        {
-
-        }
+        public void Start(BankingController controller);
 
         public User LoginAttempt(string loginID, string password);
     }

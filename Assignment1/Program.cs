@@ -6,7 +6,7 @@ namespace Assignment1
     {
         static void Main(string[] args)
         {
-            new BankingControllerImpl(new BankingEngineImpl(), new TerminalBankingView()).start();
+            new BankingControllerImpl(new BankingEngineImpl(), new TerminalBankingView()).Start();
         }
     }
 }

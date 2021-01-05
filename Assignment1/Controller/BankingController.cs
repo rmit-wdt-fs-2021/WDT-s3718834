@@ -15,8 +15,13 @@ namespace Assignment1
             this.View = view;
         }
 
-        public abstract void start();
-        public abstract void login();
-
+        public abstract void Start();
+        public abstract void Login();
+        public abstract void CheckBalance();
+        public abstract void TransactionHistory();
+        public abstract void Transaction();
+        public abstract void Transfer();
+        public abstract void ModifyProfile();
+        public abstract void ApplyForLoan();
     }
 }

@@ -11,6 +11,7 @@ namespace Assignment1
         public User LoginAttempt(string loginID, string password);
 
         public List<Account> GetAccounts(User user);
+        public List<Transaction> GetTransactions(Account account);
     }
 
     public class LoginAttemptsExcededException : Exception

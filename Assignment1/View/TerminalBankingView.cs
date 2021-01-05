@@ -13,7 +13,7 @@ namespace Assignment1
 
         // TODO Is there a better way to do this?
         delegate bool FieldValidator(String loginId);
-        private FieldValidator loginIdValidator = login => login.Length == 8 && int.TryParse(login, out var discard); 
+        private FieldValidator loginIdValidator = login => login.Length == 8 && int.TryParse(login, out var discard);
         private FieldValidator passwordValidator = login => true;
 
 
@@ -40,7 +40,7 @@ namespace Assignment1
         public void MainMenu()
         {
 
-            char[] acceptableCharacters = {'A', 'B', 'C', 'D', 'E', 'F'};
+            char[] acceptableCharacters = { 'A', 'B', 'C', 'D', 'E', 'F' };
 
             string input = GetValue("Please provide input one of the options below (single character):\n" +
                 "A: Check balance\n" +
@@ -74,18 +74,19 @@ namespace Assignment1
                     Controller.ApplyForLoan();
                     break;
             }
-            
+
         }
 
-        public void ShowAccountBalances(Account[] accounts)
+        public void ShowAccountBalances(List<Account> accounts)
         {
-            foreach(Account account in accounts)
+            foreach (Account account in accounts)
             {
                 String accountType;
-                if(account.AccountType == 'S')
+                if (account.AccountType == 'S')
                 {
                     accountType = "Savings";
-                } else
+                }
+                else
                 {
                     accountType = "Checking";
                 }
@@ -94,10 +95,71 @@ namespace Assignment1
             }
         }
 
-        void BankingView.LoginAttemptedExceded()
+        public Account SelectAccount(List<Account> accounts)
+        {
+
+            List<Char> acceptableInputs = generateAlphabetArray(accounts.Count);
+            StringBuilder stringBuilder = new StringBuilder("\nPlease select an account from the list below\n");
+
+            for (int i = 0; i < accounts.Count; i++)
+            {
+                Account account = accounts[i];
+
+                String accountType;
+                if (account.AccountType == 'S')
+                {
+                    accountType = "Savings";
+                }
+                else
+                {
+                    accountType = "Checking";
+                }
+
+                stringBuilder.Append($"{acceptableInputs[i]}: {account.AccountNumber} ({accountType}), ${account.Balance}\n");
+            }
+
+            string input = GetValue(stringBuilder.ToString(),
+                "Please provide on a single character. Accepted characters are listed on the left\n",
+                generateAcceptableInputsLambda(acceptableInputs)).ToUpper();
+
+            // Convert response but to numerical and subtract the value of A. Bring the value to array indexes.
+            return accounts[((int)char.Parse(input)) - 65]; 
+
+        }
+
+
+        public void showTransactions(List<Transaction> transactions)
+        {
+            foreach (Transaction transaction in transactions)
+            {
+                Console.WriteLine("*************************************************************\n" + 
+                    $"Transaction ID:\t\t{transaction.TransactionID}\n" +
+                    $"Transaction type:\t{transaction.TransactionType}\n" +
+                    $"Source account #:\t{transaction.SourceAccount}\n" +
+                    $"Destination account #:\t{transaction.DestinationAccountNumber}\n" +
+                    $"Amount:\t\t\t{transaction.Amount}\n" +
+                    $"Comment:\t\t{transaction.Comment}\n" +
+                    $"Time:\t\t\t{transaction.TransactionTimeUtc}\n");
+            }
+            Console.WriteLine("*************************************************************");
+        }
+
+        void LoginAttemptedExceded()
         {
             Console.WriteLine("Exceded max password attempts. Press Enter to close window");
             Console.ReadLine(); // Stops the terminal from closing immediately, allowing the user to read the output
+        }
+
+        private List<Char> generateAlphabetArray(int length)
+        {
+            List<Char> alphabet = new List<char>();
+
+            for (int i = 0; i < length; i++)
+            {
+                alphabet.Add(Convert.ToChar(65 + i));
+            }
+
+            return alphabet;
         }
 
 
@@ -165,6 +227,11 @@ namespace Assignment1
             }
         }
 
-     
+        void BankingView.LoginAttemptedExceded()
+        {
+            throw new NotImplementedException();
+        }
+
+
     }
 }

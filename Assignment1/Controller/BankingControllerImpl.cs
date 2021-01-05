@@ -1,4 +1,6 @@
-﻿namespace Assignment1
+﻿using System.Collections.Generic;
+
+namespace Assignment1
 {
     public class BankingControllerImpl : BankingController
     {
@@ -41,12 +43,16 @@
 
         public override void CheckBalance()
         {
-            View.ShowAccountBalances(Engine.GetAccounts(LoggedInUser).ToArray());
+            View.ShowAccountBalances(Engine.GetAccounts(LoggedInUser));
+            View.MainMenu();
         }
 
         public override void TransactionHistory()
         {
-            throw new System.NotImplementedException();
+            Account selectedAccount = View.SelectAccount(Engine.GetAccounts(LoggedInUser));
+            List<Transaction> transactions = Engine.GetTransactions(selectedAccount);
+            View.showTransactions(transactions);
+            View.MainMenu();
         }
 
         public override void Transaction()

@@ -14,7 +14,11 @@ namespace Assignment1
 
         public void LoginAttemptedExceded();
 
-        public void ShowAccountBalances(Account[] accout);
+        public void ShowAccountBalances(List<Account> accouts);
+
+        public Account SelectAccount(List<Account> accounts);
+
+        public void showTransactions(List<Transaction> transactions);
 
     }
 }

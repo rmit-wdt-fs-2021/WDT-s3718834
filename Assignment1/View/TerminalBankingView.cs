@@ -9,7 +9,7 @@ namespace Assignment1
 
         // TODO Is there a better way to do this?
         delegate bool FieldValidator(String loginId);
-        private FieldValidator loginIdValidator = login => login.Length == 8; // TODO Validate for only digits. 
+        private FieldValidator loginIdValidator = login => login.Length == 8 && int.TryParse(login, out var discard); 
         private FieldValidator passwordValidator = login => true;
 
 
@@ -27,7 +27,29 @@ namespace Assignment1
 
         }
 
+        void BankingView.LoginFailed()
+        {
+            Console.WriteLine("Login attempt failed");
+        }
 
+        void BankingView.MainMenu()
+        {
+            Console.WriteLine("Main menu here. Press Enter to close window");
+            Console.ReadLine();  // Stops the terminal from closing immediately, allowing the user to read the output
+        }
+
+        void BankingView.LoginAttemptedExceded()
+        {
+            Console.WriteLine("Exceded max password attempts. Press Enter to close window");
+            Console.ReadLine(); // Stops the terminal from closing immediately, allowing the user to read the output
+        }
+
+
+
+        /*
+        * Endlessly attempts to get a valid value from the user.
+        * Does this by using the GetValidatedConsoleInput() method, see it for more details.
+        */
         private string GetValue(string requestMessage, string failMessage, FieldValidator validator)
         {
             (bool wasSuccess, string result) result;
@@ -39,6 +61,11 @@ namespace Assignment1
             return result.result;
         }
 
+
+        /*
+         * Repeats an attempt to get a valid value from the user. Repeating the number of times provided by the user. 
+         * Does this by using the GetValidatedConsoleInput() method, see it for more details.
+        */
         private (bool wasSuccess, string result) AttemptToGetValue(string requestMessage, string failMessage, int attempts, FieldValidator validator)
         {
             for (int i = 0; i < attempts; i++)
@@ -53,6 +80,10 @@ namespace Assignment1
             return (false, "");
         }
 
+
+        /*
+         * Gets a value from the console validating with the provided validator. Uses the provided messages to direct users
+        */
         private (bool wasSuccess, string result) GetValidatedConsoleInput(string requestMessage, string failMessage, FieldValidator validator)
         {
             Console.Write(requestMessage);
@@ -68,19 +99,5 @@ namespace Assignment1
             }
         }
 
-        void BankingView.LoginFailed()
-        {
-            throw new NotImplementedException();
-        }
-
-        void BankingView.MainMenu()
-        {
-            throw new NotImplementedException();
-        }
-
-        void BankingView.LoginAttemptedExceded()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

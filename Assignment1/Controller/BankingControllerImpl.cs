@@ -12,7 +12,7 @@
 
         public override void start()
         {
-            Engine.start();
+            Engine.Start();
             View.Start();
 
             login();
@@ -24,7 +24,7 @@
 
             try
             {
-                LoggedInUser = Engine.loginAttempt(loginDetails.loginID, loginDetails.password);
+                LoggedInUser = Engine.LoginAttempt(loginDetails.loginID, loginDetails.password);
                 View.MainMenu();
             } catch (LoginFailedException e)
             {

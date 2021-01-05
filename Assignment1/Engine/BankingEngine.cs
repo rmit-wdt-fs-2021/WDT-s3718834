@@ -6,9 +6,12 @@ namespace Assignment1
 {
     public interface BankingEngine
     {
-        public void start();
+        public virtual void Start()
+        {
 
-        public User loginAttempt(string loginID, string password);
+        }
+
+        public User LoginAttempt(string loginID, string password);
     }
 
     public class LoginAttemptsExcededException : Exception

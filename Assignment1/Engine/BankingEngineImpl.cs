@@ -6,14 +6,17 @@ namespace Assignment1
 {
     public class BankingEngineImpl : BankingEngine
     {
-        public User loginAttempt(string loginID, string password)
+        public User LoginAttempt(string loginID, string password)
         {
-            return null;
-        }
+            if(password.Equals("a"))
+            {
+                throw new LoginFailedException();
+            } else if(password.Equals("b"))
+            {
+                throw new LoginAttemptsExcededException();
+            }
 
-        public void start()
-        {
-            Console.WriteLine("Engine stated");
+            return null;
         }
     }
 }

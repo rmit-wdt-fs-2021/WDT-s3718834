@@ -6,13 +6,13 @@ namespace Assignment1
 {
     public interface BankingView
     {
-        public void start();
-        public (string login, string password) login();
+        public void Start();
+        public (string login, string password) Login();
 
-        public void loginFailed();
-        public void mainMenu();
+        public void LoginFailed();
+        public void MainMenu();
 
-        public void loginAttemptedExceded();
+        public void LoginAttemptedExceded();
 
     }
 }

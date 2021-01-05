@@ -13,25 +13,26 @@
         public override void start()
         {
             Engine.start();
-            View.start();
+            View.Start();
 
             login();
         }
 
         public override void login()
         {
-            (string loginID, string password) loginDetails = View.login();
+            (string loginID, string password) loginDetails = View.Login();
 
             try
             {
                 LoggedInUser = Engine.loginAttempt(loginDetails.loginID, loginDetails.password);
-                View.mainMenu();
+                View.MainMenu();
             } catch (LoginFailedException e)
             {
-                View.loginFailed();
+                View.LoginFailed();
+                login();
             } catch (LoginAttemptsExcededException e)
             {
-                View.loginAttemptedExceded();
+                View.LoginAttemptedExceded();
             }
             
         }

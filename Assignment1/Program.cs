@@ -6,7 +6,7 @@ namespace Assignment1
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            new BankingControllerImpl(new BankingEngineImpl(), new TerminalBankingView()).start();
         }
     }
 }

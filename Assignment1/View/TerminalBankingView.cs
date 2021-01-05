@@ -40,7 +40,7 @@ namespace Assignment1
         public void MainMenu()
         {
 
-            char[] acceptableCharacters = { 'A', 'B', 'C', 'D', 'E', 'F' };
+            char[] acceptableCharacters = { 'A', 'B', 'C', 'D', 'E', 'F', 'G'};
 
             string input = GetValue("Please provide input one of the options below (single character):\n" +
                 "A: Check balance\n" +
@@ -48,7 +48,8 @@ namespace Assignment1
                 "C: Make transaction\n" + "" +
                 "D: Make transfer\n" +
                 "E: Modify profile\n" +
-                "F: Apply for loan\n",
+                "F: Apply for loan\n" + 
+                "G: Logout\n",
                 "Please provide on a single character. Accepted characters are listed on the left\n",
 
                 generateAcceptableInputsLambda(new List<char>(acceptableCharacters)));
@@ -72,6 +73,12 @@ namespace Assignment1
                     break;
                 case "F":
                     Controller.ApplyForLoan();
+                    break;
+                case "G":
+                    Controller.Logout();
+                    break;
+                default:
+                    Console.WriteLine("Fatal Error: Something happened in the main menu and an invalid input got through");
                     break;
             }
 

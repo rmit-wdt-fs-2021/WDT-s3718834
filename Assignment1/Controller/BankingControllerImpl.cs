@@ -74,5 +74,11 @@ namespace Assignment1
         {
             throw new System.NotImplementedException();
         }
+
+        public override void Logout()
+        {
+            LoggedInUser = null;
+            View.Login();
+        }
     }
 }

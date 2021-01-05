@@ -23,5 +23,6 @@ namespace Assignment1
         public abstract void Transfer();
         public abstract void ModifyProfile();
         public abstract void ApplyForLoan();
+        public abstract void Logout();
     }
 }

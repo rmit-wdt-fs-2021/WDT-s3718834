@@ -53,7 +53,7 @@ namespace Assignment1
                 "G: Exit\n",
                 "Please provide on a single character. Accepted characters are listed on the left\n",
 
-                generateAcceptableInputsLambda(new List<char>(acceptableCharacters)));
+                GenerateAcceptableInputsLambda(new List<char>(acceptableCharacters)));
 
             switch (input.ToUpper())
             {
@@ -89,16 +89,7 @@ namespace Assignment1
         {
             foreach (Account account in accounts)
             {
-                String accountType;
-                if (account.AccountType == 'S')
-                {
-                    accountType = "Savings";
-                }
-                else
-                {
-                    accountType = "Checking";
-                }
-                Console.WriteLine($"Account number: {account.AccountNumber} ({accountType})");
+                Console.WriteLine($"Account number: {account.AccountNumber} ({getFullAccountType(account.AccountType)})");
                 Console.WriteLine($"Balance: {account.Balance}\n");
             }
         }
@@ -112,23 +103,12 @@ namespace Assignment1
             for (int i = 0; i < accounts.Count; i++)
             {
                 Account account = accounts[i];
-
-                String accountType;
-                if (account.AccountType == 'S')
-                {
-                    accountType = "Savings";
-                }
-                else
-                {
-                    accountType = "Checking";
-                }
-
-                stringBuilder.Append($"{acceptableInputs[i]}: {account.AccountNumber} ({accountType}), ${account.Balance}\n");
+                stringBuilder.Append($"{acceptableInputs[i]}: {account.AccountNumber} ({getFullAccountType(account.AccountType)}), ${account.Balance}\n");
             }
 
             string input = GetValue(stringBuilder.ToString(),
                 "Please provide on a single character. Accepted characters are listed on the left\n",
-                generateAcceptableInputsLambda(acceptableInputs)).ToUpper();
+                GenerateAcceptableInputsLambda(acceptableInputs)).ToUpper();
 
             // Convert response but to numerical and subtract the value of A. Bring the value to array indexes.
             return accounts[((int)char.Parse(input)) - 65]; 
@@ -160,19 +140,42 @@ namespace Assignment1
             Console.ReadLine(); // Stops the terminal from closing immediately, allowing the user to read the output
         }
 
-        public (Account sourceAccount, Account destinationAccount, double amount) GetTransferDetails(List<Account> accounts)
+        public (Account sourceAccount, Account destinationAccount, double amount) GetTransferDetails(List<Account> originalAccounts)
         {
-            throw new NotImplementedException();
+            List<Account> accounts = new List<Account>(originalAccounts);
+
+            Account sourceAccount = SelectAccount(accounts);
+
+            accounts.Remove(sourceAccount);
+
+            Account destinationAccount;
+            if(accounts.Count == 1)
+            {
+                destinationAccount = accounts[0];
+                Console.WriteLine($"Transfering to account: {destinationAccount.AccountNumber} ({getFullAccountType(destinationAccount.AccountType)})");
+            } else
+            {
+                destinationAccount = SelectAccount(accounts);
+            }
+
+            string transferAmount = GetValue("Please input transfer amount\n", "Please input a valid transfer amount\n", GenerateTransferAmountLambda(sourceAccount.Balance));
+
+            return (sourceAccount, destinationAccount, double.Parse(transferAmount));
         }
 
         public void TransferSuccessful()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Transfer successful\n");
         }
 
         public void TransferFailed()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Transfer failed\n");
+        }
+
+        private String getFullAccountType(char accountType)
+        {
+            return accountType == 'S' ? "Savings" : "Checking";
         }
 
         public void Clear()
@@ -193,30 +196,24 @@ namespace Assignment1
         }
 
 
-        private FieldValidator generateAcceptableInputsLambda(List<Char> acceptableCharacters)
+        private FieldValidator GenerateAcceptableInputsLambda(List<Char> acceptableCharacters)
         {
             return login => login.Length == 1 && acceptableCharacters.Contains(login.ToUpper().ToCharArray()[0]);
         }
 
-        private FieldValidator generateAcceptableInputsLambda(List<String> acceptableCharacters)
+        private FieldValidator GenerateAcceptableInputsLambda(List<String> acceptableCharacters)
         {
             return login => acceptableCharacters.Contains(login.ToUpper());
         }
 
-        private FieldValidator generateTransactionAmountLambda(double availableBalance)
+        private FieldValidator GenerateTransferAmountLambda(double availableBalance)
         {
             return input =>
             {
                 double transferAmount;
                 if(double.TryParse(input, out transferAmount))
                 {
-                    if (transferAmount > availableBalance || transferAmount < 0)
-                    {
-                        return false;
-                    } else
-                    {
-                        return false;
-                    }
+                    return (transferAmount < availableBalance && transferAmount > 0);
                 } else
                 {
                     return false;

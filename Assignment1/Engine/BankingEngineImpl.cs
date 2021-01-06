@@ -53,5 +53,10 @@ namespace Assignment1
 
             return transactions;
         }
+
+        public bool MakeTransfer(Account sourceAccount, Account destinationAccount, double amount)
+        {
+            return amount <= sourceAccount.Balance;
+        }
     }
 }

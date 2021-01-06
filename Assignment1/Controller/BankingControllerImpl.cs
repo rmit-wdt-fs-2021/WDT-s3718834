@@ -17,27 +17,42 @@ namespace Assignment1
             Engine.Start(this);
             View.Start(this);
 
-           // Login();
-            LoggedInUser = new User();
-            View.MainMenu(); // Skipping login for testing
+           Login();
+/*            LoggedInUser = new User();
+            View.MainMenu(); // Skipping login for testing*/
         }
 
         public override void Login()
         {
-            (string loginID, string password) loginDetails = View.Login();
 
-            try
+            LoginStatus loginStatus = LoginStatus.Initial;
+            while(loginStatus != LoginStatus.Success)
             {
-                LoggedInUser = Engine.LoginAttempt(loginDetails.loginID, loginDetails.password);
-                View.MainMenu();
-            } catch (LoginFailedException e)
-            {
-                View.LoginFailed();
-                Login();
-            } catch (LoginAttemptsExcededException e)
-            {
-                View.LoginAttemptedExceded();
+                (string loginID, string password) loginDetails = View.Login(loginStatus);
+
+                if(loginStatus == LoginStatus.MaxAttempts)
+                {
+                    Exit();
+                    return; // TODO Remove this when I figure out how to properly exit
+                }
+
+                try
+                {
+                    LoggedInUser = Engine.LoginAttempt(loginDetails.loginID, loginDetails.password);
+                    loginStatus = LoginStatus.Success;
+                }
+                catch (LoginFailedException e)
+                {
+                    loginStatus = LoginStatus.IncorrectPassword;
+                }
+                catch (LoginAttemptsExcededException e)
+                {
+                    loginStatus = LoginStatus.MaxAttempts;
+                }
             }
+
+            View.MainMenu();
+
             
         }
 
@@ -88,7 +103,7 @@ namespace Assignment1
         {
             LoggedInUser = null;
             View.Clear();
-            View.Login();
+            Login();
         }
 
         public override void Exit()

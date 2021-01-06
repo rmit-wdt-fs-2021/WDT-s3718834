@@ -24,18 +24,54 @@ namespace Assignment1
             this.Controller = controller;
         }
 
-        public (string login, string password) Login()
+        public (string login, string password) Login(LoginStatus loginStatus)
         {
-            string loginId = GetValue("Please provide your loginID\n", "LoginID must all digits and 8 characters in length\n", loginIdValidator);
-            string password = GetValue("Please provide your password\n", "Invalid password provided", passwordValidator);
+            Console.Clear();
+            Console.WriteLine("-- Login -- \n");
 
-            return (loginId, password);
+            if (loginStatus == LoginStatus.MaxAttempts)
+            {
+                Console.WriteLine("Exceded the number of login attempts. Press any key to exit");
+                Console.ReadKey();
+                return (null, null);
+            }
+            else
+            {
+                if(loginStatus == LoginStatus.IncorrectID)
+                {
+                    Console.WriteLine("Provided login ID was incorrect. A login ID must be 8 digits\n");
+                } else if(loginStatus == LoginStatus.IncorrectPassword)
+                {
+                    Console.WriteLine("Provided login ID and password do not match\n");
+                }
 
-        }
+                Console.WriteLine("Please provide your details below:");
 
-        public void LoginFailed()
-        {
-            Console.WriteLine("Login attempt failed");
+                Console.Write("Login ID: ");
+                string loginID = Console.ReadLine();
+
+                if (loginIdValidator(loginID))
+                {
+                    Console.Write("Password: ");
+
+                    StringBuilder passwordBuilder = new StringBuilder();
+                    ConsoleKeyInfo inputKey = System.Console.ReadKey();
+                    while (inputKey.Key != ConsoleKey.Enter)
+                    {
+                        passwordBuilder.Append(inputKey.KeyChar);
+                        inputKey = System.Console.ReadKey();
+                    }
+
+                    return (loginID, passwordBuilder.ToString());
+
+                } else
+                {
+                    return Login(LoginStatus.IncorrectID);
+                }
+            }
+            
+
+
         }
 
         public void MainMenu()
@@ -132,12 +168,6 @@ namespace Assignment1
                     $"Time:\t\t\t{transaction.TransactionTimeUtc}\n");
             }
             Console.WriteLine("*************************************************************");
-        }
-
-        void BankingView.LoginAttemptedExceded()
-        {
-            Console.WriteLine("Exceded max password attempts. Press Enter to close window");
-            Console.ReadLine(); // Stops the terminal from closing immediately, allowing the user to read the output
         }
 
         public (Account sourceAccount, Account destinationAccount, double amount) GetTransferDetails(List<Account> originalAccounts)

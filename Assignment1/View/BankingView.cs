@@ -7,12 +7,9 @@ namespace Assignment1
     public interface BankingView
     {
         public void Start(BankingController controller);
-        public (string login, string password) Login();
+        public (string login, string password) Login(LoginStatus loginStatus);
 
-        public void LoginFailed();
         public void MainMenu();
-
-        public void LoginAttemptedExceded();
 
         public void ShowAccountBalances(List<Account> accouts);
 

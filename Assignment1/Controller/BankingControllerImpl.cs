@@ -17,7 +17,7 @@ namespace Assignment1
             Engine.Start(this);
             View.Start(this);
 
-            //login();
+           // Login();
             LoggedInUser = new User();
             View.MainMenu(); // Skipping login for testing
         }
@@ -49,20 +49,29 @@ namespace Assignment1
 
         public override void TransactionHistory()
         {
-            Account selectedAccount = View.SelectAccount(Engine.GetAccounts(LoggedInUser));
-            List<Transaction> transactions = Engine.GetTransactions(selectedAccount);
-            View.showTransactions(transactions);
+            View.ShowTransactions(Engine.GetAccounts(LoggedInUser));
             View.MainMenu();
-        }
-
-        public override void Transaction()
-        {
-            throw new System.NotImplementedException();
         }
 
         public override void Transfer()
         {
-            throw new System.NotImplementedException();
+            (Account sourceAccount, Account destinationAccount, double amount) transferDetails = View.GetTransferDetails(Engine.GetAccounts(LoggedInUser));
+            bool transferSuccessful = Engine.MakeTransfer(transferDetails.sourceAccount, transferDetails.destinationAccount, transferDetails.amount);
+            if(transferSuccessful)
+            {
+                View.TransferSuccessful();
+                View.MainMenu();
+            } else
+            {
+                View.TransferFailed();
+                View.GetTransferDetails(Engine.GetAccounts(LoggedInUser));
+            }
+
+        }
+
+        public override List<Transaction> GetTransactions(Account account)
+        {
+            return Engine.GetTransactions(account);
         }
 
         public override void ModifyProfile()
@@ -81,5 +90,12 @@ namespace Assignment1
             View.Clear();
             View.Login();
         }
+
+        public override void Exit()
+        {
+            // TODO Put in the real method for exitting
+        }
+
+
     }
 }

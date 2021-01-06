@@ -16,10 +16,14 @@ namespace Assignment1
 
         public void ShowAccountBalances(List<Account> accouts);
 
-        public Account SelectAccount(List<Account> accounts);
-
-        public void showTransactions(List<Transaction> transactions);
+        public void ShowTransactions(List<Account> accounts);
         public void Clear();
+
+        public (Account sourceAccount, Account destinationAccount, double amount) GetTransferDetails(List<Account> accounts);
+
+        public void TransferSuccessful();
+
+        public void TransferFailed();
 
     }
 }

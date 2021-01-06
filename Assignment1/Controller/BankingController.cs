@@ -19,10 +19,11 @@ namespace Assignment1
         public abstract void Login();
         public abstract void CheckBalance();
         public abstract void TransactionHistory();
-        public abstract void Transaction();
         public abstract void Transfer();
         public abstract void ModifyProfile();
         public abstract void ApplyForLoan();
         public abstract void Logout();
+        public abstract void Exit();
+        public abstract List<Transaction> GetTransactions(Account account);
     }
 }

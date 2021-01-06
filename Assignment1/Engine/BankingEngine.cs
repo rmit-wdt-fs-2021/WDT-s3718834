@@ -12,6 +12,9 @@ namespace Assignment1
 
         public List<Account> GetAccounts(User user);
         public List<Transaction> GetTransactions(Account account);
+
+        public bool MakeTransfer(Account sourceAccount, Account destinationAccount, double amount);
+
     }
 
     public class LoginAttemptsExcededException : Exception

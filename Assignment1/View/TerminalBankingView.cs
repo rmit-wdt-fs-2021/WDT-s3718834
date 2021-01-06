@@ -14,6 +14,7 @@ namespace Assignment1
         // TODO Is there a better way to do this?
         delegate bool FieldValidator(String loginId);
         private FieldValidator loginIdValidator = login => login.Length == 8 && int.TryParse(login, out var discard);
+        private FieldValidator accountNumberValidator = login => login.Length == 4 && int.TryParse(login, out var discard);
         private FieldValidator passwordValidator = login => true;
 
 
@@ -45,11 +46,11 @@ namespace Assignment1
             string input = GetValue("Please provide input one of the options below (single character):\n" +
                 "A: Check balance\n" +
                 "B: Transaction History\n" +
-                "C: Make transaction\n" + "" +
-                "D: Make transfer\n" +
-                "E: Modify profile\n" +
-                "F: Apply for loan\n" + 
-                "G: Logout\n",
+                "C: Make transfer\n" +
+                "D: Modify profile\n" +
+                "E: Apply for loan\n" + 
+                "F: Logout\n" +
+                "G: Exit\n",
                 "Please provide on a single character. Accepted characters are listed on the left\n",
 
                 generateAcceptableInputsLambda(new List<char>(acceptableCharacters)));
@@ -63,19 +64,19 @@ namespace Assignment1
                     Controller.TransactionHistory();
                     break;
                 case "C":
-                    Controller.Transaction();
-                    break;
-                case "D":
                     Controller.Transfer();
                     break;
-                case "E":
+                case "D":
                     Controller.ModifyProfile();
                     break;
-                case "F":
+                case "E":
                     Controller.ApplyForLoan();
                     break;
-                case "G":
+                case "F":
                     Controller.Logout();
+                    break;
+                case "G":
+                    Controller.Exit();
                     break;
                 default:
                     Console.WriteLine("Fatal Error: Something happened in the main menu and an invalid input got through");
@@ -102,7 +103,7 @@ namespace Assignment1
             }
         }
 
-        public Account SelectAccount(List<Account> accounts)
+        private Account SelectAccount(List<Account> accounts)
         {
 
             List<Char> acceptableInputs = generateAlphabetArray(accounts.Count);
@@ -135,9 +136,11 @@ namespace Assignment1
         }
 
 
-        public void showTransactions(List<Transaction> transactions)
+        public void ShowTransactions(List<Account> accounts)
         {
-            foreach (Transaction transaction in transactions)
+            Account account = SelectAccount(accounts);
+
+            foreach (Transaction transaction in Controller.GetTransactions(account))
             {
                 Console.WriteLine("*************************************************************\n" + 
                     $"Transaction ID:\t\t{transaction.TransactionID}\n" +
@@ -151,10 +154,25 @@ namespace Assignment1
             Console.WriteLine("*************************************************************");
         }
 
-        public void LoginAttemptedExceded()
+        void BankingView.LoginAttemptedExceded()
         {
             Console.WriteLine("Exceded max password attempts. Press Enter to close window");
             Console.ReadLine(); // Stops the terminal from closing immediately, allowing the user to read the output
+        }
+
+        public (Account sourceAccount, Account destinationAccount, double amount) GetTransferDetails(List<Account> accounts)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void TransferSuccessful()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void TransferFailed()
+        {
+            throw new NotImplementedException();
         }
 
         public void Clear()
@@ -185,6 +203,27 @@ namespace Assignment1
             return login => acceptableCharacters.Contains(login.ToUpper());
         }
 
+        private FieldValidator generateTransactionAmountLambda(double availableBalance)
+        {
+            return input =>
+            {
+                double transferAmount;
+                if(double.TryParse(input, out transferAmount))
+                {
+                    if (transferAmount > availableBalance || transferAmount < 0)
+                    {
+                        return false;
+                    } else
+                    {
+                        return false;
+                    }
+                } else
+                {
+                    return false;
+                }
+               
+            };
+        }
 
         /*
         * Endlessly attempts to get a valid value from the user.
@@ -238,12 +277,5 @@ namespace Assignment1
                 return (false, input);
             }
         }
-
-        void BankingView.LoginAttemptedExceded()
-        {
-            throw new NotImplementedException();
-        }
-
-
     }
 }

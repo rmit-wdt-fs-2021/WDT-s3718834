@@ -12,10 +12,7 @@ namespace Assignment1
 
 
         // TODO Is there a better way to do this?
-        delegate bool FieldValidator(String loginId);
-        private FieldValidator loginIdValidator = login => login.Length == 8 && int.TryParse(login, out var discard);
-        private FieldValidator accountNumberValidator = login => login.Length == 4 && int.TryParse(login, out var discard);
-        private FieldValidator passwordValidator = login => true;
+        delegate bool FieldValidator(double loginId);
 
 
         public void Start(BankingController controller)
@@ -51,7 +48,7 @@ namespace Assignment1
                 Console.Write("Login ID: ");
                 string loginID = Console.ReadLine();
 
-                if (loginIdValidator(loginID))
+                if (loginID.Length == 8 && int.TryParse(loginID, out _))
                 {
                     Console.Write("Password: ");
 
@@ -166,21 +163,22 @@ namespace Assignment1
         private Account SelectAccount(List<Account> accounts)
         {
 
-            List<Char> acceptableInputs = generateAlphabetArray(accounts.Count);
-            StringBuilder stringBuilder = new StringBuilder("\nPlease select an account from the list below\n");
+            Console.WriteLine("Please select an account\n");
 
             for (int i = 0; i < accounts.Count; i++)
             {
-                Account account = accounts[i];
-                stringBuilder.Append($"{acceptableInputs[i]}: {account.AccountNumber} ({getFullAccountType(account.AccountType)}), ${account.Balance}\n");
+                Console.WriteLine($"{i + 1}: {accounts[i].AccountNumber} ({getFullAccountType(accounts[i].AccountType)}), {accounts[i].Balance}");
+            }
+            Console.WriteLine($"{accounts.Count + 1}: Cancel");
+
+            int accountSelectInput = GetAcceptableInput(accounts.Count + 1);
+
+            if (accountSelectInput == accounts.Count + 1)
+            {
+                return null;
             }
 
-            string input = GetValue(stringBuilder.ToString(),
-                "Please provide on a single character. Accepted characters are listed on the left\n",
-                GenerateAcceptableInputsLambda(acceptableInputs)).ToUpper();
-
-            // Convert response but to numerical and subtract the value of A. Bring the value to array indexes.
-            return accounts[((int)char.Parse(input)) - 65];
+            return accounts[accountSelectInput - 1];
 
         }
 
@@ -222,9 +220,9 @@ namespace Assignment1
                 destinationAccount = SelectAccount(accounts);
             }
 
-            string transferAmount = GetValue("Please input transfer amount\n", "Please input a valid transfer amount\n", GenerateTransferAmountLambda(sourceAccount.Balance));
+            (bool escaped, double result) input = GetCurrencyInput("Please input transfer amount\n", "Please input a valid transfer amount\n", input => input > 0 && input <= sourceAccount.Balance);
 
-            return (sourceAccount, destinationAccount, double.Parse(transferAmount));
+            return (sourceAccount, destinationAccount, input.result);
         }
 
         private String getFullAccountType(char accountType)
@@ -245,96 +243,27 @@ namespace Assignment1
             Console.ReadKey();
         }
 
-        private List<Char> generateAlphabetArray(int length)
+        private (bool escaped, double result) GetCurrencyInput(string requestMessage, string failMessage, FieldValidator validator)
         {
-            List<Char> alphabet = new List<char>();
-
-            for (int i = 0; i < length; i++)
+            while (true)
             {
-                alphabet.Add(Convert.ToChar(65 + i));
-            }
+                Console.Write(requestMessage);
+                string input = Console.ReadLine();
 
-            return alphabet;
-        }
-
-
-        private FieldValidator GenerateAcceptableInputsLambda(List<Char> acceptableCharacters)
-        {
-            return login => login.Length == 1 && acceptableCharacters.Contains(login.ToUpper().ToCharArray()[0]);
-        }
-
-        private FieldValidator GenerateAcceptableInputsLambda(List<String> acceptableCharacters)
-        {
-            return login => acceptableCharacters.Contains(login.ToUpper());
-        }
-
-        private FieldValidator GenerateTransferAmountLambda(double availableBalance)
-        {
-            return input =>
-            {
-                double transferAmount;
-                if (double.TryParse(input, out transferAmount))
+                if (input == "")
                 {
-                    return (transferAmount < availableBalance && transferAmount > 0);
-                }
-                else
-                {
-                    return false;
+                    return (true, 0);
                 }
 
-            };
-        }
+                double parsedInput;
 
-        /*
-        * Endlessly attempts to get a valid value from the user.
-        * Does this by using the GetValidatedConsoleInput() method, see it for more details.
-        */
-        private string GetValue(string requestMessage, string failMessage, FieldValidator validator)
-        {
-            (bool wasSuccess, string result) result;
-            do
-            {
-                result = GetValidatedConsoleInput(requestMessage, failMessage, validator);
-            } while (!result.wasSuccess);
-
-            return result.result;
-        }
-
-
-        /*
-         * Repeats an attempt to get a valid value from the user. Repeating the number of times provided by the user. 
-         * Does this by using the GetValidatedConsoleInput() method, see it for more details.
-        */
-        private (bool wasSuccess, string result) AttemptToGetValue(string requestMessage, string failMessage, int attempts, FieldValidator validator)
-        {
-            for (int i = 0; i < attempts; i++)
-            {
-                (bool wasSuccess, string result) result = GetValidatedConsoleInput(requestMessage, failMessage, validator);
-                if (result.wasSuccess)
+                if (double.TryParse(input, out parsedInput) && validator(parsedInput))
                 {
-                    return result;
+                    return (false, parsedInput);
+                } else
+                {
+                    Console.Write(failMessage);
                 }
-            }
-
-            return (false, "");
-        }
-
-
-        /*
-         * Gets a value from the console validating with the provided validator. Uses the provided messages to direct users
-        */
-        private (bool wasSuccess, string result) GetValidatedConsoleInput(string requestMessage, string failMessage, FieldValidator validator)
-        {
-            Console.Write(requestMessage);
-            string input = Console.ReadLine();
-            if (validator(input))
-            {
-                return (true, input);
-            }
-            else
-            {
-                Console.Write(failMessage);
-                return (false, input);
             }
         }
 
@@ -342,22 +271,12 @@ namespace Assignment1
         {
             Clear();
             Console.WriteLine("-- ATM Transaction -- \n");
-            Console.WriteLine("Please select an account\n");
+            Account selectedAccount = SelectAccount(accounts);
 
-            for (int i = 0; i < accounts.Count; i++)
-            {
-                Console.WriteLine($"{i + 1}: {accounts[i].AccountNumber} ({getFullAccountType(accounts[i].AccountType)}), {accounts[i].Balance}");
-            }
-            Console.WriteLine($"{accounts.Count + 1}: Cancel");
-
-            int accountSelectInput = GetAcceptableInput(accounts.Count + 1);
-
-            if (accountSelectInput == accounts.Count + 1)
+            if (selectedAccount == null)
             {
                 return (null, TransactionType.Deposit, 0);
             }
-
-            Account selectedAccount = accounts[accountSelectInput - 1];
 
             Clear();
             Console.WriteLine("-- ATM Transaction -- \n");
@@ -366,56 +285,39 @@ namespace Assignment1
             Console.WriteLine("1: Deposit\n2: Withdraw\n3: Different account\n4: Main menu");
             int transactionTypeInput = GetAcceptableInput(4);
 
-            switch(transactionTypeInput)
+            switch (transactionTypeInput)
             {
                 case 1:
                     Clear();
                     Console.WriteLine("-- ATM Transaction -- \n");
                     Console.WriteLine($"Using account: {selectedAccount.AccountNumber} ({getFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
 
-                    while(true)
+                    (bool escaped, double result) depositInput = GetCurrencyInput("Please enter how much you would like to deposit (Input nothing to return): \n", "\nPlease input a correct deposit amount\n\n",
+                        input => input > 0);
+
+                    if (depositInput.escaped)
                     {
-                        Console.WriteLine("Please enter how much you would like to deposit (Input nothing to return): ");
-                        string depositAmountInput = Console.ReadLine();
-
-                        if (depositAmountInput == "")
-                        {
-                            return AtmTransaction(accounts); // TODO Look into a way to return to transaction selection rather then acount selection
-                        }
-
-                        double depositAmount;
-                        if (!double.TryParse(depositAmountInput, out depositAmount) || depositAmount < 0)
-                        {
-                            Console.WriteLine("\nPlease input a correct deposit amount\n");
-                        } else
-                        {
-                            return (selectedAccount, TransactionType.Deposit, depositAmount);
-                        }
+                        return AtmTransaction(accounts); // TODO Look into a way to return to transaction selection rather then acount selection
+                    }
+                    else
+                    {
+                        return (selectedAccount, TransactionType.Deposit, depositInput.result);
                     }
                 case 2:
                     Clear();
                     Console.WriteLine("-- ATM Transaction -- \n");
                     Console.WriteLine($"Using account: {selectedAccount.AccountNumber} ({getFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
 
-                    while (true)
+                    (bool escaped, double result) withdrawInput = GetCurrencyInput("Please enter how much you would like to withdraw (Input nothing to return): \n", "\nPlease input a correct withdraw amount\n\n",
+                        input => input > 0 && input < selectedAccount.Balance);
+
+                    if (withdrawInput.escaped)
                     {
-                        Console.WriteLine("Please enter how much you would like to withdraw (Input nothing to return): ");
-                        string withdrawAmountInput = Console.ReadLine();
-
-                        if (withdrawAmountInput == "")
-                        {
-                            return AtmTransaction(accounts); // TODO Look into a way to return to transaction selection rather then acount selection
-                        }
-
-                        double withdrawAmount;
-                        if (!double.TryParse(withdrawAmountInput, out withdrawAmount) || withdrawAmount < 0 || withdrawAmount >= selectedAccount.Balance)
-                        {
-                            Console.WriteLine("\nPlease input a correct deposit amount\n");
-                        }
-                        else
-                        {
-                            return (selectedAccount, TransactionType.Withdraw, withdrawAmount);
-                        }
+                        return AtmTransaction(accounts); // TODO Look into a way to return to transaction selection rather then acount selection
+                    }
+                    else
+                    {
+                        return (selectedAccount, TransactionType.Withdraw, withdrawInput.result);
                     }
                 case 3:
                     return AtmTransaction(accounts);
@@ -429,11 +331,12 @@ namespace Assignment1
 
         public void TransactionResponse(bool wasSuccess, TransactionType transactionType, double amount, double newBalance)
         {
-            if(wasSuccess)
+            if (wasSuccess)
             {
                 Console.WriteLine($"{transactionType} of ${amount} was success\n");
                 Console.WriteLine($"Balance of account is now ${newBalance}");
-            } else
+            }
+            else
             {
                 Console.WriteLine($"{transactionType} of ${amount} failed. Contact customer service for assistance\n");
             }

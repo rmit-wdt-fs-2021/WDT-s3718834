@@ -199,6 +199,9 @@ namespace Assignment1
                     $"Time:\t\t\t{transaction.TransactionTimeUtc}\n");
             }
             Console.WriteLine("*************************************************************");
+
+            Console.WriteLine("Press any key to continue");
+            Console.ReadKey();
         }
 
         public (Account sourceAccount, Account destinationAccount, double amount) Transfer(List<Account> originalAccounts)

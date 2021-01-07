@@ -25,7 +25,7 @@ namespace Assignment1
                 throw new LoginAttemptsExcededException();
             }
 
-            return null;
+            return new User(12345678, "bob", "9 bob street", "melbourne", "3000", null);
         }
 
         public List<Account> GetAccounts(User user)

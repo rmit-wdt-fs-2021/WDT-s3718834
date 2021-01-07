@@ -12,5 +12,15 @@ namespace Assignment1
         public String city { get; set; }
         public String postcode { get; set; }
         public List<Account> Accounts { get; set; }
+
+        public User(int customerID, string name, string address, string city, string postcode, List<Account> accounts)
+        {
+            CustomerID = customerID;
+            Name = name;
+            Address = address;
+            this.city = city;
+            this.postcode = postcode;
+            Accounts = accounts;
+        }
     }
 }

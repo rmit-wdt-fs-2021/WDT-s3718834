@@ -17,9 +17,9 @@ namespace Assignment1
 
         public abstract void Start();
         public abstract void Login();
-        public abstract void CheckBalance();
-        public abstract void TransactionHistory();
+        public abstract void AtmTransaction();
         public abstract void Transfer();
+        public abstract void TransactionHistory();
         public abstract void ModifyProfile();
         public abstract void ApplyForLoan();
         public abstract void Logout();

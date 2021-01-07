@@ -26,7 +26,7 @@ namespace Assignment1
 
         public (string login, string password) Login(LoginStatus loginStatus)
         {
-            Console.Clear();
+            Clear();
             Console.WriteLine("-- Login -- \n");
 
             if (loginStatus == LoginStatus.MaxAttempts)
@@ -37,10 +37,11 @@ namespace Assignment1
             }
             else
             {
-                if(loginStatus == LoginStatus.IncorrectID)
+                if (loginStatus == LoginStatus.IncorrectID)
                 {
                     Console.WriteLine("Provided login ID was incorrect. A login ID must be 8 digits\n");
-                } else if(loginStatus == LoginStatus.IncorrectPassword)
+                }
+                else if (loginStatus == LoginStatus.IncorrectPassword)
                 {
                     Console.WriteLine("Provided login ID and password do not match\n");
                 }
@@ -64,54 +65,55 @@ namespace Assignment1
 
                     return (loginID, passwordBuilder.ToString());
 
-                } else
+                }
+                else
                 {
                     return Login(LoginStatus.IncorrectID);
                 }
             }
-            
+
 
 
         }
 
-        public void MainMenu()
+        public void MainMenu(User loggedInUser)
         {
+            Clear();
+            Console.WriteLine("-- Main Menu --\n");
 
-            char[] acceptableCharacters = { 'A', 'B', 'C', 'D', 'E', 'F', 'G'};
+            Console.WriteLine($"Welcome {loggedInUser.Name}\n");
 
-            string input = GetValue("Please provide input one of the options below (single character):\n" +
-                "A: Check balance\n" +
-                "B: Transaction History\n" +
-                "C: Make transfer\n" +
-                "D: Modify profile\n" +
-                "E: Apply for loan\n" + 
-                "F: Logout\n" +
-                "G: Exit\n",
-                "Please provide on a single character. Accepted characters are listed on the left\n",
+            Console.WriteLine("Please provide input one of the options below (single character):\n" +
+                "1: ATM Transaction\n" +
+                "2: Transfer\n" +
+                "3: My Statements\n" +
+                "4: Modify profile\n" +
+                "5: Apply for loan\n" +
+                "6: Logout\n" +
+                "7: Exit\n");
 
-                GenerateAcceptableInputsLambda(new List<char>(acceptableCharacters)));
 
-            switch (input.ToUpper())
+            switch (getAcceptableInput(7))
             {
-                case "A":
-                    Controller.CheckBalance();
+                case 1:
+                    Controller.AtmTransaction();
                     break;
-                case "B":
-                    Controller.TransactionHistory();
-                    break;
-                case "C":
+                case 2:
                     Controller.Transfer();
                     break;
-                case "D":
+                case 3:
+                    Controller.TransactionHistory();
+                    break;
+                case 4:
                     Controller.ModifyProfile();
                     break;
-                case "E":
+                case 5:
                     Controller.ApplyForLoan();
                     break;
-                case "F":
+                case 6:
                     Controller.Logout();
                     break;
-                case "G":
+                case 7:
                     Controller.Exit();
                     break;
                 default:
@@ -119,15 +121,46 @@ namespace Assignment1
                     break;
             }
 
+
+
         }
 
-        public void ShowAccountBalances(List<Account> accounts)
+        private int getAcceptableInput(int choices)
         {
-            foreach (Account account in accounts)
+            (bool isAcceptable, int parsedValue) inputStatus;
+            do
             {
-                Console.WriteLine($"Account number: {account.AccountNumber} ({getFullAccountType(account.AccountType)})");
-                Console.WriteLine($"Balance: {account.Balance}\n");
+                Console.Write("Your choice: ");
+
+                string input = Console.ReadLine();
+
+                inputStatus = IsAcceptableMenuInput(input, choices);
+
+                if (!inputStatus.isAcceptable)
+                {
+                    Console.WriteLine("\nPlease provide a correct input\n");
+                }
+            } while (!inputStatus.isAcceptable);
+
+            return inputStatus.parsedValue;
+        }
+
+        private (bool isAcceptable, int parsedValue) IsAcceptableMenuInput(string input, int maxInput)
+        {
+            int numericalInput;
+            if (input.Length == 1 && int.TryParse(input, out numericalInput))
+            {
+                for (int i = 1; i <= maxInput; i++)
+                {
+                    if (i == numericalInput)
+                    {
+                        return (true, numericalInput);
+                    }
+                }
             }
+
+            return (false, 0);
+
         }
 
         private Account SelectAccount(List<Account> accounts)
@@ -147,7 +180,7 @@ namespace Assignment1
                 GenerateAcceptableInputsLambda(acceptableInputs)).ToUpper();
 
             // Convert response but to numerical and subtract the value of A. Bring the value to array indexes.
-            return accounts[((int)char.Parse(input)) - 65]; 
+            return accounts[((int)char.Parse(input)) - 65];
 
         }
 
@@ -158,7 +191,7 @@ namespace Assignment1
 
             foreach (Transaction transaction in Controller.GetTransactions(account))
             {
-                Console.WriteLine("*************************************************************\n" + 
+                Console.WriteLine("*************************************************************\n" +
                     $"Transaction ID:\t\t{transaction.TransactionID}\n" +
                     $"Transaction type:\t{transaction.TransactionType}\n" +
                     $"Source account #:\t{transaction.SourceAccount}\n" +
@@ -179,11 +212,12 @@ namespace Assignment1
             accounts.Remove(sourceAccount);
 
             Account destinationAccount;
-            if(accounts.Count == 1)
+            if (accounts.Count == 1)
             {
                 destinationAccount = accounts[0];
                 Console.WriteLine($"Transfering to account: {destinationAccount.AccountNumber} ({getFullAccountType(destinationAccount.AccountType)})");
-            } else
+            }
+            else
             {
                 destinationAccount = SelectAccount(accounts);
             }
@@ -191,16 +225,6 @@ namespace Assignment1
             string transferAmount = GetValue("Please input transfer amount\n", "Please input a valid transfer amount\n", GenerateTransferAmountLambda(sourceAccount.Balance));
 
             return (sourceAccount, destinationAccount, double.Parse(transferAmount));
-        }
-
-        public void TransferSuccessful()
-        {
-            Console.WriteLine("Transfer successful\n");
-        }
-
-        public void TransferFailed()
-        {
-            Console.WriteLine("Transfer failed\n");
         }
 
         private String getFullAccountType(char accountType)
@@ -211,6 +235,14 @@ namespace Assignment1
         public void Clear()
         {
             Console.Clear();
+        }
+
+
+        public void WorkInProgress()
+        {
+            Console.Clear();
+            Console.WriteLine("Feature currently not implemented. Press any key to continue");
+            Console.ReadKey();
         }
 
         private List<Char> generateAlphabetArray(int length)
@@ -241,14 +273,15 @@ namespace Assignment1
             return input =>
             {
                 double transferAmount;
-                if(double.TryParse(input, out transferAmount))
+                if (double.TryParse(input, out transferAmount))
                 {
                     return (transferAmount < availableBalance && transferAmount > 0);
-                } else
+                }
+                else
                 {
                     return false;
                 }
-               
+
             };
         }
 

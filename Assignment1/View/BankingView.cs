@@ -9,18 +9,13 @@ namespace Assignment1
         public void Start(BankingController controller);
         public (string login, string password) Login(LoginStatus loginStatus);
 
-        public void MainMenu();
-
-        public void ShowAccountBalances(List<Account> accouts);
+        public void MainMenu(User loggedInUser);
 
         public void ShowTransactions(List<Account> accounts);
         public void Clear();
+        public void WorkInProgress();
 
         public (Account sourceAccount, Account destinationAccount, double amount) GetTransferDetails(List<Account> accounts);
-
-        public void TransferSuccessful();
-
-        public void TransferFailed();
 
     }
 }

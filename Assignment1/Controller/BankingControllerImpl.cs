@@ -51,37 +51,33 @@ namespace Assignment1
                 }
             }
 
-            View.MainMenu();
+            View.MainMenu(LoggedInUser);
 
             
-        }
-
-        public override void CheckBalance()
-        {
-            View.ShowAccountBalances(Engine.GetAccounts(LoggedInUser));
-            View.MainMenu();
         }
 
         public override void TransactionHistory()
         {
             View.ShowTransactions(Engine.GetAccounts(LoggedInUser));
-            View.MainMenu();
+            View.MainMenu(LoggedInUser);
         }
 
         public override void Transfer()
         {
-            (Account sourceAccount, Account destinationAccount, double amount) transferDetails = View.GetTransferDetails(Engine.GetAccounts(LoggedInUser));
-            bool transferSuccessful = Engine.MakeTransfer(transferDetails.sourceAccount, transferDetails.destinationAccount, transferDetails.amount);
-            if(transferSuccessful)
-            {
-                View.TransferSuccessful();
-                View.MainMenu();
-            } else
-            {
-                View.TransferFailed();
-                View.GetTransferDetails(Engine.GetAccounts(LoggedInUser));
-            }
+            /*            (Account sourceAccount, Account destinationAccount, double amount) transferDetails = View.GetTransferDetails(Engine.GetAccounts(LoggedInUser));
+                        bool transferSuccessful = Engine.MakeTransfer(transferDetails.sourceAccount, transferDetails.destinationAccount, transferDetails.amount);
+                        if(transferSuccessful)
+                        {
+                            View.TransferSuccessful();
+                            View.MainMenu(LoggedInUser);
+                        } else
+                        {
+                            View.TransferFailed();
+                            View.GetTransferDetails(Engine.GetAccounts(LoggedInUser));
+                        }*/
 
+            View.WorkInProgress();
+            View.MainMenu(LoggedInUser);
         }
 
         public override List<Transaction> GetTransactions(Account account)
@@ -89,14 +85,19 @@ namespace Assignment1
             return Engine.GetTransactions(account);
         }
 
+
+        // TODO Implement
         public override void ModifyProfile()
         {
-            throw new System.NotImplementedException();
+            View.WorkInProgress();
+            View.MainMenu(LoggedInUser);
         }
 
+        // TODO Implement
         public override void ApplyForLoan()
         {
-            throw new System.NotImplementedException();
+            View.WorkInProgress();
+            View.MainMenu(LoggedInUser);
         }
 
         public override void Logout()
@@ -106,11 +107,15 @@ namespace Assignment1
             Login();
         }
 
+        public override void AtmTransaction()
+        {
+            View.WorkInProgress();
+            View.MainMenu(LoggedInUser);
+        }
+
         public override void Exit()
         {
             // TODO Put in the real method for exitting
         }
-
-
     }
 }

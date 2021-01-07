@@ -1,0 +1,131 @@
+﻿using System.Collections.Generic;
+
+namespace Assignment1
+{
+    public class BankingControllerImpl : BankingController
+    {
+
+        public User LoggedInUser { get; private set; }
+
+        public BankingControllerImpl(BankingEngine engine, BankingView view) : base(engine, view)
+        {
+        }
+
+
+        public override void Start()
+        {
+            Engine.Start(this);
+            View.Start(this);
+
+            //Login();
+            LoggedInUser = Engine.LoginAttempt("", "");
+            View.MainMenu(LoggedInUser); // Skipping login for testing
+        }
+
+        public override void Login()
+        {
+
+            LoginStatus loginStatus = LoginStatus.Initial;
+            while (loginStatus != LoginStatus.Success)
+            {
+                (string loginID, string password) loginDetails = View.Login(loginStatus);
+
+                if (loginStatus == LoginStatus.MaxAttempts)
+                {
+                    Exit();
+                    return; // TODO Remove this when I figure out how to properly exit
+                }
+
+                try
+                {
+                    LoggedInUser = Engine.LoginAttempt(loginDetails.loginID, loginDetails.password);
+                    loginStatus = LoginStatus.Success;
+                }
+                catch (LoginFailedException e)
+                {
+                    loginStatus = LoginStatus.IncorrectPassword;
+                }
+                catch (LoginAttemptsExcededException e)
+                {
+                    loginStatus = LoginStatus.MaxAttempts;
+                }
+            }
+
+            View.MainMenu(LoggedInUser);
+
+
+        }
+
+        public override void TransactionHistory()
+        {
+            View.ShowTransactions(Engine.GetAccounts(LoggedInUser));
+            View.MainMenu(LoggedInUser);
+        }
+
+        public override void Transfer()
+        {
+            (Account sourceAccount, Account destinationAccount, double amount) transferDetails = View.Transfer(Engine.GetAccounts(LoggedInUser));
+
+            if (transferDetails.sourceAccount != null)
+            {
+                bool transferResult = Engine.MakeTransfer(transferDetails.sourceAccount, transferDetails.destinationAccount, transferDetails.amount);
+                if (transferResult)
+                {
+                    View.TransferResponse(transferResult, transferDetails.sourceAccount, transferDetails.destinationAccount, transferDetails.amount);
+                }
+
+                Transfer();
+            }
+
+
+            View.MainMenu(LoggedInUser);
+        }
+
+        public override List<Transaction> GetTransactions(Account account)
+        {
+            return Engine.GetTransactions(account);
+        }
+
+
+        // TODO Implement
+        public override void ModifyProfile()
+        {
+            View.WorkInProgress();
+            View.MainMenu(LoggedInUser);
+        }
+
+        // TODO Implement
+        public override void ApplyForLoan()
+        {
+            View.WorkInProgress();
+            View.MainMenu(LoggedInUser);
+        }
+
+        public override void Logout()
+        {
+            LoggedInUser = null;
+            View.Clear();
+            Login();
+        }
+
+        public override void AtmTransaction()
+        {
+            (Account account, TransactionType transactionType, double amount) transactionDetails = View.AtmTransaction(Engine.GetAccounts(LoggedInUser));
+            if (transactionDetails.account == null)
+            {
+                View.MainMenu(LoggedInUser);
+            }
+            else
+            {
+                (bool wasSuccess, double endingBalance) transactionResult = Engine.MakeTransaction(transactionDetails.account, transactionDetails.transactionType, transactionDetails.amount);
+                View.TransactionResponse(transactionResult.wasSuccess, transactionDetails.transactionType, transactionDetails.amount, transactionResult.endingBalance);
+                AtmTransaction();
+            }
+        }
+
+        public override void Exit()
+        {
+            // TODO Put in the real method for exitting
+        }
+    }
+}

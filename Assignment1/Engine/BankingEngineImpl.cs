@@ -49,6 +49,10 @@ namespace Assignment1
             transactions.Add(new Transaction(1, 'W', 987654321, 987654321, 20.02, "withdraw money", DateTime.Now));
             transactions.Add(new Transaction(1, 'S', 987654321, 987654321, 0.2, "transfer charge", DateTime.Now));
             transactions.Add(new Transaction(1, 'T', 987654321, 123456789, 40.03, "transfer to savings", DateTime.Now));
+            transactions.Add(new Transaction(1, 'D', 987654321, 123012302, 10.01, "deposit money", DateTime.Now));
+            transactions.Add(new Transaction(1, 'S', 987654321, 987654321, 0.1, "withdraw charge", DateTime.Now));
+            transactions.Add(new Transaction(1, 'W', 987654321, 987654321, 20.02, "withdraw money", DateTime.Now));
+            transactions.Add(new Transaction(1, 'S', 987654321, 987654321, 0.2, "transfer charge", DateTime.Now));
 
 
 

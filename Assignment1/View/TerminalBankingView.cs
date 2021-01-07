@@ -186,22 +186,111 @@ namespace Assignment1
         public void ShowTransactions(List<Account> accounts)
         {
             Account account = SelectAccount(accounts);
+            List<Transaction> transactions = Controller.GetTransactions(account);
 
-            foreach (Transaction transaction in Controller.GetTransactions(account))
+
+            bool escaped = false;
+            int index = 1;
+            while (!escaped)
             {
-                Console.WriteLine("*************************************************************\n" +
-                    $"Transaction ID:\t\t{transaction.TransactionID}\n" +
-                    $"Transaction type:\t{transaction.TransactionType}\n" +
-                    $"Source account #:\t{transaction.SourceAccount}\n" +
-                    $"Destination account #:\t{transaction.DestinationAccountNumber}\n" +
-                    $"Amount:\t\t\t{transaction.Amount}\n" +
-                    $"Comment:\t\t{transaction.Comment}\n" +
-                    $"Time:\t\t\t{transaction.TransactionTimeUtc}\n");
+                ShowTransactionPage(transactions, index - 1, index + 2);
+
+                bool backPage = (index > 3);
+                bool nextPage = (index + 3 < transactions.Count);
+
+                if (!backPage && !nextPage)
+                {
+                    escaped = true;
+                }
+                else if (backPage && nextPage)
+                {
+                    Console.WriteLine("\nPlease provide your input\n" +
+                        "1: Next Page\n" +
+                        "2: Previous Page\n" +
+                        "3: Cancel");
+                    switch (GetAcceptableInput(3))
+                    {
+                        case 1:
+                            index += 4;
+                            break;
+                        case 2:
+                            index -= 4;
+                            break;
+                        case 3:
+                            escaped = true;
+                            break;
+                        default:
+                            Console.WriteLine("Fatal Error: Invalid input got through in transaction history options");
+                            escaped = true;
+                            break;
+                    }
+                }
+                else if (backPage)
+                {
+                    Console.WriteLine("\nPlease provide your input\n" +
+                        "1: Previous Page\n" +
+                        "2: Cancel");
+                    switch (GetAcceptableInput(3))
+                    {
+                        case 1:
+                            index -= 4;
+                            break;
+                        case 2:
+                            escaped = true;
+                            break;
+                        default:
+                            Console.WriteLine("Fatal Error: Invalid input got through in transaction history options");
+                            escaped = true;
+                            break;
+                    }
+                }
+                else if(nextPage) {
+                    Console.WriteLine("\nPlease provide your input\n" +
+                        "1: Next Page\n" +
+                        "2: Cancel");
+                    switch (GetAcceptableInput(3))
+                    {
+                        case 1:
+                            index += 4;
+                            break;
+                        case 2:
+                            escaped = true;
+                            break;
+                        default:
+                            Console.WriteLine("Fatal Error: Invalid input got through in transaction history options");
+                            escaped = true;
+                            break;
+                    }
+                }
+
+            }
+
+            if(transactions.Count <= 4)
+            {
+                Console.WriteLine("Press any key to continue");
+                Console.ReadKey();
+            }
+           
+
+
+        }
+
+        private void ShowTransactionPage(List<Transaction> transactions, int startIndex, int endIndex)
+        {
+            for (int i = startIndex; i <= endIndex && i < transactions.Count; i++)
+            {
+                Transaction transaction = transactions[i];
+
+                Console.WriteLine($"\n********************* {i + 1} of {transactions.Count} ********************************\n" +
+                   $"Transaction ID:\t\t{transaction.TransactionID}\n" +
+                   $"Transaction type:\t{transaction.TransactionType}\n" +
+                   $"Source account #:\t{transaction.SourceAccount}\n" +
+                   $"Destination account #:\t{transaction.DestinationAccountNumber}\n" +
+                   $"Amount:\t\t\t{transaction.Amount}\n" +
+                   $"Comment:\t\t{transaction.Comment}\n" +
+                   $"Time:\t\t\t{transaction.TransactionTimeUtc}\n");
             }
             Console.WriteLine("*************************************************************");
-
-            Console.WriteLine("Press any key to continue");
-            Console.ReadKey();
         }
 
         public (Account sourceAccount, Account destinationAccount, double amount) Transfer(List<Account> originalAccounts)
@@ -213,7 +302,7 @@ namespace Assignment1
             Console.WriteLine("Please provide the account to transfer from (source)\n");
             Account sourceAccount = SelectAccount(accounts);
 
-            if(sourceAccount == null)
+            if (sourceAccount == null)
             {
                 return (null, null, 0);
             }
@@ -224,7 +313,7 @@ namespace Assignment1
             Console.WriteLine("-- Account Transfer -- \n");
             Console.WriteLine($"Sourcing transfer from the account: {sourceAccount.AccountNumber} ({getFullAccountType(sourceAccount.AccountType)}),  ${sourceAccount.Balance}\n");
 
-            
+
 
 
             Account destinationAccount;
@@ -240,7 +329,7 @@ namespace Assignment1
             }
 
             (bool escaped, double result) input = GetCurrencyInput("\nPlease input transfer amount\n", "Please input a valid transfer amount\n", input => input > 0 && input <= sourceAccount.Balance);
-            if(input.escaped)
+            if (input.escaped)
             {
                 return Transfer(originalAccounts);
             }
@@ -250,11 +339,12 @@ namespace Assignment1
 
         public void TransferResponse(bool wasSuccess, Account sourceAccount, Account destinationAccount, double amount)
         {
-            if(wasSuccess)
+            if (wasSuccess)
             {
                 Console.WriteLine($"Trasnfer from {sourceAccount.AccountNumber} ({getFullAccountType(sourceAccount.AccountType)}) " +
                     $"to {destinationAccount.AccountNumber} ({getFullAccountType(destinationAccount.AccountType)}) of {amount} was successful");
-            } else
+            }
+            else
             {
                 Console.WriteLine($"Trasnfer from {sourceAccount.AccountNumber} ({getFullAccountType(sourceAccount.AccountType)}) " +
                     $"to {destinationAccount.AccountNumber} ({getFullAccountType(destinationAccount.AccountType)}) of {amount} was unsuccessful");
@@ -267,7 +357,7 @@ namespace Assignment1
 
             Console.WriteLine("\nPress any key to continue...");
             Console.ReadKey();
-            
+
         }
 
         private String getFullAccountType(char accountType)
@@ -305,7 +395,8 @@ namespace Assignment1
                 if (double.TryParse(input, out parsedInput) && validator(parsedInput))
                 {
                     return (false, parsedInput);
-                } else
+                }
+                else
                 {
                     Console.Write(failMessage);
                 }
@@ -390,7 +481,7 @@ namespace Assignment1
             Console.ReadKey();
         }
 
-      
+
     }
 
 

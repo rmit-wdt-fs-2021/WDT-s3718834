@@ -201,28 +201,70 @@ namespace Assignment1
             Console.WriteLine("*************************************************************");
         }
 
-        public (Account sourceAccount, Account destinationAccount, double amount) GetTransferDetails(List<Account> originalAccounts)
+        public (Account sourceAccount, Account destinationAccount, double amount) Transfer(List<Account> originalAccounts)
         {
             List<Account> accounts = new List<Account>(originalAccounts);
 
+            Clear();
+            Console.WriteLine("-- Account Transfer -- \n");
+            Console.WriteLine("Please provide the account to transfer from (source)\n");
             Account sourceAccount = SelectAccount(accounts);
 
+            if(sourceAccount == null)
+            {
+                return (null, null, 0);
+            }
+
             accounts.Remove(sourceAccount);
+
+            Clear();
+            Console.WriteLine("-- Account Transfer -- \n");
+            Console.WriteLine($"Sourcing transfer from the account: {sourceAccount.AccountNumber} ({getFullAccountType(sourceAccount.AccountType)}),  ${sourceAccount.Balance}\n");
+
+            
+
 
             Account destinationAccount;
             if (accounts.Count == 1)
             {
                 destinationAccount = accounts[0];
-                Console.WriteLine($"Transfering to account: {destinationAccount.AccountNumber} ({getFullAccountType(destinationAccount.AccountType)})");
+                Console.WriteLine($"Only one destination account to choose from, defaulting to {destinationAccount.AccountNumber} ({getFullAccountType(destinationAccount.AccountType)}), {destinationAccount.Balance}\n");
             }
             else
             {
+                Console.WriteLine("Please provide an account to transfer into (desitnation)\n");
                 destinationAccount = SelectAccount(accounts);
             }
 
-            (bool escaped, double result) input = GetCurrencyInput("Please input transfer amount\n", "Please input a valid transfer amount\n", input => input > 0 && input <= sourceAccount.Balance);
+            (bool escaped, double result) input = GetCurrencyInput("\nPlease input transfer amount\n", "Please input a valid transfer amount\n", input => input > 0 && input <= sourceAccount.Balance);
+            if(input.escaped)
+            {
+                return Transfer(originalAccounts);
+            }
 
             return (sourceAccount, destinationAccount, input.result);
+        }
+
+        public void TransferResponse(bool wasSuccess, Account sourceAccount, Account destinationAccount, double amount)
+        {
+            if(wasSuccess)
+            {
+                Console.WriteLine($"Trasnfer from {sourceAccount.AccountNumber} ({getFullAccountType(sourceAccount.AccountType)}) " +
+                    $"to {destinationAccount.AccountNumber} ({getFullAccountType(destinationAccount.AccountType)}) of {amount} was successful");
+            } else
+            {
+                Console.WriteLine($"Trasnfer from {sourceAccount.AccountNumber} ({getFullAccountType(sourceAccount.AccountType)}) " +
+                    $"to {destinationAccount.AccountNumber} ({getFullAccountType(destinationAccount.AccountType)}) of {amount} was unsuccessful");
+                Console.WriteLine("Please contact customer service for assistance");
+            }
+
+            Console.WriteLine("\nEnding balances:");
+            Console.WriteLine($"{sourceAccount.AccountNumber} ({getFullAccountType(sourceAccount.AccountType)}): ${sourceAccount.Balance}");
+            Console.WriteLine($"{destinationAccount.AccountNumber} ({getFullAccountType(destinationAccount.AccountType)}): ${destinationAccount.Balance}");
+
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+            
         }
 
         private String getFullAccountType(char accountType)
@@ -345,6 +387,7 @@ namespace Assignment1
             Console.ReadKey();
         }
 
+      
     }
 
 

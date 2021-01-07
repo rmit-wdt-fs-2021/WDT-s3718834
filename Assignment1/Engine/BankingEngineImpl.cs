@@ -35,6 +35,7 @@ namespace Assignment1
                 user.Accounts = new List<Account>();
                 user.Accounts.Add(new Account(12346789, 'S', user.CustomerID, 100000.01));
                 user.Accounts.Add(new Account(987654321, 'C', user.CustomerID, 1.43));
+                user.Accounts.Add(new Account(312312612, 'C', user.CustomerID, 420.43));
             }
 
             return user.Accounts;

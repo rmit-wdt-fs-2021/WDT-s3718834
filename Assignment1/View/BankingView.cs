@@ -17,7 +17,7 @@ namespace Assignment1
         public (Account account, TransactionType transactionType, double amount) AtmTransaction(List<Account> accounts);
 
         public void TransactionResponse(bool wasSuccess, TransactionType transactionType, double amount, double newBalance);
-
-        public (Account sourceAccount, Account destinationAccount, double amount) GetTransferDetails(List<Account> accounts);
+        public (Account sourceAccount, Account destinationAccount, double amount) Transfer(List<Account> accounts);
+        public void TransferResponse(bool wasSuccess, Account sourceAccount, Account destinationAccount, double amount);
     }
 }

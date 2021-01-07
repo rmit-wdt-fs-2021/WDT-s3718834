@@ -17,20 +17,20 @@ namespace Assignment1
             Engine.Start(this);
             View.Start(this);
 
-           Login();
-/*            LoggedInUser = new User();
-            View.MainMenu(); // Skipping login for testing*/
+            //Login();
+            LoggedInUser = Engine.LoginAttempt("", "");
+            View.MainMenu(LoggedInUser); // Skipping login for testing
         }
 
         public override void Login()
         {
 
             LoginStatus loginStatus = LoginStatus.Initial;
-            while(loginStatus != LoginStatus.Success)
+            while (loginStatus != LoginStatus.Success)
             {
                 (string loginID, string password) loginDetails = View.Login(loginStatus);
 
-                if(loginStatus == LoginStatus.MaxAttempts)
+                if (loginStatus == LoginStatus.MaxAttempts)
                 {
                     Exit();
                     return; // TODO Remove this when I figure out how to properly exit
@@ -53,7 +53,7 @@ namespace Assignment1
 
             View.MainMenu(LoggedInUser);
 
-            
+
         }
 
         public override void TransactionHistory()
@@ -64,19 +64,20 @@ namespace Assignment1
 
         public override void Transfer()
         {
-            /*            (Account sourceAccount, Account destinationAccount, double amount) transferDetails = View.GetTransferDetails(Engine.GetAccounts(LoggedInUser));
-                        bool transferSuccessful = Engine.MakeTransfer(transferDetails.sourceAccount, transferDetails.destinationAccount, transferDetails.amount);
-                        if(transferSuccessful)
-                        {
-                            View.TransferSuccessful();
-                            View.MainMenu(LoggedInUser);
-                        } else
-                        {
-                            View.TransferFailed();
-                            View.GetTransferDetails(Engine.GetAccounts(LoggedInUser));
-                        }*/
+            (Account sourceAccount, Account destinationAccount, double amount) transferDetails = View.Transfer(Engine.GetAccounts(LoggedInUser));
 
-            View.WorkInProgress();
+            if (transferDetails.sourceAccount != null)
+            {
+                bool transferResult = Engine.MakeTransfer(transferDetails.sourceAccount, transferDetails.destinationAccount, transferDetails.amount);
+                if (transferResult)
+                {
+                    View.TransferResponse(transferResult, transferDetails.sourceAccount, transferDetails.destinationAccount, transferDetails.amount);
+                }
+
+                Transfer();
+            }
+
+
             View.MainMenu(LoggedInUser);
         }
 
@@ -110,10 +111,11 @@ namespace Assignment1
         public override void AtmTransaction()
         {
             (Account account, TransactionType transactionType, double amount) transactionDetails = View.AtmTransaction(Engine.GetAccounts(LoggedInUser));
-            if(transactionDetails.account == null)
+            if (transactionDetails.account == null)
             {
                 View.MainMenu(LoggedInUser);
-            } else
+            }
+            else
             {
                 (bool wasSuccess, double endingBalance) transactionResult = Engine.MakeTransaction(transactionDetails.account, transactionDetails.transactionType, transactionDetails.amount);
                 View.TransactionResponse(transactionResult.wasSuccess, transactionDetails.transactionType, transactionDetails.amount, transactionResult.endingBalance);

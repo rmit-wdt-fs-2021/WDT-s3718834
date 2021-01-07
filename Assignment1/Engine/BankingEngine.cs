@@ -15,6 +15,8 @@ namespace Assignment1
 
         public bool MakeTransfer(Account sourceAccount, Account destinationAccount, double amount);
 
+        public (bool wasSuccess, double endingBalance) MakeTransaction(Account account, TransactionType transactionType, double amount);
+
     }
 
     public class LoginAttemptsExcededException : Exception

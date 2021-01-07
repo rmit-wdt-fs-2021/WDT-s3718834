@@ -109,8 +109,16 @@ namespace Assignment1
 
         public override void AtmTransaction()
         {
-            View.WorkInProgress();
-            View.MainMenu(LoggedInUser);
+            (Account account, TransactionType transactionType, double amount) transactionDetails = View.AtmTransaction(Engine.GetAccounts(LoggedInUser));
+            if(transactionDetails.account == null)
+            {
+                View.MainMenu(LoggedInUser);
+            } else
+            {
+                (bool wasSuccess, double endingBalance) transactionResult = Engine.MakeTransaction(transactionDetails.account, transactionDetails.transactionType, transactionDetails.amount);
+                View.TransactionResponse(transactionResult.wasSuccess, transactionDetails.transactionType, transactionDetails.amount, transactionResult.endingBalance);
+                AtmTransaction();
+            }
         }
 
         public override void Exit()

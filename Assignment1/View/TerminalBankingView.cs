@@ -93,7 +93,7 @@ namespace Assignment1
                 "7: Exit\n");
 
 
-            switch (getAcceptableInput(7))
+            switch (GetAcceptableInput(7))
             {
                 case 1:
                     Controller.AtmTransaction();
@@ -125,7 +125,7 @@ namespace Assignment1
 
         }
 
-        private int getAcceptableInput(int choices)
+        private int GetAcceptableInput(int choices)
         {
             (bool isAcceptable, int parsedValue) inputStatus;
             do
@@ -337,5 +337,112 @@ namespace Assignment1
                 return (false, input);
             }
         }
+
+        public (Account account, TransactionType transactionType, double amount) AtmTransaction(List<Account> accounts)
+        {
+            Clear();
+            Console.WriteLine("-- ATM Transaction -- \n");
+            Console.WriteLine("Please select an account\n");
+
+            for (int i = 0; i < accounts.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}: {accounts[i].AccountNumber} ({getFullAccountType(accounts[i].AccountType)}), {accounts[i].Balance}");
+            }
+            Console.WriteLine($"{accounts.Count + 1}: Cancel");
+
+            int accountSelectInput = GetAcceptableInput(accounts.Count + 1);
+
+            if (accountSelectInput == accounts.Count + 1)
+            {
+                return (null, TransactionType.Deposit, 0);
+            }
+
+            Account selectedAccount = accounts[accountSelectInput - 1];
+
+            Clear();
+            Console.WriteLine("-- ATM Transaction -- \n");
+            Console.WriteLine($"Using account: {selectedAccount.AccountNumber} ({getFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
+            Console.WriteLine("Please select a transaction type\n");
+            Console.WriteLine("1: Deposit\n2: Withdraw\n3: Different account\n4: Main menu");
+            int transactionTypeInput = GetAcceptableInput(4);
+
+            switch(transactionTypeInput)
+            {
+                case 1:
+                    Clear();
+                    Console.WriteLine("-- ATM Transaction -- \n");
+                    Console.WriteLine($"Using account: {selectedAccount.AccountNumber} ({getFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
+
+                    while(true)
+                    {
+                        Console.WriteLine("Please enter how much you would like to deposit (Input nothing to return): ");
+                        string depositAmountInput = Console.ReadLine();
+
+                        if (depositAmountInput == "")
+                        {
+                            return AtmTransaction(accounts); // TODO Look into a way to return to transaction selection rather then acount selection
+                        }
+
+                        double depositAmount;
+                        if (!double.TryParse(depositAmountInput, out depositAmount) || depositAmount < 0)
+                        {
+                            Console.WriteLine("\nPlease input a correct deposit amount\n");
+                        } else
+                        {
+                            return (selectedAccount, TransactionType.Deposit, depositAmount);
+                        }
+                    }
+                case 2:
+                    Clear();
+                    Console.WriteLine("-- ATM Transaction -- \n");
+                    Console.WriteLine($"Using account: {selectedAccount.AccountNumber} ({getFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
+
+                    while (true)
+                    {
+                        Console.WriteLine("Please enter how much you would like to withdraw (Input nothing to return): ");
+                        string withdrawAmountInput = Console.ReadLine();
+
+                        if (withdrawAmountInput == "")
+                        {
+                            return AtmTransaction(accounts); // TODO Look into a way to return to transaction selection rather then acount selection
+                        }
+
+                        double withdrawAmount;
+                        if (!double.TryParse(withdrawAmountInput, out withdrawAmount) || withdrawAmount < 0 || withdrawAmount >= selectedAccount.Balance)
+                        {
+                            Console.WriteLine("\nPlease input a correct deposit amount\n");
+                        }
+                        else
+                        {
+                            return (selectedAccount, TransactionType.Withdraw, withdrawAmount);
+                        }
+                    }
+                case 3:
+                    return AtmTransaction(accounts);
+                case 4:
+                    return (null, TransactionType.Deposit, 0);
+                default:
+                    Console.WriteLine("Fatal Error: Incorrect input go through in ATM Transaction menu");
+                    return (null, TransactionType.Deposit, 0);
+            }
+        }
+
+        public void TransactionResponse(bool wasSuccess, TransactionType transactionType, double amount, double newBalance)
+        {
+            if(wasSuccess)
+            {
+                Console.WriteLine($"{transactionType} of ${amount} was success\n");
+                Console.WriteLine($"Balance of account is now ${newBalance}");
+            } else
+            {
+                Console.WriteLine($"{transactionType} of ${amount} failed. Contact customer service for assistance\n");
+            }
+
+            Console.WriteLine("Press any key to return to account selection");
+            Console.ReadKey();
+        }
+
     }
+
+
 }

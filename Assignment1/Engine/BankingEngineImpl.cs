@@ -58,5 +58,17 @@ namespace Assignment1
         {
             return amount <= sourceAccount.Balance;
         }
+
+        public (bool wasSuccess, double endingBalance) MakeTransaction(Account account, TransactionType transactionType, double amount)
+        {
+            if(amount == 2.50)
+            {
+                return (false, 10000);
+            } else
+            {
+                return (true, 10000);
+            }
+            
+        }
     }
 }

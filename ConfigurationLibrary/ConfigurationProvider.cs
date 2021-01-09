@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 
-namespace Assignment1
+namespace ConfigurationLibrary
 {
     public static class ConfigurationProvider
     {
@@ -58,7 +58,8 @@ namespace Assignment1
         /*
          * Initializes the config root if not already initialized, connecting to the file in the directory. 
          */
-        private static IConfigurationRoot GetConfigurationRoot(string configurationSourceFile = DefaultConfigurationSourceFile)
+        private static IConfigurationRoot GetConfigurationRoot(
+            string configurationSourceFile = DefaultConfigurationSourceFile)
         {
             if (!ConfigurationRoots.ContainsKey(configurationSourceFile)) // if config root not already initialized
             {

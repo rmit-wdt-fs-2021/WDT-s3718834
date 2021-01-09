@@ -54,16 +54,9 @@ namespace Assignment1.Engine
             
         }
 
-        public List<Account> GetAccounts(Customer customer)
+        public async Task<List<Account>> GetAccounts(Customer customer)
         {
-            var accounts = new List<Account>
-            {
-                new Account(12346789, 'S', customer.CustomerId, new decimal(100000.01)),
-                new Account(987654321, 'C', customer.CustomerId, new decimal(1.43)),
-                new Account(312312612, 'C', customer.CustomerId, new decimal(420.43))
-            };
-
-            return accounts;
+            return await _databaseProxy.GetAccounts(customer.CustomerId);
         }
 
         public List<Transaction> GetTransactions(Account account)

@@ -15,10 +15,10 @@ namespace Assignment1.View
         public void ShowTransactions(List<Account> accounts);
         public void Clear();
         public void WorkInProgress();
-        public (Account account, TransactionType transactionType, double amount) AtmTransaction(List<Account> accounts);
+        public (Account account, TransactionType transactionType, decimal amount) AtmTransaction(List<Account> accounts);
 
-        public void TransactionResponse(bool wasSuccess, TransactionType transactionType, double amount, double newBalance);
-        public (Account sourceAccount, Account destinationAccount, double amount) Transfer(List<Account> accounts);
-        public void TransferResponse(bool wasSuccess, Account sourceAccount, Account destinationAccount, double amount);
+        public void TransactionResponse(bool wasSuccess, TransactionType transactionType, decimal amount, decimal newBalance);
+        public (Account sourceAccount, Account destinationAccount, decimal amount) Transfer(List<Account> accounts);
+        public void TransferResponse(bool wasSuccess, Account sourceAccount, Account destinationAccount, decimal amount);
     }
 }

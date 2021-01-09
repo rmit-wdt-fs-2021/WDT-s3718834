@@ -14,7 +14,7 @@ namespace Assignment1.View
 
 
         // TODO Is there a better way to do this?
-        private delegate bool FieldValidator(double loginId);
+        private delegate bool FieldValidator(decimal loginId);
 
 
         public void Start(BankingController controller)
@@ -288,7 +288,7 @@ namespace Assignment1.View
             Console.WriteLine("*************************************************************");
         }
 
-        public (Account sourceAccount, Account destinationAccount, double amount) Transfer(List<Account> originalAccounts)
+        public (Account sourceAccount, Account destinationAccount, decimal amount) Transfer(List<Account> originalAccounts)
         {
             while (true)
             {
@@ -329,7 +329,7 @@ namespace Assignment1.View
             }
         }
 
-        public void TransferResponse(bool wasSuccess, Account sourceAccount, Account destinationAccount, double amount)
+        public void TransferResponse(bool wasSuccess, Account sourceAccount, Account destinationAccount, decimal amount)
         {
             if (wasSuccess)
             {
@@ -370,7 +370,7 @@ namespace Assignment1.View
             Console.ReadKey();
         }
 
-        private static (bool escaped, double result) GetCurrencyInput(string requestMessage, string failMessage, FieldValidator validator)
+        private static (bool escaped, decimal result) GetCurrencyInput(string requestMessage, string failMessage, FieldValidator validator)
         {
             while (true)
             {
@@ -382,7 +382,7 @@ namespace Assignment1.View
                     return (true, 0);
                 }
 
-                if (double.TryParse(input, out var parsedInput) && validator(parsedInput))
+                if (decimal.TryParse(input, out var parsedInput) && validator(parsedInput))
                 {
                     return (false, parsedInput);
                 }
@@ -393,7 +393,7 @@ namespace Assignment1.View
             }
         }
 
-        public (Account account, TransactionType transactionType, double amount) AtmTransaction(List<Account> accounts)
+        public (Account account, TransactionType transactionType, decimal amount) AtmTransaction(List<Account> accounts)
         {
             while (true)
             {
@@ -450,7 +450,7 @@ namespace Assignment1.View
             }
         }
 
-        public void TransactionResponse(bool wasSuccess, TransactionType transactionType, double amount, double newBalance)
+        public void TransactionResponse(bool wasSuccess, TransactionType transactionType, decimal amount, decimal newBalance)
         {
             if (wasSuccess)
             {

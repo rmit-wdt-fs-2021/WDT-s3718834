@@ -35,9 +35,9 @@ namespace Assignment1.Engine
         {
             var accounts = new List<Account>
             {
-                new Account(12346789, 'S', customer.CustomerId, 100000.01),
-                new Account(987654321, 'C', customer.CustomerId, 1.43),
-                new Account(312312612, 'C', customer.CustomerId, 420.43)
+                new Account(12346789, 'S', customer.CustomerId, new decimal(100000.01)),
+                new Account(987654321, 'C', customer.CustomerId, new decimal(1.43)),
+                new Account(312312612, 'C', customer.CustomerId, new decimal(420.43))
             };
             
             return accounts;
@@ -47,15 +47,15 @@ namespace Assignment1.Engine
         {
             var transactions = new List<Transaction>
             {
-                new Transaction(1, 'D', 987654321, 123012302, 10.01, "deposit money", DateTime.Now),
-                new Transaction(1, 'S', 987654321, 987654321, 0.1, "withdraw charge", DateTime.Now),
-                new Transaction(1, 'W', 987654321, 987654321, 20.02, "withdraw money", DateTime.Now),
-                new Transaction(1, 'S', 987654321, 987654321, 0.2, "transfer charge", DateTime.Now),
-                new Transaction(1, 'T', 987654321, 123456789, 40.03, "transfer to savings", DateTime.Now),
-                new Transaction(1, 'D', 987654321, 123012302, 10.01, "deposit money", DateTime.Now),
-                new Transaction(1, 'S', 987654321, 987654321, 0.1, "withdraw charge", DateTime.Now),
-                new Transaction(1, 'W', 987654321, 987654321, 20.02, "withdraw money", DateTime.Now),
-                new Transaction(1, 'S', 987654321, 987654321, 0.2, "transfer charge", DateTime.Now)
+                new Transaction('D', 987654321, 123012302, new decimal(10.01), "deposit money", DateTime.Now),
+                new Transaction( 'S', 987654321, 987654321, new decimal(0.1), "withdraw charge", DateTime.Now),
+                new Transaction( 'W', 987654321, 987654321, new decimal(20.02), "withdraw money", DateTime.Now),
+                new Transaction( 'S', 987654321, 987654321, new decimal(0.2), "transfer charge", DateTime.Now),
+                new Transaction( 'T', 987654321, 123456789, new decimal(40.03), "transfer to savings", DateTime.Now),
+                new Transaction( 'D', 987654321, 123012302, new decimal(10.01), "deposit money", DateTime.Now),
+                new Transaction( 'S', 987654321, 987654321, new decimal(0.1), "withdraw charge", DateTime.Now),
+                new Transaction( 'W', 987654321, 987654321, new decimal(20.02), "withdraw money", DateTime.Now),
+                new Transaction( 'S', 987654321, 987654321, new decimal(0.2), "transfer charge", DateTime.Now)
             };
 
 
@@ -63,22 +63,14 @@ namespace Assignment1.Engine
             return transactions;
         }
 
-        public bool MakeTransfer(Account sourceAccount, Account destinationAccount, double amount)
+        public bool MakeTransfer(Account sourceAccount, Account destinationAccount, decimal amount)
         {
             return amount <= sourceAccount.Balance;
         }
 
-        public (bool wasSuccess, double endingBalance) MakeTransaction(Account account, TransactionType transactionType, double amount)
+        public (bool wasSuccess, decimal endingBalance) MakeTransaction(Account account, TransactionType transactionType, decimal amount)
         {
-            if (Math.Abs(amount - 2.50) < 2)
-            {
-                return (false, 10000);
-            }
-            else
-            {
-                return (true, 10000);
-            }
-
+            return amount == new decimal(2.5) ? (false, 10000) : (true, 10000);
         }
     }
 }

@@ -15,9 +15,9 @@ namespace Assignment1.Engine
         public List<Account> GetAccounts(Customer customer);
         public List<Transaction> GetTransactions(Account account);
 
-        public bool MakeTransfer(Account sourceAccount, Account destinationAccount, double amount);
+        public bool MakeTransfer(Account sourceAccount, Account destinationAccount, decimal amount);
 
-        public (bool wasSuccess, double endingBalance) MakeTransaction(Account account, TransactionType transactionType, double amount);
+        public (bool wasSuccess, decimal endingBalance) MakeTransaction(Account account, TransactionType transactionType, decimal amount);
 
     }
 

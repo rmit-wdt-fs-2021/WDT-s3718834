@@ -1,37 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 
 namespace Assignment1
 {
-    class ConfigurationProvider
+    public static class ConfigurationProvider
     {
-        private static readonly string configurationSourceFile = "appsettings.json";
+        private const string ConfigurationSourceFile = "appsettings.json";
 
-        private static IConfigurationRoot configurationRoot;
+        private static IConfigurationRoot _configurationRoot;
 
-        private const string databaseConnectionStringKey = "ConnectionString";
-        private const string dataSeedApiUrlKey = "DataSeedApiUrl";
+        private const string DatabaseConnectionStringKey = "ConnectionString";
+        private const string DataSeedApiUrlKey = "DataSeedApiUrl";
 
-        public static String GetDatabaseConnectionString()
+        public static string GetDatabaseConnectionString()
         {
             InitializeConfig();
-            return configurationRoot[databaseConnectionStringKey];
+            return _configurationRoot[DatabaseConnectionStringKey];
         }
 
-        public static String GetDataSeedApiUrl()
+        public static string GetDataSeedApiUrl()
         {
             InitializeConfig();
-            return configurationRoot[dataSeedApiUrlKey];
+            return _configurationRoot[DataSeedApiUrlKey];
         }
 
         private static void InitializeConfig()
         {
-            if(configurationRoot == null)
-            {
-                configurationRoot = new ConfigurationBuilder().AddJsonFile(configurationSourceFile).Build();
-            }
+            _configurationRoot ??= new ConfigurationBuilder().AddJsonFile(ConfigurationSourceFile).Build();
         }
     }
 }

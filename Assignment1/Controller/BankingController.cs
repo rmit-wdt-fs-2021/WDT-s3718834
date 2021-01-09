@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using Assignment1.Engine;
+using Assignment1.POCO;
+using Assignment1.View;
 
-namespace Assignment1
+namespace Assignment1.Controller
 {
     public abstract class BankingController
     {
-        public BankingEngine Engine { get; protected set; }
-        public BankingView View { get; protected set; }
+        protected IBankingEngine Engine { get; }
+        protected IBankingView View { get; }
 
-        public BankingController(BankingEngine engine, BankingView view)
+        protected BankingController(IBankingEngine engine, IBankingView view)
         {
             this.Engine = engine;
             this.View = view;

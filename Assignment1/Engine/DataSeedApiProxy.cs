@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Assignment1.POCO;
 using ConfigurationLibrary;
 using Newtonsoft.Json;
@@ -9,9 +10,10 @@ namespace Assignment1.Engine
 {
     public static class DataSeedApiProxy
     {
-        public static (IEnumerable<Customer> customers, IEnumerable<Account> accounts, IEnumerable<Transaction> transactions) RetrieveCustomerData()
+        public static async Task<(IEnumerable<Customer> customers, IEnumerable<Account> accounts, IEnumerable<Transaction> transactions)> RetrieveCustomerData()
         {
-            var rawJson =  new HttpClient().GetStringAsync(ConfigurationProvider.GetCustomerDataSeedApiUrl()).Result;
+            var httpClient = new HttpClient();
+            var rawJson = await httpClient.GetStringAsync(ConfigurationProvider.GetCustomerDataSeedApiUrl());
 
             var convertedJson = JsonConvert.DeserializeObject<List<CustomerData>>(rawJson, new JsonSerializerSettings()
             {
@@ -44,9 +46,11 @@ namespace Assignment1.Engine
             return (customers, accounts, transactions);
         }
 
-        public static IEnumerable<Login> RetrieveLoginData()
+        public static async Task<IEnumerable<Login>> RetrieveLoginData()
         {
-            var rawJson = new HttpClient().GetStringAsync(ConfigurationProvider.GetLoginDataSeedApiUrl()).Result;
+            var httpClient = new HttpClient();
+            
+            var rawJson = await httpClient.GetStringAsync(ConfigurationProvider.GetLoginDataSeedApiUrl());
             return JsonConvert.DeserializeObject<List<Login>>(rawJson);
         }
 

@@ -8,24 +8,27 @@ namespace Assignment1.Engine
 {
     public class BankingEngineImpl : IBankingEngine
     {
-
         private BankingController _controller;
 
         private DatabaseProxy _databaseProxy;
 
-        public void Start(BankingController controller)
+        public async void Start(BankingController controller)
         {
             this._controller = controller;
             _databaseProxy = new DatabaseProxy();
-            
+
             if (!_databaseProxy.CustomersExist())
             {
-                var (customers, accounts, transactions) = DataSeedApiProxy.RetrieveCustomerData();
+                var customerDataTask = DataSeedApiProxy.RetrieveCustomerData();
+                var loginDataTask = DataSeedApiProxy.RetrieveLoginData();
+                
+                var (customers, accounts, transactions) = await customerDataTask;
                 _databaseProxy.AddCustomerBulk(customers);
                 _databaseProxy.AddAccountBulk(accounts);
                 _databaseProxy.AddTransactionBulk(transactions);
 
-                var loginData = DataSeedApiProxy.RetrieveLoginData();
+
+                var loginData = await loginDataTask;
                 _databaseProxy.AddLoginBulk(loginData);
             }
         }
@@ -49,7 +52,7 @@ namespace Assignment1.Engine
                 new Account(987654321, 'C', customer.CustomerId, new decimal(1.43)),
                 new Account(312312612, 'C', customer.CustomerId, new decimal(420.43))
             };
-            
+
             return accounts;
         }
 
@@ -58,16 +61,15 @@ namespace Assignment1.Engine
             var transactions = new List<Transaction>
             {
                 new Transaction('D', 987654321, 123012302, new decimal(10.01), "deposit money", DateTime.Now),
-                new Transaction( 'S', 987654321, 987654321, new decimal(0.1), "withdraw charge", DateTime.Now),
-                new Transaction( 'W', 987654321, 987654321, new decimal(20.02), "withdraw money", DateTime.Now),
-                new Transaction( 'S', 987654321, 987654321, new decimal(0.2), "transfer charge", DateTime.Now),
-                new Transaction( 'T', 987654321, 123456789, new decimal(40.03), "transfer to savings", DateTime.Now),
-                new Transaction( 'D', 987654321, 123012302, new decimal(10.01), "deposit money", DateTime.Now),
-                new Transaction( 'S', 987654321, 987654321, new decimal(0.1), "withdraw charge", DateTime.Now),
-                new Transaction( 'W', 987654321, 987654321, new decimal(20.02), "withdraw money", DateTime.Now),
-                new Transaction( 'S', 987654321, 987654321, new decimal(0.2), "transfer charge", DateTime.Now)
+                new Transaction('S', 987654321, 987654321, new decimal(0.1), "withdraw charge", DateTime.Now),
+                new Transaction('W', 987654321, 987654321, new decimal(20.02), "withdraw money", DateTime.Now),
+                new Transaction('S', 987654321, 987654321, new decimal(0.2), "transfer charge", DateTime.Now),
+                new Transaction('T', 987654321, 123456789, new decimal(40.03), "transfer to savings", DateTime.Now),
+                new Transaction('D', 987654321, 123012302, new decimal(10.01), "deposit money", DateTime.Now),
+                new Transaction('S', 987654321, 987654321, new decimal(0.1), "withdraw charge", DateTime.Now),
+                new Transaction('W', 987654321, 987654321, new decimal(20.02), "withdraw money", DateTime.Now),
+                new Transaction('S', 987654321, 987654321, new decimal(0.2), "transfer charge", DateTime.Now)
             };
-
 
 
             return transactions;
@@ -78,7 +80,8 @@ namespace Assignment1.Engine
             return amount <= sourceAccount.Balance;
         }
 
-        public (bool wasSuccess, decimal endingBalance) MakeTransaction(Account account, TransactionType transactionType, decimal amount)
+        public (bool wasSuccess, decimal endingBalance) MakeTransaction(Account account,
+            TransactionType transactionType, decimal amount)
         {
             return amount == new decimal(2.5) ? (false, 10000) : (true, 10000);
         }

@@ -108,7 +108,12 @@ namespace Assignment1.Controller
 
         public override List<Transaction> GetTransactions(Account account)
         {
-            return Engine.GetTransactions(account);
+            var getTransactionsTask = Engine.GetTransactions(account);
+            
+            View.Loading();
+            getTransactionsTask.Wait();
+
+            return getTransactionsTask.Result;
         }
 
         // TODO Implement

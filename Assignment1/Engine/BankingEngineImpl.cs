@@ -12,33 +12,37 @@ namespace Assignment1
         public void Start(BankingController controller)
         {
             this.Controller = controller;
+            DatabaseProxy databaseProxy = new DatabaseProxy();
+            bool test = databaseProxy.CustomersExist();
+
+            return;
         }
 
-        public User LoginAttempt(string loginID, string password)
+        public Customer LoginAttempt(string loginID, string password)
         {
             // Temporary password checking for terminal testing
             if (password.Equals("a"))
             {
                 throw new LoginFailedException();
-            } else if(password.Equals("b"))
+            }
+            else if (password.Equals("b"))
             {
                 throw new LoginAttemptsExcededException();
             }
 
-            return new User(12345678, "bob", "9 bob street", "melbourne", "3000", null);
+            return new Customer(12345678, "bob", "9 bob street", "melbourne", "3000");
         }
 
-        public List<Account> GetAccounts(User user)
+        public List<Account> GetAccounts(Customer customer)
         {
-           if(user.Accounts == null)
-            {
-                user.Accounts = new List<Account>();
-                user.Accounts.Add(new Account(12346789, 'S', user.CustomerID, 100000.01));
-                user.Accounts.Add(new Account(987654321, 'C', user.CustomerID, 1.43));
-                user.Accounts.Add(new Account(312312612, 'C', user.CustomerID, 420.43));
-            }
 
-            return user.Accounts;
+            List<Account> accounts = new List<Account>();
+
+            accounts.Add(new Account(12346789, 'S', customer.CustomerID, 100000.01));
+            accounts.Add(new Account(987654321, 'C', customer.CustomerID, 1.43));
+            accounts.Add(new Account(312312612, 'C', customer.CustomerID, 420.43));
+
+            return accounts;
         }
 
         public List<Transaction> GetTransactions(Account account)
@@ -66,14 +70,15 @@ namespace Assignment1
 
         public (bool wasSuccess, double endingBalance) MakeTransaction(Account account, TransactionType transactionType, double amount)
         {
-            if(amount == 2.50)
+            if (amount == 2.50)
             {
                 return (false, 10000);
-            } else
+            }
+            else
             {
                 return (true, 10000);
             }
-            
+
         }
     }
 }

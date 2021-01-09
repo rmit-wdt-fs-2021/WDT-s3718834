@@ -8,9 +8,9 @@ namespace Assignment1
     {
         public void Start(BankingController controller);
 
-        public User LoginAttempt(string loginID, string password);
+        public Customer LoginAttempt(string loginID, string password);
 
-        public List<Account> GetAccounts(User user);
+        public List<Account> GetAccounts(Customer customer);
         public List<Transaction> GetTransactions(Account account);
 
         public bool MakeTransfer(Account sourceAccount, Account destinationAccount, double amount);

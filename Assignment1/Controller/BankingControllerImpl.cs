@@ -5,7 +5,7 @@ namespace Assignment1
     public class BankingControllerImpl : BankingController
     {
 
-        public User LoggedInUser { get; private set; }
+        public Customer LoggedInCustomer { get; private set; }
 
         public BankingControllerImpl(BankingEngine engine, BankingView view) : base(engine, view)
         {
@@ -18,8 +18,8 @@ namespace Assignment1
             View.Start(this);
 
             //Login();
-            LoggedInUser = Engine.LoginAttempt("", "");
-            View.MainMenu(LoggedInUser); // Skipping login for testing
+            LoggedInCustomer = Engine.LoginAttempt("", "");
+            View.MainMenu(LoggedInCustomer); // Skipping login for testing
         }
 
         public override void Login()
@@ -38,7 +38,7 @@ namespace Assignment1
 
                 try
                 {
-                    LoggedInUser = Engine.LoginAttempt(loginDetails.loginID, loginDetails.password);
+                    LoggedInCustomer = Engine.LoginAttempt(loginDetails.loginID, loginDetails.password);
                     loginStatus = LoginStatus.Success;
                 }
                 catch (LoginFailedException e)
@@ -51,20 +51,20 @@ namespace Assignment1
                 }
             }
 
-            View.MainMenu(LoggedInUser);
+            View.MainMenu(LoggedInCustomer);
 
 
         }
 
         public override void TransactionHistory()
         {
-            View.ShowTransactions(Engine.GetAccounts(LoggedInUser));
-            View.MainMenu(LoggedInUser);
+            View.ShowTransactions(Engine.GetAccounts(LoggedInCustomer));
+            View.MainMenu(LoggedInCustomer);
         }
 
         public override void Transfer()
         {
-            (Account sourceAccount, Account destinationAccount, double amount) transferDetails = View.Transfer(Engine.GetAccounts(LoggedInUser));
+            (Account sourceAccount, Account destinationAccount, double amount) transferDetails = View.Transfer(Engine.GetAccounts(LoggedInCustomer));
 
             if (transferDetails.sourceAccount != null)
             {
@@ -78,7 +78,7 @@ namespace Assignment1
             }
 
 
-            View.MainMenu(LoggedInUser);
+            View.MainMenu(LoggedInCustomer);
         }
 
         public override List<Transaction> GetTransactions(Account account)
@@ -91,29 +91,29 @@ namespace Assignment1
         public override void ModifyProfile()
         {
             View.WorkInProgress();
-            View.MainMenu(LoggedInUser);
+            View.MainMenu(LoggedInCustomer);
         }
 
         // TODO Implement
         public override void ApplyForLoan()
         {
             View.WorkInProgress();
-            View.MainMenu(LoggedInUser);
+            View.MainMenu(LoggedInCustomer);
         }
 
         public override void Logout()
         {
-            LoggedInUser = null;
+            LoggedInCustomer = null;
             View.Clear();
             Login();
         }
 
         public override void AtmTransaction()
         {
-            (Account account, TransactionType transactionType, double amount) transactionDetails = View.AtmTransaction(Engine.GetAccounts(LoggedInUser));
+            (Account account, TransactionType transactionType, double amount) transactionDetails = View.AtmTransaction(Engine.GetAccounts(LoggedInCustomer));
             if (transactionDetails.account == null)
             {
-                View.MainMenu(LoggedInUser);
+                View.MainMenu(LoggedInCustomer);
             }
             else
             {

@@ -73,12 +73,12 @@ namespace Assignment1
 
         }
 
-        public void MainMenu(User loggedInUser)
+        public void MainMenu(Customer loggedInCustomer)
         {
             Clear();
             Console.WriteLine("-- Main Menu --\n");
 
-            Console.WriteLine($"Welcome {loggedInUser.Name}\n");
+            Console.WriteLine($"Welcome {loggedInCustomer.Name}\n");
 
             Console.WriteLine("Please provide input one of the options below (single character):\n" +
                 "1: ATM Transaction\n" +

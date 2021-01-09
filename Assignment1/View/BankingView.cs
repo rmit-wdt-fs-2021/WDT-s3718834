@@ -9,7 +9,7 @@ namespace Assignment1
         public void Start(BankingController controller);
         public (string login, string password) Login(LoginStatus loginStatus);
 
-        public void MainMenu(User loggedInUser);
+        public void MainMenu(Customer loggedInCustomer);
 
         public void ShowTransactions(List<Account> accounts);
         public void Clear();

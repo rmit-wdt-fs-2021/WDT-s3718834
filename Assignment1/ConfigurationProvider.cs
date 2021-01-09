@@ -9,7 +9,9 @@ namespace Assignment1
         private static IConfigurationRoot _configurationRoot;
 
         private const string DatabaseConnectionStringKey = "ConnectionString";
-        private const string DataSeedApiUrlKey = "DataSeedApiUrl";
+        private const string CustomerDataSeedApiUrlKey = "CustomerDataSeedApiUrl";
+        private const string LoginDataSeedApiUrlKey = "LoginDataSeedApiUrl";
+
 
         public static string GetDatabaseConnectionString()
         {
@@ -17,10 +19,16 @@ namespace Assignment1
             return _configurationRoot[DatabaseConnectionStringKey];
         }
 
-        public static string GetDataSeedApiUrl()
+        public static string GetCustomerDataSeedApiUrl()
         {
             InitializeConfig();
-            return _configurationRoot[DataSeedApiUrlKey];
+            return _configurationRoot[CustomerDataSeedApiUrlKey];
+        }
+        
+        public static string GetLoginDataSeedApiUrl()
+        {
+            InitializeConfig();
+            return _configurationRoot[LoginDataSeedApiUrlKey];
         }
 
         private static void InitializeConfig()

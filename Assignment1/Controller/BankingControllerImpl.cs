@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Assignment1.Engine;
 using Assignment1.Enum;
 using Assignment1.POCO;
@@ -18,12 +19,18 @@ namespace Assignment1.Controller
 
         public override void Start()
         {
-            Engine.Start(this);
             View.Start(this);
+            Task engineStartTask = Engine.Start(this);
+            
+            View.Loading();
 
-            //Login();
-            LoggedInCustomer = Engine.LoginAttempt("", "");
-            View.MainMenu(LoggedInCustomer); // Skipping login for testing
+            engineStartTask.Wait();
+            if (engineStartTask.IsCompleted)
+            {
+                Login();
+                LoggedInCustomer = Engine.LoginAttempt("", "");
+                View.MainMenu(LoggedInCustomer); // Skipping login for testing 
+            }
         }
 
         public override void Login()
@@ -89,7 +96,6 @@ namespace Assignment1.Controller
         {
             return Engine.GetTransactions(account);
         }
-
 
         // TODO Implement
         public override void ModifyProfile()

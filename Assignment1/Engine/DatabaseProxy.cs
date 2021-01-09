@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using Assignment1.POCO;
 using ConfigurationLibrary;
 using Microsoft.Data.SqlClient;
@@ -23,40 +24,42 @@ namespace Assignment1.Engine
             _connection.Close();
         }
 
-        public bool CustomersExist()
+        public async Task<bool> CustomersExist()
         {
-            return GetDataTable("SELECT * FROM Customer").Rows.Count > 0;
+            var dataTable = await GetDataTable("SELECT * FROM Customer");
+            
+            return dataTable.Rows.Count > 0;
         }
 
-        public void AddCustomer(Customer customer)
+        public async Task AddCustomer(Customer customer)
         {
             var command =
                 CreateCommand(
                     "INSERT INTO Customer (CustomerID, Name, Address, City, PostCode) VALUES (@customerID, @name, @address, @city, @postcode)");
             command.Parameters.AddWithValue("@customerID", customer.CustomerId);
-            command.Parameters.AddWithValue("@name", customer.Name);
-            command.Parameters.AddWithValue("@address", customer.Address);
-            command.Parameters.AddWithValue("@city", customer.City);
-            command.Parameters.AddWithValue("@postcode", customer.Postcode);
+            command.Parameters.AddWithValue("@name", (object) customer.Name ?? DBNull.Value);
+            command.Parameters.AddWithValue("@address", (object) customer.Address ?? DBNull.Value);
+            command.Parameters.AddWithValue("@city", (object) customer.City ?? DBNull.Value);
+            command.Parameters.AddWithValue("@postcode", (object) customer.Postcode ?? DBNull.Value);
 
-            command.ExecuteNonQuery();
+            await command.ExecuteNonQueryAsync();
         }
 
         
-        public void AddCustomerBulk(IEnumerable<Customer> customers)
+        public async Task AddCustomerBulk(IEnumerable<Customer> customers)
         {
             foreach (var customer in customers)
             {
-                AddCustomer(customer);
+                await AddCustomer(customer);
             }
         }
 
-        public Customer GetCustomer(int customerId)
+        public async Task<Customer> GetCustomer(int customerId)
         {
             var command = CreateCommand("SELECT * FROM Customer WHERE CustomerID = @customerID");
             command.Parameters.AddWithValue("@customerID", customerId);
 
-            var data = GetDataTable(command);
+            var data = await GetDataTable(command);
 
             DataRow[] dataRows = data.Select();
             if (dataRows.Length > 0)
@@ -76,7 +79,7 @@ namespace Assignment1.Engine
             }
         }
 
-        public void AddLogin(Login login) 
+        public async Task AddLogin(Login login) 
         {
             var command =
                 CreateCommand(
@@ -85,24 +88,24 @@ namespace Assignment1.Engine
             command.Parameters.AddWithValue("@customerID", login.CustomerId);
             command.Parameters.AddWithValue("@passwordHash", login.PasswordHash);
 
-            command.ExecuteNonQuery();
+            await command.ExecuteNonQueryAsync();
         }
 
         
-        public void AddLoginBulk(IEnumerable<Login> logins)
+        public async void AddLoginBulk(IEnumerable<Login> logins)
         {
             foreach (var login in logins)
             {
-                AddLogin(login);
+                await AddLogin(login);
             }
         }
 
-        public string GetPasswordHash(string loginId)
+        public async Task<string> GetPasswordHash(string loginId)
         {
             var command = CreateCommand("SELECT PasswordHash FROM Login WHERE LoginID = @loginID");
             command.Parameters.AddWithValue("@loginID", loginId);
 
-            var data = GetDataTable(command);
+            var data = await GetDataTable(command);
 
             var dataRows = data.Select();
             if (dataRows.Length > 0)
@@ -113,7 +116,7 @@ namespace Assignment1.Engine
             throw new RecordMissingException("No login with provided id exists");
         }
 
-        public void AddAccount(Account account) 
+        public async Task AddAccount(Account account) 
         {
             var command =
                 CreateCommand(
@@ -123,24 +126,24 @@ namespace Assignment1.Engine
             command.Parameters.AddWithValue("@customerId",account.CustomerId);
             command.Parameters.AddWithValue("@balance",account.Balance);
 
-            command.ExecuteNonQuery();
+            await command.ExecuteNonQueryAsync();
         }
 
         
-        public void AddAccountBulk(IEnumerable<Account> accounts)
+        public async Task AddAccountBulk(IEnumerable<Account> accounts)
         {
             foreach (var account in accounts)
             {
-                AddAccount(account);
+                await AddAccount(account);
             }
         }
         
-        public List<Account> GetAccounts(int customerId)
+        public async Task<List<Account>> GetAccounts(int customerId)
         {
             var command = CreateCommand("SELECT * FROM Account WHERE CustomerID = @customerId");
             command.Parameters.AddWithValue("@customerId", customerId);
 
-            var data = GetDataTable(command);
+            var data = await GetDataTable(command);
 
             return data.Select().Select(dataRow =>
                 new Account(
@@ -150,7 +153,7 @@ namespace Assignment1.Engine
                     (decimal) dataRow["Balance"])).ToList();
         }
 
-        public void AddTransaction(Transaction transaction) 
+        public async Task AddTransaction(Transaction transaction) 
         {
             var command =
                 CreateCommand(
@@ -162,25 +165,25 @@ namespace Assignment1.Engine
             command.Parameters.AddWithValue("@comment", transaction.Comment);
             command.Parameters.AddWithValue("@transactionTimeUtc", transaction.TransactionTimeUtc);
 
-            command.ExecuteNonQuery();
+            await command.ExecuteNonQueryAsync();
         }
 
         
-        public void AddTransactionBulk(IEnumerable<Transaction> transactions)
+        public async Task AddTransactionBulk(IEnumerable<Transaction> transactions)
         {
             foreach (var transaction in transactions)
             {
-                AddTransaction(transaction);
+                await AddTransaction(transaction);
             }
         }
 
         
-        public List<Transaction> GetTransactions(int accountNumber)
+        public async Task<List<Transaction>> GetTransactions(int accountNumber)
         {
             var command = CreateCommand("SELECT * FROM [Transaction] WHERE AccountNumber = @accountNumber ORDER BY TransactionTimeUtc DESC ");
             command.Parameters.AddWithValue("@accountNumber", accountNumber);
 
-            var data = GetDataTable(command);
+            var data = await GetDataTable(command);
 
             return data.Select().Select(dataRow =>
                 new Transaction(
@@ -202,18 +205,24 @@ namespace Assignment1.Engine
             return command;
         }
 
-        private DataTable GetDataTable(string commandString)
+        private async Task<DataTable> GetDataTable(string commandString)
         {
-            return GetDataTable(CreateCommand(commandString));
+            return await GetDataTable(CreateCommand(commandString));
         }
 
-        private static DataTable GetDataTable(SqlCommand command)
+        private static async Task<DataTable> GetDataTable(SqlCommand sqlCommand)
         {
-            var table = new DataTable();
+            return await Task.Run(() =>
+            {
+                var table = new DataTable();
 
-            new SqlDataAdapter(command).Fill(table);
 
-            return table;
+                new SqlDataAdapter(sqlCommand).Fill(table);
+
+                return table;
+            });
+
+
         }
     }
 }

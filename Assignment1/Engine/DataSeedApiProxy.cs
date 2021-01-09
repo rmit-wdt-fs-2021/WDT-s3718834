@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Assignment1.POCO;
 using ConfigurationLibrary;
 using Newtonsoft.Json;
@@ -9,11 +10,15 @@ namespace Assignment1.Engine
 {
     public static class DataSeedApiProxy
     {
-        public static (IEnumerable<Customer> customers, IEnumerable<Account> accounts, IEnumerable<Transaction> transactions) RetrieveCustomerData()
+        public static async Task<(IEnumerable<Customer> customers, IEnumerable<Account> accounts, IEnumerable<Transaction> transactions)> RetrieveCustomerData()
         {
-            var rawJson =  new HttpClient().GetStringAsync(ConfigurationProvider.GetCustomerDataSeedApiUrl()).Result;
+            var httpClient = new HttpClient();
+            var rawJson = await httpClient.GetStringAsync(ConfigurationProvider.GetCustomerDataSeedApiUrl());
 
-            var convertedJson = JsonConvert.DeserializeObject<List<CustomerData>>(rawJson); 
+            var convertedJson = JsonConvert.DeserializeObject<List<CustomerData>>(rawJson, new JsonSerializerSettings()
+            {
+                DateFormatString = "dd/MM/yyyy hh:mm:ss tt"
+            }); 
 
             var customers = new List<Customer>();
             var accounts = new List<Account>();
@@ -34,16 +39,18 @@ namespace Assignment1.Engine
                         account.AccountNumber,
                         account.Balance,
                         "Account creation",
-                        account.Transactions[0].Item2));
+                        account.Transactions[0].TransactionTimeUtc));
                 }
             }
 
             return (customers, accounts, transactions);
         }
 
-        public static IEnumerable<Login> RetrieveLoginData()
+        public static async Task<IEnumerable<Login>> RetrieveLoginData()
         {
-            var rawJson = new HttpClient().GetStringAsync(ConfigurationProvider.GetLoginDataSeedApiUrl()).Result;
+            var httpClient = new HttpClient();
+            
+            var rawJson = await httpClient.GetStringAsync(ConfigurationProvider.GetLoginDataSeedApiUrl());
             return JsonConvert.DeserializeObject<List<Login>>(rawJson);
         }
 
@@ -79,16 +86,26 @@ namespace Assignment1.Engine
             public char AccountType { get; set; }
             public int CustomerID { get; set; }
             public decimal Balance { get; set; }
-            public List<(string, DateTime)> Transactions { get; set; }
+            public List<TransactionData> Transactions { get; set; }
 
             public CustomerDataAccount(int accountNumber, char accountType, int customerId, decimal balance,
-                List<(string, DateTime)> transactions)
+                List<TransactionData> transactions)
             {
                 AccountNumber = accountNumber;
                 AccountType = accountType;
                 CustomerID = customerId;
                 Balance = balance;
                 Transactions = transactions;
+            }
+        }
+
+        private class TransactionData
+        {
+            public DateTime TransactionTimeUtc { get; set; }
+
+            public TransactionData(DateTime transactionTimeUtc)
+            {
+                TransactionTimeUtc = transactionTimeUtc;
             }
         }
     }

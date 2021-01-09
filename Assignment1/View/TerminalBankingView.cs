@@ -352,6 +352,11 @@ namespace Assignment1.View
 
         }
 
+        public void Loading()
+        {
+            Console.WriteLine("\n Loading ... \n");
+        }
+
         private static string GetFullAccountType(char accountType)
         {
             return accountType == 'S' ? "Savings" : "Checking";

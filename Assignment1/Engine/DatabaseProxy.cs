@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using Microsoft.Data.SqlClient;
+﻿using System.Collections.Generic;
 using System.Data;
+using Assignment1.POCO;
+using Microsoft.Data.SqlClient;
 
-namespace Assignment1
+namespace Assignment1.Engine
 {
     class DatabaseProxy
     {
 
-        private SqlConnection connection;
+        private readonly SqlConnection _connection;
         public DatabaseProxy()
         {
-            connection = new SqlConnection(ConfigurationProvider.GetDatabaseConnectionString());
-            connection.Open();
+            _connection = new SqlConnection(ConfigurationProvider.GetDatabaseConnectionString());
+            _connection.Open();
         }
 
         public bool CustomersExist()
@@ -24,8 +22,8 @@ namespace Assignment1
 
         public void AddCustomer(Customer customer) 
         {
-            SqlCommand command = CreateCommand("INSERT INTO Customer (CustomerID, Name, Address, City, PostCode) VALUES (@customerID, @name, @address, @city, @postcode)");
-            command.Parameters.AddWithValue("@customerID", customer.CustomerID);
+            var command = CreateCommand("INSERT INTO Customer (CustomerID, Name, Address, City, PostCode) VALUES (@customerID, @name, @address, @city, @postcode)");
+            command.Parameters.AddWithValue("@customerID", customer.CustomerId);
             command.Parameters.AddWithValue("@name", customer.Name);
             command.Parameters.AddWithValue("@address", customer.Address);
             command.Parameters.AddWithValue("@city", customer.City);
@@ -34,21 +32,21 @@ namespace Assignment1
             command.ExecuteNonQuery();
         }
 
-        // TODO Replace with more efficent bulk insert
+        // TODO Replace with more efficient bulk insert
         public void AddCustomerBulk(List<Customer> customers) 
         {
-            foreach(Customer customer in customers)
+            foreach(var customer in customers)
             {
                 AddCustomer(customer);
             }
         }
 
-        public Customer GetCustomer(string customerID)
+        public Customer GetCustomer(string customerId)
         {
-            SqlCommand command = CreateCommand("SELECT * FROM Customer WHERE CustomerID = @customerID");
-            command.Parameters.AddWithValue("@customerID", customerID);
+            var command = CreateCommand("SELECT * FROM Customer WHERE CustomerID = @customerID");
+            command.Parameters.AddWithValue("@customerID", customerId);
 
-            DataTable data = GetDataTable(command);
+            var data = GetDataTable(command);
 
             DataRow[] dataRows = data.Select();
             if(dataRows.Length > 0)
@@ -69,27 +67,27 @@ namespace Assignment1
 
         public void AddLogin(Login login)
         {
-            SqlCommand command = CreateCommand("INSERT INTO Login (LoginID, CustomerID, PasswordHash) VALUES (@loginID, @customerID, @passwordHash)");
-            command.Parameters.AddWithValue("@loginID", login.LoginID);
-            command.Parameters.AddWithValue("@customerID", login.CustomerID);
+            var command = CreateCommand("INSERT INTO Login (LoginID, CustomerID, PasswordHash) VALUES (@loginID, @customerID, @passwordHash)");
+            command.Parameters.AddWithValue("@loginID", login.LoginId);
+            command.Parameters.AddWithValue("@customerID", login.CustomerId);
             command.Parameters.AddWithValue("@passwordHash", login.PasswordHash);
 
             command.ExecuteNonQuery();
         }
 
-        // TODO Replace with more efficent bulk insert
+        // TODO Replace with more efficient bulk insert
         public void AddLoginBulk(List<Login> logins)
         {
-            foreach (Login login in logins)
+            foreach (var login in logins)
             {
                 AddLogin(login);
             }
         }
 
-        public string GetPasswordHash(string loginID)
+        public string GetPasswordHash(string loginId)
         {
             SqlCommand command = CreateCommand("SELECT * FROM Login WHERE LoginID = @loginID");
-            command.Parameters.AddWithValue("@loginID", loginID);
+            command.Parameters.AddWithValue("@loginID", loginId);
 
             DataTable data = GetDataTable(command);
 
@@ -107,7 +105,7 @@ namespace Assignment1
 
         private SqlCommand CreateCommand(string commandString)
         {
-            SqlCommand command = connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = commandString;
 
             return command;
@@ -118,9 +116,9 @@ namespace Assignment1
             return GetDataTable(CreateCommand(commandString));
         }
 
-        private DataTable GetDataTable(SqlCommand command)
+        private static DataTable GetDataTable(SqlCommand command)
         {
-            DataTable table = new DataTable();
+            var table = new DataTable();
 
             new SqlDataAdapter(command).Fill(table);
 

@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using Assignment1.Enum;
+using Assignment1.POCO;
 
-namespace Assignment1
+namespace Assignment1.Engine
 {
-    public interface BankingEngine
+    public interface IBankingEngine
     {
         public void Start(BankingController controller);
 
-        public Customer LoginAttempt(string loginID, string password);
+        public Customer LoginAttempt(string loginId, string password);
 
         public List<Account> GetAccounts(Customer customer);
         public List<Transaction> GetTransactions(Account account);
@@ -19,9 +20,9 @@ namespace Assignment1
 
     }
 
-    public class LoginAttemptsExcededException : Exception
+    public class LoginAttemptsExceededException : Exception
     {
-        public LoginAttemptsExcededException() : base("User reached the max number of login attempts allowed")
+        public LoginAttemptsExceededException() : base("User reached the max number of login attempts allowed")
         {
 
         }

@@ -1,4 +1,8 @@
 ﻿using System.Collections.Generic;
+using Assignment1.Engine;
+using Assignment1.Enum;
+using Assignment1.POCO;
+using Assignment1.View;
 
 namespace Assignment1
 {
@@ -7,7 +11,7 @@ namespace Assignment1
 
         public Customer LoggedInCustomer { get; private set; }
 
-        public BankingControllerImpl(BankingEngine engine, BankingView view) : base(engine, view)
+        public BankingControllerImpl(IBankingEngine engine, IBankingView view) : base(engine, view)
         {
         }
 
@@ -45,7 +49,7 @@ namespace Assignment1
                 {
                     loginStatus = LoginStatus.IncorrectPassword;
                 }
-                catch (LoginAttemptsExcededException e)
+                catch (LoginAttemptsExceededException e)
                 {
                     loginStatus = LoginStatus.MaxAttempts;
                 }

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using Assignment1.Enum;
+using Assignment1.POCO;
 
-namespace Assignment1
+namespace Assignment1.View
 {
-    public interface BankingView
+    public interface IBankingView
     {
         public void Start(BankingController controller);
         public (string login, string password) Login(LoginStatus loginStatus);

@@ -1,76 +1,76 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Assignment1.Enum;
+using Assignment1.POCO;
 
-namespace Assignment1
+namespace Assignment1.View
 {
-    class TerminalBankingView : BankingView
+    internal class TerminalBankingView : IBankingView
     {
 
         private BankingController Controller { get; set; }
 
 
         // TODO Is there a better way to do this?
-        delegate bool FieldValidator(double loginId);
+        private delegate bool FieldValidator(double loginId);
 
 
         public void Start(BankingController controller)
         {
-            Console.WriteLine("Welcome to MCBA Banking Applicaiton");
+            Console.WriteLine("Welcome to MCBA Banking Application");
             this.Controller = controller;
         }
 
         public (string login, string password) Login(LoginStatus loginStatus)
         {
-            Clear();
-            Console.WriteLine("-- Login -- \n");
+            while (true)
+            {
+                Clear();
+                Console.WriteLine("-- Login -- \n");
 
-            if (loginStatus == LoginStatus.MaxAttempts)
-            {
-                Console.WriteLine("Exceded the number of login attempts. Press any key to exit");
-                Console.ReadKey();
-                return (null, null);
-            }
-            else
-            {
-                if (loginStatus == LoginStatus.IncorrectID)
+                switch (loginStatus)
                 {
-                    Console.WriteLine("Provided login ID was incorrect. A login ID must be 8 digits\n");
-                }
-                else if (loginStatus == LoginStatus.IncorrectPassword)
-                {
-                    Console.WriteLine("Provided login ID and password do not match\n");
+                    case LoginStatus.IncorrectId:
+                        Console.WriteLine("Provided login ID was incorrect. A login ID must be 8 digits\n");
+                        break;
+                    case LoginStatus.IncorrectPassword:
+                        Console.WriteLine("Provided login ID and password do not match\n");
+                        break;
+                    case LoginStatus.Initial:
+                        break;
+                    case LoginStatus.MaxAttempts:
+                        Console.WriteLine("Exceeded the number of login attempts. Press any key to exit");
+                        Console.ReadKey();
+                        return (null, null);
+                    case LoginStatus.Success:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(loginStatus), loginStatus, null);
                 }
 
                 Console.WriteLine("Please provide your details below:");
 
                 Console.Write("Login ID: ");
-                string loginID = Console.ReadLine();
+                var loginId = Console.ReadLine();
 
-                if (loginID.Length == 8 && int.TryParse(loginID, out _))
+                if (loginId != null && loginId.Length == 8 && int.TryParse(loginId, out _))
                 {
                     Console.Write("Password: ");
 
-                    StringBuilder passwordBuilder = new StringBuilder();
-                    ConsoleKeyInfo inputKey = System.Console.ReadKey();
+                    var passwordBuilder = new StringBuilder();
+                    var inputKey = Console.ReadKey();
                     while (inputKey.Key != ConsoleKey.Enter)
                     {
                         passwordBuilder.Append(inputKey.KeyChar);
-                        inputKey = System.Console.ReadKey();
+                        inputKey = Console.ReadKey();
                     }
 
-                    return (loginID, passwordBuilder.ToString());
+                    return (loginId, passwordBuilder.ToString());
+                }
 
-                }
-                else
-                {
-                    return Login(LoginStatus.IncorrectID);
-                }
+                loginStatus = LoginStatus.IncorrectId;
             }
-
-
-
         }
 
         public void MainMenu(Customer loggedInCustomer)
@@ -122,14 +122,14 @@ namespace Assignment1
 
         }
 
-        private int GetAcceptableInput(int choices)
+        private static int GetAcceptableInput(int choices)
         {
             (bool isAcceptable, int parsedValue) inputStatus;
             do
             {
                 Console.Write("Your choice: ");
 
-                string input = Console.ReadLine();
+                var input = Console.ReadLine();
 
                 inputStatus = IsAcceptableMenuInput(input, choices);
 
@@ -142,17 +142,14 @@ namespace Assignment1
             return inputStatus.parsedValue;
         }
 
-        private (bool isAcceptable, int parsedValue) IsAcceptableMenuInput(string input, int maxInput)
+        private static (bool isAcceptable, int parsedValue) IsAcceptableMenuInput(string input, int maxInput)
         {
-            int numericalInput;
-            if (input.Length == 1 && int.TryParse(input, out numericalInput))
+            if (input.Length != 1 || !int.TryParse(input, out var numericalInput)) return (false, 0);
+            for (var i = 1; i <= maxInput; i++)
             {
-                for (int i = 1; i <= maxInput; i++)
+                if (i == numericalInput)
                 {
-                    if (i == numericalInput)
-                    {
-                        return (true, numericalInput);
-                    }
+                    return (true, numericalInput);
                 }
             }
 
@@ -160,129 +157,126 @@ namespace Assignment1
 
         }
 
-        private Account SelectAccount(List<Account> accounts)
+        private static Account SelectAccount(IReadOnlyList<Account> accounts)
         {
 
             Console.WriteLine("Please select an account\n");
 
-            for (int i = 0; i < accounts.Count; i++)
+            for (var i = 0; i < accounts.Count; i++)
             {
-                Console.WriteLine($"{i + 1}: {accounts[i].AccountNumber} ({getFullAccountType(accounts[i].AccountType)}), {accounts[i].Balance}");
+                Console.WriteLine($"{i + 1}: {accounts[i].AccountNumber} ({GetFullAccountType(accounts[i].AccountType)}), {accounts[i].Balance}");
             }
             Console.WriteLine($"{accounts.Count + 1}: Cancel");
 
-            int accountSelectInput = GetAcceptableInput(accounts.Count + 1);
+            var accountSelectInput = GetAcceptableInput(accounts.Count + 1);
 
-            if (accountSelectInput == accounts.Count + 1)
-            {
-                return null;
-            }
-
-            return accounts[accountSelectInput - 1];
-
+            return accountSelectInput == accounts.Count + 1 ? null : accounts[accountSelectInput - 1];
         }
 
 
         public void ShowTransactions(List<Account> accounts)
         {
-            Account account = SelectAccount(accounts);
-            List<Transaction> transactions = Controller.GetTransactions(account);
+            var account = SelectAccount(accounts);
+            var transactions = Controller.GetTransactions(account);
 
 
-            bool escaped = false;
-            int index = 1;
+            var escaped = false;
+            var index = 1;
             while (!escaped)
             {
                 ShowTransactionPage(transactions, index - 1, index + 2);
 
-                bool backPage = (index > 3);
-                bool nextPage = (index + 3 < transactions.Count);
+                var backPage = (index > 3);
+                var nextPage = (index + 3 < transactions.Count);
 
-                if (!backPage && !nextPage)
+                switch (backPage)
                 {
-                    escaped = true;
-                }
-                else if (backPage && nextPage)
-                {
-                    Console.WriteLine("\nPlease provide your input\n" +
-                        "1: Next Page\n" +
-                        "2: Previous Page\n" +
-                        "3: Cancel");
-                    switch (GetAcceptableInput(3))
+                    case false when !nextPage:
+                        escaped = true;
+                        break;
+                    case true when nextPage:
+                        Console.WriteLine("\nPlease provide your input\n" +
+                                          "1: Next Page\n" +
+                                          "2: Previous Page\n" +
+                                          "3: Cancel");
+                        switch (GetAcceptableInput(3))
+                        {
+                            case 1:
+                                index += 4;
+                                break;
+                            case 2:
+                                index -= 4;
+                                break;
+                            case 3:
+                                escaped = true;
+                                break;
+                            default:
+                                Console.WriteLine("Fatal Error: Invalid input got through in transaction history options");
+                                escaped = true;
+                                break;
+                        }
+
+                        break;
+                    case true:
+                        Console.WriteLine("\nPlease provide your input\n" +
+                                          "1: Previous Page\n" +
+                                          "2: Cancel");
+                        switch (GetAcceptableInput(3))
+                        {
+                            case 1:
+                                index -= 4;
+                                break;
+                            case 2:
+                                escaped = true;
+                                break;
+                            default:
+                                Console.WriteLine("Fatal Error: Invalid input got through in transaction history options");
+                                escaped = true;
+                                break;
+                        }
+
+                        break;
+                    default:
                     {
-                        case 1:
-                            index += 4;
-                            break;
-                        case 2:
-                            index -= 4;
-                            break;
-                        case 3:
-                            escaped = true;
-                            break;
-                        default:
-                            Console.WriteLine("Fatal Error: Invalid input got through in transaction history options");
-                            escaped = true;
-                            break;
-                    }
-                }
-                else if (backPage)
-                {
-                    Console.WriteLine("\nPlease provide your input\n" +
-                        "1: Previous Page\n" +
-                        "2: Cancel");
-                    switch (GetAcceptableInput(3))
-                    {
-                        case 1:
-                            index -= 4;
-                            break;
-                        case 2:
-                            escaped = true;
-                            break;
-                        default:
-                            Console.WriteLine("Fatal Error: Invalid input got through in transaction history options");
-                            escaped = true;
-                            break;
-                    }
-                }
-                else if(nextPage) {
-                    Console.WriteLine("\nPlease provide your input\n" +
-                        "1: Next Page\n" +
-                        "2: Cancel");
-                    switch (GetAcceptableInput(3))
-                    {
-                        case 1:
-                            index += 4;
-                            break;
-                        case 2:
-                            escaped = true;
-                            break;
-                        default:
-                            Console.WriteLine("Fatal Error: Invalid input got through in transaction history options");
-                            escaped = true;
-                            break;
+                        Console.WriteLine("\nPlease provide your input\n" +
+                                          "1: Next Page\n" +
+                                          "2: Cancel");
+                        switch (GetAcceptableInput(3))
+                        {
+                            case 1:
+                                index += 4;
+                                break;
+                            case 2:
+                                escaped = true;
+                                break;
+                            default:
+                                Console.WriteLine("Fatal Error: Invalid input got through in transaction history options");
+                                escaped = true;
+                                break;
+                        }
+
+                        break;
                     }
                 }
 
             }
 
-            if(transactions.Count <= 4)
-            {
-                Console.WriteLine("Press any key to continue");
-                Console.ReadKey();
-            }
-           
+            if (transactions.Count > 4) return;
+            Console.WriteLine("Press any key to continue");
+            Console.ReadKey();
+
 
 
         }
 
-        private void ShowTransactionPage(List<Transaction> transactions, int startIndex, int endIndex)
+        private static void ShowTransactionPage(IReadOnlyList<Transaction> transactions, int startIndex, int endIndex)
         {
-            for (int i = startIndex; i <= endIndex && i < transactions.Count; i++)
+            for (var i = startIndex; i <= endIndex && i < transactions.Count; i++)
             {
-                Transaction transaction = transactions[i];
+                var transaction = transactions[i];
 
                 Console.WriteLine($"\n********************* {i + 1} of {transactions.Count} ********************************\n" +
-                   $"Transaction ID:\t\t{transaction.TransactionID}\n" +
+                   $"Transaction ID:\t\t{transaction.TransactionId}\n" +
                    $"Transaction type:\t{transaction.TransactionType}\n" +
                    $"Source account #:\t{transaction.SourceAccount}\n" +
                    $"Destination account #:\t{transaction.DestinationAccountNumber}\n" +
@@ -295,72 +289,69 @@ namespace Assignment1
 
         public (Account sourceAccount, Account destinationAccount, double amount) Transfer(List<Account> originalAccounts)
         {
-            List<Account> accounts = new List<Account>(originalAccounts);
-
-            Clear();
-            Console.WriteLine("-- Account Transfer -- \n");
-            Console.WriteLine("Please provide the account to transfer from (source)\n");
-            Account sourceAccount = SelectAccount(accounts);
-
-            if (sourceAccount == null)
+            while (true)
             {
-                return (null, null, 0);
+                var accounts = new List<Account>(originalAccounts);
+
+                Clear();
+                Console.WriteLine("-- Account Transfer -- \n");
+                Console.WriteLine("Please provide the account to transfer from (source)\n");
+                var sourceAccount = SelectAccount(accounts);
+
+                if (sourceAccount == null)
+                {
+                    return (null, null, 0);
+                }
+
+                accounts.Remove(sourceAccount);
+
+                Clear();
+                Console.WriteLine("-- Account Transfer -- \n");
+                Console.WriteLine($"Sourcing transfer from the account: {sourceAccount.AccountNumber} ({GetFullAccountType(sourceAccount.AccountType)}),  ${sourceAccount.Balance}\n");
+
+
+                Account destinationAccount;
+                if (accounts.Count == 1)
+                {
+                    destinationAccount = accounts[0];
+                    Console.WriteLine($"Only one destination account to choose from, defaulting to {destinationAccount.AccountNumber} ({GetFullAccountType(destinationAccount.AccountType)}), {destinationAccount.Balance}\n");
+                }
+                else
+                {
+                    Console.WriteLine("Please provide an account to transfer into (destination)\n");
+                    destinationAccount = SelectAccount(accounts);
+                }
+
+                var (escaped, result) = GetCurrencyInput("\nPlease input transfer amount\n", "Please input a valid transfer amount\n", input => input > 0 && input <= sourceAccount.Balance);
+                if (escaped) continue;
+                return (sourceAccount, destinationAccount, result);
             }
-
-            accounts.Remove(sourceAccount);
-
-            Clear();
-            Console.WriteLine("-- Account Transfer -- \n");
-            Console.WriteLine($"Sourcing transfer from the account: {sourceAccount.AccountNumber} ({getFullAccountType(sourceAccount.AccountType)}),  ${sourceAccount.Balance}\n");
-
-
-
-
-            Account destinationAccount;
-            if (accounts.Count == 1)
-            {
-                destinationAccount = accounts[0];
-                Console.WriteLine($"Only one destination account to choose from, defaulting to {destinationAccount.AccountNumber} ({getFullAccountType(destinationAccount.AccountType)}), {destinationAccount.Balance}\n");
-            }
-            else
-            {
-                Console.WriteLine("Please provide an account to transfer into (desitnation)\n");
-                destinationAccount = SelectAccount(accounts);
-            }
-
-            (bool escaped, double result) input = GetCurrencyInput("\nPlease input transfer amount\n", "Please input a valid transfer amount\n", input => input > 0 && input <= sourceAccount.Balance);
-            if (input.escaped)
-            {
-                return Transfer(originalAccounts);
-            }
-
-            return (sourceAccount, destinationAccount, input.result);
         }
 
         public void TransferResponse(bool wasSuccess, Account sourceAccount, Account destinationAccount, double amount)
         {
             if (wasSuccess)
             {
-                Console.WriteLine($"Trasnfer from {sourceAccount.AccountNumber} ({getFullAccountType(sourceAccount.AccountType)}) " +
-                    $"to {destinationAccount.AccountNumber} ({getFullAccountType(destinationAccount.AccountType)}) of {amount} was successful");
+                Console.WriteLine($"Transfer from {sourceAccount.AccountNumber} ({GetFullAccountType(sourceAccount.AccountType)}) " +
+                    $"to {destinationAccount.AccountNumber} ({GetFullAccountType(destinationAccount.AccountType)}) of {amount} was successful");
             }
             else
             {
-                Console.WriteLine($"Trasnfer from {sourceAccount.AccountNumber} ({getFullAccountType(sourceAccount.AccountType)}) " +
-                    $"to {destinationAccount.AccountNumber} ({getFullAccountType(destinationAccount.AccountType)}) of {amount} was unsuccessful");
+                Console.WriteLine($"Transfer from {sourceAccount.AccountNumber} ({GetFullAccountType(sourceAccount.AccountType)}) " +
+                    $"to {destinationAccount.AccountNumber} ({GetFullAccountType(destinationAccount.AccountType)}) of {amount} was unsuccessful");
                 Console.WriteLine("Please contact customer service for assistance");
             }
 
             Console.WriteLine("\nEnding balances:");
-            Console.WriteLine($"{sourceAccount.AccountNumber} ({getFullAccountType(sourceAccount.AccountType)}): ${sourceAccount.Balance}");
-            Console.WriteLine($"{destinationAccount.AccountNumber} ({getFullAccountType(destinationAccount.AccountType)}): ${destinationAccount.Balance}");
+            Console.WriteLine($"{sourceAccount.AccountNumber} ({GetFullAccountType(sourceAccount.AccountType)}): ${sourceAccount.Balance}");
+            Console.WriteLine($"{destinationAccount.AccountNumber} ({GetFullAccountType(destinationAccount.AccountType)}): ${destinationAccount.Balance}");
 
             Console.WriteLine("\nPress any key to continue...");
             Console.ReadKey();
 
         }
 
-        private String getFullAccountType(char accountType)
+        private static string GetFullAccountType(char accountType)
         {
             return accountType == 'S' ? "Savings" : "Checking";
         }
@@ -378,21 +369,19 @@ namespace Assignment1
             Console.ReadKey();
         }
 
-        private (bool escaped, double result) GetCurrencyInput(string requestMessage, string failMessage, FieldValidator validator)
+        private static (bool escaped, double result) GetCurrencyInput(string requestMessage, string failMessage, FieldValidator validator)
         {
             while (true)
             {
                 Console.Write(requestMessage);
-                string input = Console.ReadLine();
+                var input = Console.ReadLine();
 
                 if (input == "")
                 {
                     return (true, 0);
                 }
 
-                double parsedInput;
-
-                if (double.TryParse(input, out parsedInput) && validator(parsedInput))
+                if (double.TryParse(input, out var parsedInput) && validator(parsedInput))
                 {
                     return (false, parsedInput);
                 }
@@ -405,63 +394,58 @@ namespace Assignment1
 
         public (Account account, TransactionType transactionType, double amount) AtmTransaction(List<Account> accounts)
         {
-            Clear();
-            Console.WriteLine("-- ATM Transaction -- \n");
-            Account selectedAccount = SelectAccount(accounts);
-
-            if (selectedAccount == null)
+            while (true)
             {
-                return (null, TransactionType.Deposit, 0);
-            }
+                Clear();
+                Console.WriteLine("-- ATM Transaction -- \n");
+                var selectedAccount = SelectAccount(accounts);
 
-            Clear();
-            Console.WriteLine("-- ATM Transaction -- \n");
-            Console.WriteLine($"Using account: {selectedAccount.AccountNumber} ({getFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
-            Console.WriteLine("Please select a transaction type\n");
-            Console.WriteLine("1: Deposit\n2: Withdraw\n3: Different account\n4: Main menu");
-            int transactionTypeInput = GetAcceptableInput(4);
-
-            switch (transactionTypeInput)
-            {
-                case 1:
-                    Clear();
-                    Console.WriteLine("-- ATM Transaction -- \n");
-                    Console.WriteLine($"Using account: {selectedAccount.AccountNumber} ({getFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
-
-                    (bool escaped, double result) depositInput = GetCurrencyInput("Please enter how much you would like to deposit (Input nothing to return): \n", "\nPlease input a correct deposit amount\n\n",
-                        input => input > 0);
-
-                    if (depositInput.escaped)
-                    {
-                        return AtmTransaction(accounts); // TODO Look into a way to return to transaction selection rather then acount selection
-                    }
-                    else
-                    {
-                        return (selectedAccount, TransactionType.Deposit, depositInput.result);
-                    }
-                case 2:
-                    Clear();
-                    Console.WriteLine("-- ATM Transaction -- \n");
-                    Console.WriteLine($"Using account: {selectedAccount.AccountNumber} ({getFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
-
-                    (bool escaped, double result) withdrawInput = GetCurrencyInput("Please enter how much you would like to withdraw (Input nothing to return): \n", "\nPlease input a correct withdraw amount\n\n",
-                        input => input > 0 && input < selectedAccount.Balance);
-
-                    if (withdrawInput.escaped)
-                    {
-                        return AtmTransaction(accounts); // TODO Look into a way to return to transaction selection rather then acount selection
-                    }
-                    else
-                    {
-                        return (selectedAccount, TransactionType.Withdraw, withdrawInput.result);
-                    }
-                case 3:
-                    return AtmTransaction(accounts);
-                case 4:
+                if (selectedAccount == null)
+                {
                     return (null, TransactionType.Deposit, 0);
-                default:
-                    Console.WriteLine("Fatal Error: Incorrect input go through in ATM Transaction menu");
-                    return (null, TransactionType.Deposit, 0);
+                }
+
+                Clear();
+                Console.WriteLine("-- ATM Transaction -- \n");
+                Console.WriteLine($"Using account: {selectedAccount.AccountNumber} ({GetFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
+                Console.WriteLine("Please select a transaction type\n");
+                Console.WriteLine("1: Deposit\n2: Withdraw\n3: Different account\n4: Main menu");
+                var transactionTypeInput = GetAcceptableInput(4);
+
+                switch (transactionTypeInput)
+                {
+                    case 1:
+                        Clear();
+                        Console.WriteLine("-- ATM Transaction -- \n");
+                        Console.WriteLine($"Using account: {selectedAccount.AccountNumber} ({GetFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
+
+                        var (escaped, result) = GetCurrencyInput("Please enter how much you would like to deposit (Input nothing to return): \n", "\nPlease input a correct deposit amount\n\n", input => input > 0);
+
+                        if (escaped) continue;
+                        return (selectedAccount, TransactionType.Deposit, result);
+                    case 2:
+                        Clear();
+                        Console.WriteLine("-- ATM Transaction -- \n");
+                        Console.WriteLine($"Using account: {selectedAccount.AccountNumber} ({GetFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
+
+                        var (success, inputAmount) = GetCurrencyInput("Please enter how much you would like to withdraw (Input nothing to return): \n", "\nPlease input a correct withdraw amount\n\n", input => input > 0 && input < selectedAccount.Balance);
+
+                        if (success)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            return (selectedAccount, TransactionType.Withdraw, inputAmount);
+                        }
+                    case 3:
+                        continue;
+                    case 4:
+                        return (null, TransactionType.Deposit, 0);
+                    default:
+                        Console.WriteLine("Fatal Error: Incorrect input go through in ATM Transaction menu");
+                        return (null, TransactionType.Deposit, 0);
+                }
             }
         }
 

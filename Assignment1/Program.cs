@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Assignment1.Engine;
+using Assignment1.View;
 
 namespace Assignment1
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             new BankingControllerImpl(new BankingEngineImpl(), new TerminalBankingView()).Start();
         }

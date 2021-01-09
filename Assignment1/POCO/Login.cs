@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Assignment1
+﻿namespace Assignment1.POCO
 {
     public class Login
     {
-        public string LoginID { get; set; }
-        public int CustomerID { get; set; }
+        public string LoginId { get; set; }
+        public int CustomerId { get; set; }
         public string PasswordHash { get; set; }
 
     }

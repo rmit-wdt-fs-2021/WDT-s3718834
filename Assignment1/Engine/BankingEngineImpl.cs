@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using Assignment1.Enum;
+using Assignment1.POCO;
 
-namespace Assignment1
+namespace Assignment1.Engine
 {
-    public class BankingEngineImpl : BankingEngine
+    public class BankingEngineImpl : IBankingEngine
     {
 
         private BankingController Controller { get; set; }
@@ -12,51 +13,49 @@ namespace Assignment1
         public void Start(BankingController controller)
         {
             this.Controller = controller;
-            DatabaseProxy databaseProxy = new DatabaseProxy();
-            bool test = databaseProxy.CustomersExist();
+            var databaseProxy = new DatabaseProxy();
+            var test = databaseProxy.CustomersExist();
 
             return;
         }
 
-        public Customer LoginAttempt(string loginID, string password)
+        public Customer LoginAttempt(string loginId, string password)
         {
-            // Temporary password checking for terminal testing
-            if (password.Equals("a"))
+            return password switch
             {
-                throw new LoginFailedException();
-            }
-            else if (password.Equals("b"))
-            {
-                throw new LoginAttemptsExcededException();
-            }
-
-            return new Customer(12345678, "bob", "9 bob street", "melbourne", "3000");
+                // Temporary password checking for terminal testing
+                "a" => throw new LoginFailedException(),
+                "b" => throw new LoginAttemptsExceededException(),
+                _ => new Customer(12345678, "bob", "9 bob street", "melbourne", "3000")
+            };
         }
 
         public List<Account> GetAccounts(Customer customer)
         {
-
-            List<Account> accounts = new List<Account>();
-
-            accounts.Add(new Account(12346789, 'S', customer.CustomerID, 100000.01));
-            accounts.Add(new Account(987654321, 'C', customer.CustomerID, 1.43));
-            accounts.Add(new Account(312312612, 'C', customer.CustomerID, 420.43));
-
+            var accounts = new List<Account>
+            {
+                new Account(12346789, 'S', customer.CustomerId, 100000.01),
+                new Account(987654321, 'C', customer.CustomerId, 1.43),
+                new Account(312312612, 'C', customer.CustomerId, 420.43)
+            };
+            
             return accounts;
         }
 
         public List<Transaction> GetTransactions(Account account)
         {
-            List<Transaction> transactions = new List<Transaction>();
-            transactions.Add(new Transaction(1, 'D', 987654321, 123012302, 10.01, "deposit money", DateTime.Now));
-            transactions.Add(new Transaction(1, 'S', 987654321, 987654321, 0.1, "withdraw charge", DateTime.Now));
-            transactions.Add(new Transaction(1, 'W', 987654321, 987654321, 20.02, "withdraw money", DateTime.Now));
-            transactions.Add(new Transaction(1, 'S', 987654321, 987654321, 0.2, "transfer charge", DateTime.Now));
-            transactions.Add(new Transaction(1, 'T', 987654321, 123456789, 40.03, "transfer to savings", DateTime.Now));
-            transactions.Add(new Transaction(1, 'D', 987654321, 123012302, 10.01, "deposit money", DateTime.Now));
-            transactions.Add(new Transaction(1, 'S', 987654321, 987654321, 0.1, "withdraw charge", DateTime.Now));
-            transactions.Add(new Transaction(1, 'W', 987654321, 987654321, 20.02, "withdraw money", DateTime.Now));
-            transactions.Add(new Transaction(1, 'S', 987654321, 987654321, 0.2, "transfer charge", DateTime.Now));
+            var transactions = new List<Transaction>
+            {
+                new Transaction(1, 'D', 987654321, 123012302, 10.01, "deposit money", DateTime.Now),
+                new Transaction(1, 'S', 987654321, 987654321, 0.1, "withdraw charge", DateTime.Now),
+                new Transaction(1, 'W', 987654321, 987654321, 20.02, "withdraw money", DateTime.Now),
+                new Transaction(1, 'S', 987654321, 987654321, 0.2, "transfer charge", DateTime.Now),
+                new Transaction(1, 'T', 987654321, 123456789, 40.03, "transfer to savings", DateTime.Now),
+                new Transaction(1, 'D', 987654321, 123012302, 10.01, "deposit money", DateTime.Now),
+                new Transaction(1, 'S', 987654321, 987654321, 0.1, "withdraw charge", DateTime.Now),
+                new Transaction(1, 'W', 987654321, 987654321, 20.02, "withdraw money", DateTime.Now),
+                new Transaction(1, 'S', 987654321, 987654321, 0.2, "transfer charge", DateTime.Now)
+            };
 
 
 
@@ -70,7 +69,7 @@ namespace Assignment1
 
         public (bool wasSuccess, double endingBalance) MakeTransaction(Account account, TransactionType transactionType, double amount)
         {
-            if (amount == 2.50)
+            if (Math.Abs(amount - 2.50) < 2)
             {
                 return (false, 10000);
             }

@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Assignment1
+﻿namespace Assignment1.Enum
 {
     public enum LoginStatus
     {
         Initial,
-        IncorrectID,
+        IncorrectId,
         IncorrectPassword,
         MaxAttempts,
         Success

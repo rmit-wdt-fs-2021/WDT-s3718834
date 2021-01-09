@@ -36,7 +36,7 @@ namespace Assignment1.Engine
             }
         }
 
-        public Customer LoginAttempt(string loginId, string password)
+        public async Task<Customer> LoginAttempt(string loginId, string password)
         {
             return password switch
             {

@@ -28,8 +28,7 @@ namespace Assignment1.Controller
             if (engineStartTask.IsCompleted)
             {
                 Login();
-                LoggedInCustomer = Engine.LoginAttempt("", "");
-                View.MainMenu(LoggedInCustomer); // Skipping login for testing 
+                View.MainMenu(LoggedInCustomer); 
             }
         }
 
@@ -49,7 +48,12 @@ namespace Assignment1.Controller
 
                 try
                 {
-                    LoggedInCustomer = Engine.LoginAttempt(loginId, password);
+                    var loginAttemptTask = Engine.LoginAttempt(loginId, password);
+                    
+                    View.Loading();
+
+                    loginAttemptTask.Wait();
+                    LoggedInCustomer = loginAttemptTask.Result;
                     loginStatus = LoginStatus.Success;
                 }
                 catch (LoginFailedException)

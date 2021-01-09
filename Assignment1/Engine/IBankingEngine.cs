@@ -11,7 +11,7 @@ namespace Assignment1.Engine
     {
         public Task Start(BankingController controller);
 
-        public Customer LoginAttempt(string loginId, string password);
+        public Task<Customer> LoginAttempt(string loginId, string password);
 
         public List<Account> GetAccounts(Customer customer);
         public List<Transaction> GetTransactions(Account account);

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Assignment1.Controller;
 using Assignment1.Enum;
 using Assignment1.POCO;
+using SimpleHashing;
 
 namespace Assignment1.Engine
 {
@@ -36,15 +37,21 @@ namespace Assignment1.Engine
             }
         }
 
-        public Customer LoginAttempt(string loginId, string password)
+        public async Task<Customer> LoginAttempt(string loginId, string password)
         {
-            return password switch
+            var existingHashTask = _databaseProxy.GetPasswordHashAndCustomerId(loginId);
+
+            var (customerId, passwordHash) = await existingHashTask;
+            
+            if (SimpleHashing.PBKDF2.Verify(passwordHash, password))
             {
-                // Temporary password checking for terminal testing
-                "a" => throw new LoginFailedException(),
-                "b" => throw new LoginAttemptsExceededException(),
-                _ => new Customer(12345678, "bob", "9 bob street", "melbourne", "3000")
-            };
+                return await _databaseProxy.GetCustomer(customerId);
+            }
+            else
+            {
+                throw new LoginFailedException();
+            }
+            
         }
 
         public List<Account> GetAccounts(Customer customer)

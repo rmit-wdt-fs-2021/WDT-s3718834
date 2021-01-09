@@ -354,7 +354,7 @@ namespace Assignment1.View
 
         public void Loading()
         {
-            Console.WriteLine("\n Loading ... \n");
+            Console.WriteLine("\nLoading ... \n");
         }
 
         private static string GetFullAccountType(char accountType)

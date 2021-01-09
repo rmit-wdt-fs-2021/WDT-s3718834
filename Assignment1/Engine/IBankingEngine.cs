@@ -13,8 +13,8 @@ namespace Assignment1.Engine
 
         public Task<Customer> LoginAttempt(string loginId, string password);
 
-        public List<Account> GetAccounts(Customer customer);
-        public List<Transaction> GetTransactions(Account account);
+        public Task<List<Account>> GetAccounts(Customer customer);
+        public Task<List<Transaction>> GetTransactions(Account account);
 
         public bool MakeTransfer(Account sourceAccount, Account destinationAccount, decimal amount);
 

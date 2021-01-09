@@ -54,35 +54,14 @@ namespace Assignment1.Engine
             
         }
 
-        public List<Account> GetAccounts(Customer customer)
+        public async Task<List<Account>> GetAccounts(Customer customer)
         {
-            var accounts = new List<Account>
-            {
-                new Account(12346789, 'S', customer.CustomerId, new decimal(100000.01)),
-                new Account(987654321, 'C', customer.CustomerId, new decimal(1.43)),
-                new Account(312312612, 'C', customer.CustomerId, new decimal(420.43))
-            };
-
-            return accounts;
+            return await _databaseProxy.GetAccounts(customer.CustomerId);
         }
 
-        public List<Transaction> GetTransactions(Account account)
+        public async Task<List<Transaction>> GetTransactions(Account account)
         {
-            var transactions = new List<Transaction>
-            {
-                new Transaction('D', 987654321, 123012302, new decimal(10.01), "deposit money", DateTime.Now),
-                new Transaction('S', 987654321, 987654321, new decimal(0.1), "withdraw charge", DateTime.Now),
-                new Transaction('W', 987654321, 987654321, new decimal(20.02), "withdraw money", DateTime.Now),
-                new Transaction('S', 987654321, 987654321, new decimal(0.2), "transfer charge", DateTime.Now),
-                new Transaction('T', 987654321, 123456789, new decimal(40.03), "transfer to savings", DateTime.Now),
-                new Transaction('D', 987654321, 123012302, new decimal(10.01), "deposit money", DateTime.Now),
-                new Transaction('S', 987654321, 987654321, new decimal(0.1), "withdraw charge", DateTime.Now),
-                new Transaction('W', 987654321, 987654321, new decimal(20.02), "withdraw money", DateTime.Now),
-                new Transaction('S', 987654321, 987654321, new decimal(0.2), "transfer charge", DateTime.Now)
-            };
-
-
-            return transactions;
+            return await _databaseProxy.GetTransactions(account.AccountNumber);
         }
 
         public bool MakeTransfer(Account sourceAccount, Account destinationAccount, decimal amount)

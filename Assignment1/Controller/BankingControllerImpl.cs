@@ -73,13 +73,23 @@ namespace Assignment1.Controller
 
         public override void TransactionHistory()
         {
-            View.ShowTransactions(Engine.GetAccounts(LoggedInCustomer));
+            var getAccountsTask = Engine.GetAccounts(LoggedInCustomer);
+            
+            View.Loading();
+            getAccountsTask.Wait();
+            
+            View.ShowTransactions(getAccountsTask.Result);
             View.MainMenu(LoggedInCustomer);
         }
 
         public override void Transfer()
         {
-            var (sourceAccount, destinationAccount, amount) = View.Transfer(Engine.GetAccounts(LoggedInCustomer));
+            var getAccountsTask = Engine.GetAccounts(LoggedInCustomer);
+            
+            View.Loading();
+            getAccountsTask.Wait();
+            
+            var (sourceAccount, destinationAccount, amount) = View.Transfer(getAccountsTask.Result);
 
             if (sourceAccount != null)
             {
@@ -98,7 +108,12 @@ namespace Assignment1.Controller
 
         public override List<Transaction> GetTransactions(Account account)
         {
-            return Engine.GetTransactions(account);
+            var getTransactionsTask = Engine.GetTransactions(account);
+            
+            View.Loading();
+            getTransactionsTask.Wait();
+
+            return getTransactionsTask.Result;
         }
 
         // TODO Implement
@@ -126,7 +141,12 @@ namespace Assignment1.Controller
         {
             while (true)
             {
-                var (account, transactionType, amount) = View.AtmTransaction(Engine.GetAccounts(LoggedInCustomer));
+                var getAccountsTask = Engine.GetAccounts(LoggedInCustomer);
+            
+                View.Loading();
+                getAccountsTask.Wait();
+                
+                var (account, transactionType, amount) = View.AtmTransaction(getAccountsTask.Result);
                 if (account == null)
                 {
                     View.MainMenu(LoggedInCustomer);

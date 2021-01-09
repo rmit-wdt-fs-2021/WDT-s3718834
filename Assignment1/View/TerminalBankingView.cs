@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Assignment1.Controller;
 using Assignment1.Enum;
 using Assignment1.POCO;
 
 namespace Assignment1.View
 {
-    internal class TerminalBankingView : IBankingView
+    public class TerminalBankingView : IBankingView
     {
 
         private BankingController Controller { get; set; }

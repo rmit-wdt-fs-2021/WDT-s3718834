@@ -2,7 +2,7 @@
 
 namespace Assignment1
 {
-    internal static class ConfigurationProvider
+    public static class ConfigurationProvider
     {
         private const string ConfigurationSourceFile = "appsettings.json";
 

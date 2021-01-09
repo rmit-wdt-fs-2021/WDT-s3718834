@@ -1,9 +1,10 @@
-﻿using Assignment1.Engine;
+﻿using Assignment1.Controller;
+using Assignment1.Engine;
 using Assignment1.View;
 
 namespace Assignment1
 {
-    internal static class Program
+    public static class Program
     {
         private static void Main(string[] args)
         {

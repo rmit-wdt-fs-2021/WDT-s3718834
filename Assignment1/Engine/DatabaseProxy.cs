@@ -5,7 +5,7 @@ using Microsoft.Data.SqlClient;
 
 namespace Assignment1.Engine
 {
-    class DatabaseProxy
+    public class DatabaseProxy
     {
 
         private readonly SqlConnection _connection;

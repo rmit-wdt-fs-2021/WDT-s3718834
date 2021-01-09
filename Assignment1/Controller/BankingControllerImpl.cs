@@ -4,7 +4,7 @@ using Assignment1.Enum;
 using Assignment1.POCO;
 using Assignment1.View;
 
-namespace Assignment1
+namespace Assignment1.Controller
 {
     public class BankingControllerImpl : BankingController
     {
@@ -29,10 +29,10 @@ namespace Assignment1
         public override void Login()
         {
 
-            LoginStatus loginStatus = LoginStatus.Initial;
+            var loginStatus = LoginStatus.Initial;
             while (loginStatus != LoginStatus.Success)
             {
-                (string loginID, string password) loginDetails = View.Login(loginStatus);
+                var (loginId, password) = View.Login(loginStatus);
 
                 if (loginStatus == LoginStatus.MaxAttempts)
                 {
@@ -42,14 +42,14 @@ namespace Assignment1
 
                 try
                 {
-                    LoggedInCustomer = Engine.LoginAttempt(loginDetails.loginID, loginDetails.password);
+                    LoggedInCustomer = Engine.LoginAttempt(loginId, password);
                     loginStatus = LoginStatus.Success;
                 }
-                catch (LoginFailedException e)
+                catch (LoginFailedException)
                 {
                     loginStatus = LoginStatus.IncorrectPassword;
                 }
-                catch (LoginAttemptsExceededException e)
+                catch (LoginAttemptsExceededException)
                 {
                     loginStatus = LoginStatus.MaxAttempts;
                 }
@@ -68,14 +68,14 @@ namespace Assignment1
 
         public override void Transfer()
         {
-            (Account sourceAccount, Account destinationAccount, double amount) transferDetails = View.Transfer(Engine.GetAccounts(LoggedInCustomer));
+            var (sourceAccount, destinationAccount, amount) = View.Transfer(Engine.GetAccounts(LoggedInCustomer));
 
-            if (transferDetails.sourceAccount != null)
+            if (sourceAccount != null)
             {
-                bool transferResult = Engine.MakeTransfer(transferDetails.sourceAccount, transferDetails.destinationAccount, transferDetails.amount);
+                var transferResult = Engine.MakeTransfer(sourceAccount, destinationAccount, amount);
                 if (transferResult)
                 {
-                    View.TransferResponse(transferResult, transferDetails.sourceAccount, transferDetails.destinationAccount, transferDetails.amount);
+                    View.TransferResponse(transferResult, sourceAccount, destinationAccount, amount);
                 }
 
                 Transfer();
@@ -114,22 +114,27 @@ namespace Assignment1
 
         public override void AtmTransaction()
         {
-            (Account account, TransactionType transactionType, double amount) transactionDetails = View.AtmTransaction(Engine.GetAccounts(LoggedInCustomer));
-            if (transactionDetails.account == null)
+            while (true)
             {
-                View.MainMenu(LoggedInCustomer);
-            }
-            else
-            {
-                (bool wasSuccess, double endingBalance) transactionResult = Engine.MakeTransaction(transactionDetails.account, transactionDetails.transactionType, transactionDetails.amount);
-                View.TransactionResponse(transactionResult.wasSuccess, transactionDetails.transactionType, transactionDetails.amount, transactionResult.endingBalance);
-                AtmTransaction();
+                var (account, transactionType, amount) = View.AtmTransaction(Engine.GetAccounts(LoggedInCustomer));
+                if (account == null)
+                {
+                    View.MainMenu(LoggedInCustomer);
+                }
+                else
+                {
+                    var (wasSuccess, endingBalance) = Engine.MakeTransaction(account, transactionType, amount);
+                    View.TransactionResponse(wasSuccess, transactionType, amount, endingBalance);
+                    continue;
+                }
+
+                break;
             }
         }
 
         public override void Exit()
         {
-            // TODO Put in the real method for exitting
+            // TODO Put in the real method for exiting
         }
     }
 }

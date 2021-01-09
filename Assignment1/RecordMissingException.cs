@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace Assignment1
 {
-    internal class RecordMissingException : Exception
+    public class RecordMissingException : Exception
     {
         public RecordMissingException()
         {

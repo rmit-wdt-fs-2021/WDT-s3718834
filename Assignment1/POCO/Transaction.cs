@@ -4,7 +4,7 @@ namespace Assignment1.POCO
 {
     public class Transaction
     {
-        public int TransactionId { get; set; }
+        public int TransactionId { get; set; } // Is set automatically
         public char TransactionType { get; set; }
         public int SourceAccount { get; set; }
         public int DestinationAccountNumber { get; set; }

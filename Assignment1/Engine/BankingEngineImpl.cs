@@ -14,10 +14,6 @@ namespace Assignment1.Engine
         public void Start(BankingController controller)
         {
             this.Controller = controller;
-            var databaseProxy = new DatabaseProxy();
-            var test = databaseProxy.CustomersExist();
-
-            return;
         }
 
         public Customer LoginAttempt(string loginId, string password)

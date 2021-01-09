@@ -17,4 +17,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ConfigurationLibrary\ConfigurationLibrary.csproj" />
+  </ItemGroup>
+
 </Project>

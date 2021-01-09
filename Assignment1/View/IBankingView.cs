@@ -20,5 +20,6 @@ namespace Assignment1.View
         public void TransactionResponse(bool wasSuccess, TransactionType transactionType, decimal amount, decimal newBalance);
         public (Account sourceAccount, Account destinationAccount, decimal amount) Transfer(List<Account> accounts);
         public void TransferResponse(bool wasSuccess, Account sourceAccount, Account destinationAccount, decimal amount);
+        public void Loading();
     }
 }

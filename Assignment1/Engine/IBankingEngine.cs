@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Assignment1.Controller;
 using Assignment1.Enum;
 using Assignment1.POCO;
@@ -8,7 +9,7 @@ namespace Assignment1.Engine
 {
     public interface IBankingEngine
     {
-        public void Start(BankingController controller);
+        public Task Start(BankingController controller);
 
         public Customer LoginAttempt(string loginId, string password);
 

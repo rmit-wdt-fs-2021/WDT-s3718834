@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Assignment1.Controller;
 using Assignment1.Enum;
 using Assignment1.POCO;
@@ -12,20 +13,22 @@ namespace Assignment1.Engine
 
         private DatabaseProxy _databaseProxy;
 
-        public async void Start(BankingController controller)
+        public async Task Start(BankingController controller)
         {
             this._controller = controller;
             _databaseProxy = new DatabaseProxy();
 
-            if (!_databaseProxy.CustomersExist())
+            if (!(await _databaseProxy.CustomersExist()))
             {
                 var customerDataTask = DataSeedApiProxy.RetrieveCustomerData();
                 var loginDataTask = DataSeedApiProxy.RetrieveLoginData();
                 
                 var (customers, accounts, transactions) = await customerDataTask;
-                _databaseProxy.AddCustomerBulk(customers);
-                _databaseProxy.AddAccountBulk(accounts);
-                _databaseProxy.AddTransactionBulk(transactions);
+                
+                // Due to table constraints these need to occur synchronously 
+                await _databaseProxy.AddCustomerBulk(customers);
+                await _databaseProxy.AddAccountBulk(accounts);
+                await _databaseProxy.AddTransactionBulk(transactions);
 
 
                 var loginData = await loginDataTask;

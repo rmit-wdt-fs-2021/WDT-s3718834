@@ -13,7 +13,10 @@ namespace Assignment1.Engine
         {
             var rawJson =  new HttpClient().GetStringAsync(ConfigurationProvider.GetCustomerDataSeedApiUrl()).Result;
 
-            var convertedJson = JsonConvert.DeserializeObject<List<CustomerData>>(rawJson); 
+            var convertedJson = JsonConvert.DeserializeObject<List<CustomerData>>(rawJson, new JsonSerializerSettings()
+            {
+                DateFormatString = "dd/MM/yyyy hh:mm:ss tt"
+            }); 
 
             var customers = new List<Customer>();
             var accounts = new List<Account>();
@@ -34,7 +37,7 @@ namespace Assignment1.Engine
                         account.AccountNumber,
                         account.Balance,
                         "Account creation",
-                        account.Transactions[0].Item2));
+                        account.Transactions[0].TransactionTimeUtc));
                 }
             }
 
@@ -79,16 +82,26 @@ namespace Assignment1.Engine
             public char AccountType { get; set; }
             public int CustomerID { get; set; }
             public decimal Balance { get; set; }
-            public List<(string, DateTime)> Transactions { get; set; }
+            public List<TransactionData> Transactions { get; set; }
 
             public CustomerDataAccount(int accountNumber, char accountType, int customerId, decimal balance,
-                List<(string, DateTime)> transactions)
+                List<TransactionData> transactions)
             {
                 AccountNumber = accountNumber;
                 AccountType = accountType;
                 CustomerID = customerId;
                 Balance = balance;
                 Transactions = transactions;
+            }
+        }
+
+        private class TransactionData
+        {
+            public DateTime TransactionTimeUtc { get; set; }
+
+            public TransactionData(DateTime transactionTimeUtc)
+            {
+                TransactionTimeUtc = transactionTimeUtc;
             }
         }
     }

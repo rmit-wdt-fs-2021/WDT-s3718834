@@ -9,11 +9,25 @@ namespace Assignment1.Engine
     public class BankingEngineImpl : IBankingEngine
     {
 
-        private BankingController Controller { get; set; }
+        private BankingController _controller;
+
+        private DatabaseProxy _databaseProxy;
 
         public void Start(BankingController controller)
         {
-            this.Controller = controller;
+            this._controller = controller;
+            _databaseProxy = new DatabaseProxy();
+            
+            if (!_databaseProxy.CustomersExist())
+            {
+                var (customers, accounts, transactions) = DataSeedApiProxy.RetrieveCustomerData();
+                _databaseProxy.AddCustomerBulk(customers);
+                _databaseProxy.AddAccountBulk(accounts);
+                _databaseProxy.AddTransactionBulk(transactions);
+
+                var loginData = DataSeedApiProxy.RetrieveLoginData();
+                _databaseProxy.AddLoginBulk(loginData);
+            }
         }
 
         public Customer LoginAttempt(string loginId, string password)

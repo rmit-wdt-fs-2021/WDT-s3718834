@@ -34,10 +34,10 @@ namespace Assignment1.Engine
                 CreateCommand(
                     "INSERT INTO Customer (CustomerID, Name, Address, City, PostCode) VALUES (@customerID, @name, @address, @city, @postcode)");
             command.Parameters.AddWithValue("@customerID", customer.CustomerId);
-            command.Parameters.AddWithValue("@name", customer.Name);
-            command.Parameters.AddWithValue("@address", customer.Address);
-            command.Parameters.AddWithValue("@city", customer.City);
-            command.Parameters.AddWithValue("@postcode", customer.Postcode);
+            command.Parameters.AddWithValue("@name", (object) customer.Name ?? DBNull.Value);
+            command.Parameters.AddWithValue("@address", (object) customer.Address ?? DBNull.Value);
+            command.Parameters.AddWithValue("@city", (object) customer.City ?? DBNull.Value);
+            command.Parameters.AddWithValue("@postcode", (object) customer.Postcode ?? DBNull.Value);
 
             command.ExecuteNonQuery();
         }

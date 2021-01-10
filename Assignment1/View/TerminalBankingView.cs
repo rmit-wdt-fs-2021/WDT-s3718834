@@ -11,12 +11,7 @@ namespace Assignment1.View
     {
 
         private BankingController Controller { get; set; }
-
-
-        // TODO Is there a better way to do this?
-        private delegate bool FieldValidator(decimal loginId);
-
-
+        
         public void Start(BankingController controller)
         {
             Console.WriteLine("Welcome to MCBA Banking Application");
@@ -428,7 +423,7 @@ namespace Assignment1.View
             Console.ReadKey();
         }
 
-        private static (bool escaped, decimal result) GetCurrencyInput(string requestMessage, string failMessage, FieldValidator validator)
+        private static (bool escaped, decimal result) GetCurrencyInput(string requestMessage, string failMessage, Func<decimal, bool> validator)
         {
             while (true)
             {

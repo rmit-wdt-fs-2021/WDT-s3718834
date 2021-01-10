@@ -152,14 +152,36 @@ namespace Assignment1.Engine
                     (decimal) dataRow["Balance"])).ToList();
         }
 
-        public async Task UpdateAccountBalance(decimal newBalance, int accountNumber, int customerId)
+        public async Task UpdateAccountBalance(decimal newBalance, int accountNumber)
         {
-            var command = CreateCommand("UPDATE Account SET Balance = @balance WHERE AccountNumber = @accountNumber AND CustomerID = @customerId");
+            var command = CreateCommand("UPDATE Account SET Balance = @balance WHERE AccountNumber = @accountNumber");
             command.Parameters.AddWithValue("@balance", newBalance);
             command.Parameters.AddWithValue("@accountNumber", accountNumber);
-            command.Parameters.AddWithValue("@customerId", customerId);
-
+            
             await command.ExecuteNonQueryAsync();
+        }
+
+        public async Task<Account> GetAccount(int accountNumber)
+        {
+            var command = CreateCommand("SELECT * FROM Account WHERE AccountNumber = @accountNumber");
+            command.Parameters.AddWithValue("@accountNumber", accountNumber);
+
+            var data = await GetDataTable(command);
+
+            var dataSet = data.Select();
+
+            if (dataSet.Length > 0)
+            {
+                return dataSet.Select(dataRow =>
+                    new Account(
+                        (int) dataRow["AccountNumber"],
+                        dataRow["AccountType"].ToString().ToCharArray()[0],
+                        (int) dataRow["CustomerID"],
+                        (decimal) dataRow["Balance"])).First();
+            }
+
+            return null;
+
         }
 
         public async Task AddTransaction(Transaction transaction) 

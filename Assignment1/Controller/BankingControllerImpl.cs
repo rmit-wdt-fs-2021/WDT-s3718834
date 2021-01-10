@@ -93,10 +93,14 @@ namespace Assignment1.Controller
 
             if (sourceAccount != null)
             {
-                var transferResult = Engine.MakeTransfer(sourceAccount, destinationAccount, amount);
-                if (transferResult)
+                var transferTask = Engine.MakeTransfer(sourceAccount, destinationAccount, amount);
+                View.Loading();
+
+                transferTask.Wait();
+                
+                if (transferTask.Result)
                 {
-                    View.TransferResponse(transferResult, sourceAccount, destinationAccount, amount);
+                    View.TransferResponse(transferTask.Result, sourceAccount, destinationAccount, amount);
                 }
 
                 Transfer();
@@ -114,6 +118,15 @@ namespace Assignment1.Controller
             getTransactionsTask.Wait();
 
             return getTransactionsTask.Result;
+        }
+
+        public override Account GetAccount(int accountNumber)
+        {
+            var accountExistsTask = Engine.GetAccount(accountNumber);
+            View.Loading();
+            accountExistsTask.Wait();
+            
+            return accountExistsTask.Result;
         }
 
         // TODO Implement

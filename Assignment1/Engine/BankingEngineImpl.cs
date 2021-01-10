@@ -88,19 +88,17 @@ namespace Assignment1.Engine
                     throw new ArgumentOutOfRangeException(nameof(transactionType), transactionType, null);
             }
             
-            var balanceUpdateTask = _databaseProxy.UpdateAccountBalance(updatedBalance, account.AccountNumber, account.CustomerId);
+            // Sadly the database requests need to be run synchronously due to the database not support multiple active result sets 
+            await _databaseProxy.UpdateAccountBalance(updatedBalance, account.AccountNumber, account.CustomerId);
 
-            var transactionCreationTask = _databaseProxy.AddTransaction(new Transaction((char) transactionType,
+            await _databaseProxy.AddTransaction(new Transaction((char) transactionType,
                 account.AccountNumber, account.AccountNumber, amount, null, DateTime.Now));
-
-            var serviceFeeTask = Task.CompletedTask;
+            
             if (transactionType == TransactionType.Withdraw)
             {
-                serviceFeeTask = _databaseProxy.AddTransaction(new Transaction((char) TransactionType.ServiceCharge, account.AccountNumber,
+                await _databaseProxy.AddTransaction(new Transaction((char) TransactionType.ServiceCharge, account.AccountNumber,
                     account.AccountNumber, new decimal(0.1), "withdrawal fee", DateTime.Now));
             }
-
-            await Task.WhenAll(balanceUpdateTask, transactionCreationTask, serviceFeeTask);
 
             return (true, updatedBalance);
         }

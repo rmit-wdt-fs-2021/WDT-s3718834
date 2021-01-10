@@ -136,9 +136,9 @@ namespace Assignment1.Engine
             return (true, updatedBalance);
         }
 
-        public async Task<bool> AccountExists(int accountNumber)
+        public async Task<Account> GetAccount(int accountNumber)
         {
-            return await _databaseProxy.AccountExists(accountNumber);
+            return await _databaseProxy.GetAccount(accountNumber);
         }
     }
 }

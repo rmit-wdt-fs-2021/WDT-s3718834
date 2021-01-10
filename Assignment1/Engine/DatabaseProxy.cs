@@ -161,14 +161,27 @@ namespace Assignment1.Engine
             await command.ExecuteNonQueryAsync();
         }
 
-        public async Task<bool> AccountExists(int accountNumber)
+        public async Task<Account> GetAccount(int accountNumber)
         {
-            var command = CreateCommand("SELECT COUNT(*) FROM Account WHERE AccountNumber = @accountNumber");
+            var command = CreateCommand("SELECT * FROM Account WHERE AccountNumber = @accountNumber");
             command.Parameters.AddWithValue("@accountNumber", accountNumber);
 
             var data = await GetDataTable(command);
 
-            return true;
+            var dataSet = data.Select();
+
+            if (dataSet.Length > 0)
+            {
+                return dataSet.Select(dataRow =>
+                    new Account(
+                        (int) dataRow["AccountNumber"],
+                        dataRow["AccountType"].ToString().ToCharArray()[0],
+                        (int) dataRow["CustomerID"],
+                        (decimal) dataRow["Balance"])).First();
+            }
+
+            return null;
+
         }
 
         public async Task AddTransaction(Transaction transaction) 

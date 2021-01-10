@@ -120,9 +120,9 @@ namespace Assignment1.Controller
             return getTransactionsTask.Result;
         }
 
-        public override bool AccountExists(int accountNumber)
+        public override Account GetAccount(int accountNumber)
         {
-            var accountExistsTask = Engine.AccountExists(accountNumber);
+            var accountExistsTask = Engine.GetAccount(accountNumber);
             View.Loading();
             accountExistsTask.Wait();
             

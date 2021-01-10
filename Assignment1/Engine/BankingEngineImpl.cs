@@ -69,12 +69,17 @@ namespace Assignment1.Engine
         {
             return amount <= sourceAccount.Balance;
         }
-
-        // TODO Validation
+        
         public async Task<(bool wasSuccess, decimal endingBalance)> MakeTransaction(Account account,
             TransactionType transactionType, decimal amount)
         {
             var updatedBalance = account.Balance;
+
+            if (amount < 0)
+            {
+                return (false, updatedBalance);
+            }
+
             switch (transactionType)
             {
                 case TransactionType.Deposit:
@@ -83,6 +88,10 @@ namespace Assignment1.Engine
                 case TransactionType.Withdraw:
                     updatedBalance -= amount;
                     updatedBalance -= new decimal(0.1); // Service fee
+                    if (updatedBalance < 0)
+                    {
+                        return (false, account.Balance);
+                    }
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(transactionType), transactionType, null);

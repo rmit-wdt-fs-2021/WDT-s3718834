@@ -388,11 +388,17 @@ namespace Assignment1.View
                     $"to {destinationAccount.AccountNumber} ({GetFullAccountType(destinationAccount.AccountType)}) of {amount} was unsuccessful");
                 Console.WriteLine("Please contact customer service for assistance");
             }
-
-            // TODO Hide balance of foreign account
+            
             Console.WriteLine("\nEnding balances:");
             Console.WriteLine($"{sourceAccount.AccountNumber} ({GetFullAccountType(sourceAccount.AccountType)}): ${sourceAccount.Balance}");
-            Console.WriteLine($"{destinationAccount.AccountNumber} ({GetFullAccountType(destinationAccount.AccountType)}): ${destinationAccount.Balance}");
+
+            // If the user of the source account isn't the user of the destination then hide the output.
+            // This prevents from viewing user's account balances
+            if (sourceAccount.CustomerId == destinationAccount.CustomerId)
+            {
+                Console.WriteLine($"{destinationAccount.AccountNumber} ({GetFullAccountType(destinationAccount.AccountType)}): ${destinationAccount.Balance}"); 
+            }
+            
 
             Console.WriteLine("\nPress any key to continue...");
             Console.ReadKey();

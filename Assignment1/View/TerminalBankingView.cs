@@ -310,17 +310,63 @@ namespace Assignment1.View
                 Console.WriteLine("-- Account Transfer -- \n");
                 Console.WriteLine($"Sourcing transfer from the account: {sourceAccount.AccountNumber} ({GetFullAccountType(sourceAccount.AccountType)}),  ${sourceAccount.Balance}\n");
 
-
+                
                 Account destinationAccount;
-                if (accounts.Count == 1)
+                Console.WriteLine("Please input account to transfer to");
+                if (accounts.Count > 0)
                 {
-                    destinationAccount = accounts[0];
-                    Console.WriteLine($"Only one destination account to choose from, defaulting to {destinationAccount.AccountNumber} ({GetFullAccountType(destinationAccount.AccountType)}), {destinationAccount.Balance}\n");
+                    Console.WriteLine("Please enter one of the options below or type in an account number");
+                    for (var i = 0; i < accounts.Count; i++)
+                    {
+                        Console.WriteLine($"{i + 1}: {accounts[i].AccountNumber} ({GetFullAccountType(accounts[i].AccountType)}) ${accounts[i].Balance}");
+                    }
+                    Console.Write($"{accounts.Count + 1}: Cancel\n");
+
+                    while (true)
+                    {
+                        Console.Write("Your input: ");
+
+                        var input = Console.ReadLine();
+
+                        if (!int.TryParse(input, out var numericalInput)) continue;
+                        
+                        if (numericalInput > 0 && numericalInput <= accounts.Count)
+                        {
+                            destinationAccount = accounts[numericalInput - 1];
+                            break;
+                        }
+
+                        if (numericalInput == accounts.Count + 1)
+                        {
+                            return (null, null, 0);
+                        }
+
+                        if (numericalInput >= 1000 && numericalInput < 10000)
+                        {
+                            destinationAccount = Controller.GetAccount(numericalInput);
+                            if (destinationAccount != null) break;
+                        }
+                        
+                        Console.WriteLine("\nPlease provide a correct input");
+                    }
+                    
                 }
                 else
                 {
-                    Console.WriteLine("Please provide an account to transfer into (destination)\n");
-                    destinationAccount = SelectAccount(accounts);
+                    while (true)
+                    {
+                        Console.Write("Account number: ");
+                        var input = Console.ReadLine();
+
+                        if (input != null && input.Length == 4 && int.TryParse(input, out var inputAccountNumber))
+                        {
+                            destinationAccount = Controller.GetAccount(inputAccountNumber);
+                            if (destinationAccount != null) break;
+                        }
+
+                        Console.WriteLine("\nPlease input a valid account number");
+                    }
+                    
                 }
 
                 var (escaped, result) = GetCurrencyInput("\nPlease input transfer amount\n", "Please input a valid transfer amount\n", input => input > 0 && input <= sourceAccount.Balance);
@@ -343,6 +389,7 @@ namespace Assignment1.View
                 Console.WriteLine("Please contact customer service for assistance");
             }
 
+            // TODO Hide balance of foreign account
             Console.WriteLine("\nEnding balances:");
             Console.WriteLine($"{sourceAccount.AccountNumber} ({GetFullAccountType(sourceAccount.AccountType)}): ${sourceAccount.Balance}");
             Console.WriteLine($"{destinationAccount.AccountNumber} ({GetFullAccountType(destinationAccount.AccountType)}): ${destinationAccount.Balance}");

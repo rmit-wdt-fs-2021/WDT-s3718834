@@ -65,9 +65,33 @@ namespace Assignment1.Engine
             return await _databaseProxy.GetTransactions(account.AccountNumber);
         }
 
-        public bool MakeTransfer(Account sourceAccount, Account destinationAccount, decimal amount)
+        public async Task<bool> MakeTransfer(Account sourceAccount, Account destinationAccount, decimal amount)
         {
-            return amount <= sourceAccount.Balance;
+            if (amount < 0)  return false;
+
+            var updatedSourceBalance = sourceAccount.Balance - amount - new decimal(0.2);
+            if (updatedSourceBalance < 0) return false;
+
+            await _databaseProxy.UpdateAccountBalance(updatedSourceBalance, sourceAccount.AccountNumber,
+                sourceAccount.CustomerId);
+            await _databaseProxy.AddTransactionBulk(new List<Transaction>
+            {
+                new Transaction((char) TransactionType.Transfer, sourceAccount.AccountNumber,
+                    destinationAccount.AccountNumber, amount, null, DateTime.Now),
+                new Transaction((char) TransactionType.ServiceCharge, sourceAccount.AccountNumber,
+                    sourceAccount.AccountNumber, new decimal(0.2), "transfer task", DateTime.Now),
+                
+                new Transaction((char) TransactionType.Deposit,
+                    destinationAccount.AccountNumber, sourceAccount.AccountNumber, amount, null, DateTime.Now)
+            });
+
+            await _databaseProxy.UpdateAccountBalance(destinationAccount.Balance + amount,
+                destinationAccount.AccountNumber, destinationAccount.CustomerId);
+
+            sourceAccount.Balance = updatedSourceBalance;
+            destinationAccount.Balance += amount;
+            
+            return true;
         }
         
         public async Task<(bool wasSuccess, decimal endingBalance)> MakeTransaction(Account account,

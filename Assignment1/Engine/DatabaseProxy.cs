@@ -171,7 +171,7 @@ namespace Assignment1.Engine
             command.Parameters.AddWithValue("@accountNumber", transaction.SourceAccount);
             command.Parameters.AddWithValue("@destinationAccountNumber", transaction.DestinationAccountNumber);
             command.Parameters.AddWithValue("@amount", transaction.Amount);
-            command.Parameters.AddWithValue("@comment", transaction.Comment);
+            command.Parameters.AddWithValue("@comment", (object) transaction.Comment ?? DBNull.Value);
             command.Parameters.AddWithValue("@transactionTimeUtc", transaction.TransactionTimeUtc);
 
             await command.ExecuteNonQueryAsync();

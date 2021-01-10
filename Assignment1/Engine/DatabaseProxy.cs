@@ -152,6 +152,16 @@ namespace Assignment1.Engine
                     (decimal) dataRow["Balance"])).ToList();
         }
 
+        public async Task UpdateAccountBalance(decimal newBalance, int accountNumber, int customerId)
+        {
+            var command = CreateCommand("UPDATE Account SET Balance = @balance WHERE AccountNumber = @accountNumber AND CustomerID = @customerId");
+            command.Parameters.AddWithValue("@balance", newBalance);
+            command.Parameters.AddWithValue("@accountNumber", accountNumber);
+            command.Parameters.AddWithValue("@customerId", customerId);
+
+            await command.ExecuteNonQueryAsync();
+        }
+
         public async Task AddTransaction(Transaction transaction) 
         {
             var command =
@@ -161,7 +171,7 @@ namespace Assignment1.Engine
             command.Parameters.AddWithValue("@accountNumber", transaction.SourceAccount);
             command.Parameters.AddWithValue("@destinationAccountNumber", transaction.DestinationAccountNumber);
             command.Parameters.AddWithValue("@amount", transaction.Amount);
-            command.Parameters.AddWithValue("@comment", transaction.Comment);
+            command.Parameters.AddWithValue("@comment", (object) transaction.Comment ?? DBNull.Value);
             command.Parameters.AddWithValue("@transactionTimeUtc", transaction.TransactionTimeUtc);
 
             await command.ExecuteNonQueryAsync();

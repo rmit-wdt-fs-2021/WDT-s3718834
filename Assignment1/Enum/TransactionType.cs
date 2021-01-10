@@ -2,7 +2,9 @@
 {
     public enum TransactionType
     {
-        Deposit,
-        Withdraw
+        Deposit = 'D',
+        Withdraw = 'W',
+        Transfer = 'T',
+        ServiceCharge = 'S'
     }
 }

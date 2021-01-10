@@ -153,7 +153,11 @@ namespace Assignment1.Controller
                 }
                 else
                 {
-                    var (wasSuccess, endingBalance) = Engine.MakeTransaction(account, transactionType, amount);
+                    var transactionTask = Engine.MakeTransaction(account, transactionType, amount);
+                    View.Loading();
+                    transactionTask.Wait();
+                    var (wasSuccess, endingBalance) = transactionTask.Result;
+                    
                     View.TransactionResponse(wasSuccess, transactionType, amount, endingBalance);
                     continue;
                 }

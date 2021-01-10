@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Assignment1.Controller;
 using Assignment1.Enum;
@@ -68,11 +69,47 @@ namespace Assignment1.Engine
         {
             return amount <= sourceAccount.Balance;
         }
-
-        public (bool wasSuccess, decimal endingBalance) MakeTransaction(Account account,
+        
+        public async Task<(bool wasSuccess, decimal endingBalance)> MakeTransaction(Account account,
             TransactionType transactionType, decimal amount)
         {
-            return amount == new decimal(2.5) ? (false, 10000) : (true, 10000);
+            var updatedBalance = account.Balance;
+
+            if (amount < 0)
+            {
+                return (false, updatedBalance);
+            }
+
+            switch (transactionType)
+            {
+                case TransactionType.Deposit:
+                    updatedBalance += amount;
+                    break;
+                case TransactionType.Withdraw:
+                    updatedBalance -= amount;
+                    updatedBalance -= new decimal(0.1); // Service fee
+                    if (updatedBalance < 0)
+                    {
+                        return (false, account.Balance);
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(transactionType), transactionType, null);
+            }
+            
+            // Sadly the database requests need to be run synchronously due to the database not support multiple active result sets 
+            await _databaseProxy.UpdateAccountBalance(updatedBalance, account.AccountNumber, account.CustomerId);
+
+            await _databaseProxy.AddTransaction(new Transaction((char) transactionType,
+                account.AccountNumber, account.AccountNumber, amount, null, DateTime.Now));
+            
+            if (transactionType == TransactionType.Withdraw)
+            {
+                await _databaseProxy.AddTransaction(new Transaction((char) TransactionType.ServiceCharge, account.AccountNumber,
+                    account.AccountNumber, new decimal(0.1), "withdrawal fee", DateTime.Now));
+            }
+
+            return (true, updatedBalance);
         }
     }
 }

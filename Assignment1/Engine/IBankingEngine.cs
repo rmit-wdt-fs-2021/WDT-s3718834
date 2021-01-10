@@ -18,7 +18,7 @@ namespace Assignment1.Engine
 
         public bool MakeTransfer(Account sourceAccount, Account destinationAccount, decimal amount);
 
-        public (bool wasSuccess, decimal endingBalance) MakeTransaction(Account account, TransactionType transactionType, decimal amount);
+        public Task<(bool wasSuccess, decimal endingBalance)> MakeTransaction(Account account, TransactionType transactionType, decimal amount);
 
     }
 

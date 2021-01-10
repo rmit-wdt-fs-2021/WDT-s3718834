@@ -26,5 +26,6 @@ namespace Assignment1.Controller
         public abstract void Logout();
         public abstract void Exit();
         public abstract List<Transaction> GetTransactions(Account account);
+        public abstract bool AccountExists(int accountNumber);
     }
 }

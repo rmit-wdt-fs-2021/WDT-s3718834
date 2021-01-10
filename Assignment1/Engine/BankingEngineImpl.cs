@@ -135,5 +135,10 @@ namespace Assignment1.Engine
 
             return (true, updatedBalance);
         }
+
+        public async Task<bool> AccountExists(int accountNumber)
+        {
+            return await _databaseProxy.AccountExists(accountNumber);
+        }
     }
 }

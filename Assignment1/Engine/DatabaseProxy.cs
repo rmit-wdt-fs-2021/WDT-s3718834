@@ -157,8 +157,18 @@ namespace Assignment1.Engine
             var command = CreateCommand("UPDATE Account SET Balance = @balance WHERE AccountNumber = @accountNumber");
             command.Parameters.AddWithValue("@balance", newBalance);
             command.Parameters.AddWithValue("@accountNumber", accountNumber);
-
+            
             await command.ExecuteNonQueryAsync();
+        }
+
+        public async Task<bool> AccountExists(int accountNumber)
+        {
+            var command = CreateCommand("SELECT COUNT(*) FROM Account WHERE AccountNumber = @accountNumber");
+            command.Parameters.AddWithValue("@accountNumber", accountNumber);
+
+            var data = await GetDataTable(command);
+
+            return true;
         }
 
         public async Task AddTransaction(Transaction transaction) 

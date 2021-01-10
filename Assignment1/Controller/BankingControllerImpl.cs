@@ -120,6 +120,15 @@ namespace Assignment1.Controller
             return getTransactionsTask.Result;
         }
 
+        public override bool AccountExists(int accountNumber)
+        {
+            var accountExistsTask = Engine.AccountExists(accountNumber);
+            View.Loading();
+            accountExistsTask.Wait();
+            
+            return accountExistsTask.Result;
+        }
+
         // TODO Implement
         public override void ModifyProfile()
         {

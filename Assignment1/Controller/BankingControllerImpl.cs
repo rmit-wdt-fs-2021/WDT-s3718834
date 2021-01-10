@@ -93,10 +93,14 @@ namespace Assignment1.Controller
 
             if (sourceAccount != null)
             {
-                var transferResult = Engine.MakeTransfer(sourceAccount, destinationAccount, amount);
-                if (transferResult)
+                var transferTask = Engine.MakeTransfer(sourceAccount, destinationAccount, amount);
+                View.Loading();
+
+                transferTask.Wait();
+                
+                if (transferTask.Result)
                 {
-                    View.TransferResponse(transferResult, sourceAccount, destinationAccount, amount);
+                    View.TransferResponse(transferTask.Result, sourceAccount, destinationAccount, amount);
                 }
 
                 Transfer();

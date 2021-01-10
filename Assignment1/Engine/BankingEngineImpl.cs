@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Assignment1.Controller;
 using Assignment1.Enum;
@@ -69,10 +70,39 @@ namespace Assignment1.Engine
             return amount <= sourceAccount.Balance;
         }
 
-        public (bool wasSuccess, decimal endingBalance) MakeTransaction(Account account,
+        // TODO Validation
+        public async Task<(bool wasSuccess, decimal endingBalance)> MakeTransaction(Account account,
             TransactionType transactionType, decimal amount)
         {
-            return amount == new decimal(2.5) ? (false, 10000) : (true, 10000);
+            var updatedBalance = account.Balance;
+            switch (transactionType)
+            {
+                case TransactionType.Deposit:
+                    updatedBalance += amount;
+                    break;
+                case TransactionType.Withdraw:
+                    updatedBalance -= amount;
+                    updatedBalance -= new decimal(0.1); // Service fee
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(transactionType), transactionType, null);
+            }
+            
+            var balanceUpdateTask = _databaseProxy.UpdateAccountBalance(updatedBalance, account.AccountNumber, account.CustomerId);
+
+            var transactionCreationTask = _databaseProxy.AddTransaction(new Transaction((char) transactionType,
+                account.AccountNumber, account.AccountNumber, amount, null, DateTime.Now));
+
+            var serviceFeeTask = Task.CompletedTask;
+            if (transactionType == TransactionType.Withdraw)
+            {
+                serviceFeeTask = _databaseProxy.AddTransaction(new Transaction((char) TransactionType.ServiceCharge, account.AccountNumber,
+                    account.AccountNumber, new decimal(0.1), "withdrawal fee", DateTime.Now));
+            }
+
+            await Task.WhenAll(balanceUpdateTask, transactionCreationTask, serviceFeeTask);
+
+            return (true, updatedBalance);
         }
     }
 }

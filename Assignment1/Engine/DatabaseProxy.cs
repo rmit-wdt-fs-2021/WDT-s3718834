@@ -152,12 +152,11 @@ namespace Assignment1.Engine
                     (decimal) dataRow["Balance"])).ToList();
         }
 
-        public async Task UpdateAccountBalance(decimal newBalance, int accountNumber, int customerId)
+        public async Task UpdateAccountBalance(decimal newBalance, int accountNumber)
         {
-            var command = CreateCommand("UPDATE Account SET Balance = @balance WHERE AccountNumber = @accountNumber AND CustomerID = @customerId");
+            var command = CreateCommand("UPDATE Account SET Balance = @balance WHERE AccountNumber = @accountNumber");
             command.Parameters.AddWithValue("@balance", newBalance);
             command.Parameters.AddWithValue("@accountNumber", accountNumber);
-            command.Parameters.AddWithValue("@customerId", customerId);
 
             await command.ExecuteNonQueryAsync();
         }

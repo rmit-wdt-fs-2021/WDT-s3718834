@@ -9,9 +9,8 @@ namespace Assignment1.View
 {
     public class TerminalBankingView : IBankingView
     {
-        
         private const int TransactionsPerPage = 4;
-        
+
         private BankingController Controller { get; set; }
 
         public void Start(BankingController controller)
@@ -115,42 +114,54 @@ namespace Assignment1.View
 
         public void ShowTransactions(in List<Account> accounts)
         {
-            var account = TerminalTools.ChooseFromList(accounts, "Please select an account:\n");
-            var transactions = Controller.GetTransactions(account);
-
-            if (transactions.Count <= TransactionsPerPage)
-            {
-                ShowTransactionPage(transactions,0, TransactionsPerPage - 1);
-                Console.WriteLine("Press any key to continue");
-                Console.ReadKey();
-                return;
-            }
-            
-            var index = 0;
             while (true)
             {
-                ShowTransactionPage(transactions, index, index + (TransactionsPerPage - 1));
-
-                var options = new List<(string text, int indexChange)>();
-                if(index > 3) options.Add(("Previous Page", -TransactionsPerPage));
-                if(index + 3 < transactions.Count) options.Add(("Next Page", TransactionsPerPage));
-                
-                for (var i = 0; i < options.Count; i++)
+                Account account;
+                try
                 {
-                    Console.WriteLine($"{i + 1}: {options[i].text}");
+                    account = TerminalTools.ChooseFromList(accounts, "Please select an account:\n");
+                }
+                catch (InputCancelException)
+                {
+                    break;
                 }
 
-                Console.WriteLine($"{options.Count + 1}: Exit");
-                var input = TerminalTools.GetAcceptableInput(options.Count + 1);
+                var transactions = Controller.GetTransactions(account);
 
-                if (input == options.Count + 1) break;
+                if (transactions.Count <= TransactionsPerPage)
+                {
+                    ShowTransactionPage(transactions, 0, TransactionsPerPage - 1);
+                    Console.WriteLine("Press any key to continue");
+                    Console.ReadKey();
+                    continue;
+                }
 
-                index += options[input - 1].indexChange;
+                var index = 0;
+                while (true)
+                {
+                    ShowTransactionPage(transactions, index, index + (TransactionsPerPage - 1));
+
+                    var options = new List<(string text, int indexChange)>();
+                    if (index > 3) options.Add(("Previous Page", -TransactionsPerPage));
+                    if (index + 3 < transactions.Count) options.Add(("Next Page", TransactionsPerPage));
+
+                    for (var i = 0; i < options.Count; i++)
+                    {
+                        Console.WriteLine($"{i + 1}: {options[i].text}");
+                    }
+
+                    Console.WriteLine($"{options.Count + 1}: Exit");
+                    var input = TerminalTools.GetAcceptableInput(options.Count + 1);
+
+                    if (input == options.Count + 1) break;
+
+                    index += options[input - 1].indexChange;
+                }
             }
-
         }
 
-        private static void ShowTransactionPage(in IReadOnlyList<Transaction> transactions, int startIndex, int endIndex)
+        private static void ShowTransactionPage(in IReadOnlyList<Transaction> transactions, int startIndex,
+            int endIndex)
         {
             for (var i = startIndex; i <= endIndex && i < transactions.Count; i++)
             {
@@ -175,29 +186,44 @@ namespace Assignment1.View
         {
             while (true)
             {
+                /*
+                 * We copy the list here because later we remove an item from the list which is done to prevent the user from selecting
+                 * the same destination account as the source account
+                 */
                 var accounts = new List<Account>(originalAccounts);
 
                 Clear();
+
+                /*
+                 * Getting the source account for the transfer
+                 */
                 Console.WriteLine("-- Account Transfer -- \n");
                 Console.WriteLine("Please provide the account to transfer from (source)\n");
+
+                // Will throw exception if the user cancelled their input
                 var sourceAccount = TerminalTools.ChooseFromList(accounts, "Please select an account: \n");
 
-                if (sourceAccount == null)
-                {
-                    return (null, null, 0);
-                }
+                accounts.Remove(
+                    sourceAccount); // Remove the source account so it cannot be selected as the destination account
 
-                accounts.Remove(sourceAccount);
+
+                /*
+                 * Getting the destination account for the transfer
+                 */
 
                 Clear();
                 Console.WriteLine("-- Account Transfer -- \n");
-                Console.WriteLine(
-                    $"Sourcing transfer from the account: {sourceAccount.AccountNumber} ({GetFullAccountType(sourceAccount.AccountType)}),  ${sourceAccount.Balance}\n");
+                Console.WriteLine($"Sourcing transfer from the account: {sourceAccount.AccountNumber} " +
+                                  $"({GetFullAccountType(sourceAccount.AccountType)}),  ${sourceAccount.Balance}\n");
 
 
                 Account destinationAccount;
                 Console.WriteLine("Please input account to transfer to");
-                if (accounts.Count > 0)
+                /*
+                 * If the user has other accounts to choose then they get an option to choose them along with the raw account number input.
+                 * Due to the user being able to input their 
+                 */
+                if (accounts.Count > 0) 
                 {
                     Console.WriteLine("Please enter one of the options below or type in an account number");
                     for (var i = 0; i < accounts.Count; i++)
@@ -206,7 +232,10 @@ namespace Assignment1.View
                             $"{i + 1}: {accounts[i].AccountNumber} ({GetFullAccountType(accounts[i].AccountType)}) ${accounts[i].Balance}");
                     }
 
-                    Console.Write($"{accounts.Count + 1}: Cancel\n");
+                    Console.WriteLine($"{accounts.Count + 1}: Other Account");
+                    Console.Write($"{accounts.Count + 2}: Cancel\n");
+
+                    var accountMenuChoice = TerminalTools.GetAcceptableInput(accounts.Count + 2);
 
                     while (true)
                     {
@@ -252,7 +281,7 @@ namespace Assignment1.View
                         Console.WriteLine("\nPlease input a valid account number");
                     }
                 }
-                
+
                 try
                 {
                     var inputCurrency = TerminalTools.GetCurrencyInput("\nPlease input transfer amount\n",
@@ -265,7 +294,8 @@ namespace Assignment1.View
             }
         }
 
-        public void TransferResponse(bool wasSuccess, in Account sourceAccount, in Account destinationAccount, decimal amount)
+        public void TransferResponse(bool wasSuccess, in Account sourceAccount, in Account destinationAccount,
+            decimal amount)
         {
             if (wasSuccess)
             {
@@ -322,7 +352,8 @@ namespace Assignment1.View
         }
 
 
-        public (Account account, TransactionType transactionType, decimal amount) AtmTransaction(in List<Account> accounts)
+        public (Account account, TransactionType transactionType, decimal amount) AtmTransaction(
+            in List<Account> accounts)
         {
             while (true)
             {
@@ -362,7 +393,7 @@ namespace Assignment1.View
                         {
                             continue;
                         }
-                        
+
                     case 2:
                         Clear();
                         Console.WriteLine("-- ATM Transaction -- \n");

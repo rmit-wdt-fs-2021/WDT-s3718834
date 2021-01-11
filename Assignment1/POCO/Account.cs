@@ -1,4 +1,6 @@
-﻿namespace Assignment1.POCO
+﻿using Assignment1.View;
+
+namespace Assignment1.POCO
 {
     public class Account
     {
@@ -13,6 +15,12 @@
             AccountType = accountType;
             CustomerId = customerId;
             Balance = balance;
+        }
+
+        public override string ToString()
+        {
+            var fullAccountType = AccountType == 'S' ? "Savings" : "Checking";
+            return $"{AccountNumber} ({fullAccountType}), ${Balance}";
         }
     }
 }

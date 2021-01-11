@@ -27,14 +27,18 @@ namespace Assignment1.Controller
 
         public override void Login()
         {
+            View.Login();
             View.MainMenu(_loggedInCustomer);
         }
 
-        public override int ValidateLogin(int loginId, string password)
+        public override bool ValidateLogin(string loginId, string password)
         {
-            _loggedInCustomer = PerformWithLoading(Engine.LoginAttempt(loginId, password));
+            var loginAttempt = PerformWithLoading(Engine.LoginAttempt(loginId, password));
+            if (loginAttempt == null) return false;
 
-            return _loggedInCustomer.CustomerId;
+            _loggedInCustomer = loginAttempt;
+
+            return true;
         }
 
         public override (bool wasSuccess, decimal newBalance) MakeAtmTransaction(Account account,

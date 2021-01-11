@@ -11,6 +11,9 @@ namespace Assignment1.Engine
 {
     public class BankingEngineImpl : IBankingEngine
     {
+
+        private const int FreeTransactionCount = 4;
+        
         private BankingController _controller;
 
         private DatabaseProxy _databaseProxy;
@@ -159,7 +162,7 @@ namespace Assignment1.Engine
         {
             var numberOfPreviousTransactions = await _databaseProxy.GetServiceFeeTransactionCounts(accountNumber);
 
-            if (numberOfPreviousTransactions < 4) return 0;
+            if (numberOfPreviousTransactions < FreeTransactionCount) return 0;
             
             return transactionType switch
             {

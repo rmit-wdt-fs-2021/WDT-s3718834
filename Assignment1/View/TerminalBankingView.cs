@@ -52,6 +52,7 @@ namespace Assignment1.View
                         {
                             Login();
                         }
+
                         return;
                     }
                     catch (LoginFailedException)
@@ -276,7 +277,9 @@ namespace Assignment1.View
                 try
                 {
                     var currencyInput = TerminalTools.GetCurrencyInput("\nPlease input transfer amount\n",
-                        "Please input a valid transfer amount\n", input => input > 0 && input <= sourceAccount.Balance);
+                        "Please input a valid transfer amount\n",
+                        input => input > 0 && BankingEngineImpl.IsAboveMinimum(sourceAccount.AccountType,
+                            sourceAccount.Balance - input));
 
                     var (success, updatedSourceAccount, updatedDestinationAccount) =
                         Controller.MakeTransfer(sourceAccount, destinationAccount, currencyInput);
@@ -387,8 +390,9 @@ namespace Assignment1.View
                             var currencyInput = TerminalTools.GetCurrencyInput(
                                 "Please enter how much you would like to deposit (Input nothing to return): \n",
                                 "\nPlease input a correct deposit amount\n\n", input => input > 0);
-                            
-                            var (wasSuccess, newBalance) = Controller.MakeAtmTransaction(selectedAccount, TransactionType.Deposit, currencyInput);
+
+                            var (wasSuccess, newBalance) = Controller.MakeAtmTransaction(selectedAccount,
+                                TransactionType.Deposit, currencyInput);
                             TransactionResponse(wasSuccess, TransactionType.Deposit, currencyInput, newBalance);
                             return;
                         }
@@ -408,9 +412,10 @@ namespace Assignment1.View
                             var currencyInput = TerminalTools.GetCurrencyInput(
                                 "Please enter how much you would like to withdraw (Input nothing to return): \n",
                                 "\nPlease input a correct withdraw amount\n\n",
-                                input => input > 0 && input < selectedAccount.Balance);
-                            
-                            var (wasSuccess, newBalance) = Controller.MakeAtmTransaction(selectedAccount, TransactionType.Withdraw, currencyInput);
+                                input => input > 0 && BankingEngineImpl.IsAboveMinimum(selectedAccount.AccountType, selectedAccount.Balance - input));
+
+                            var (wasSuccess, newBalance) = Controller.MakeAtmTransaction(selectedAccount,
+                                TransactionType.Withdraw, currencyInput);
                             TransactionResponse(wasSuccess, TransactionType.Withdraw, currencyInput, newBalance);
                             return;
                         }

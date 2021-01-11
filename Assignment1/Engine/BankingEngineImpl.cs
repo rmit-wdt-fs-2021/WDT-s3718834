@@ -75,7 +75,7 @@ namespace Assignment1.Engine
             var serviceFee = await GetServiceFee(sourceAccount.AccountNumber, TransactionType.Transfer);
 
             var updatedSourceBalance = sourceAccount.Balance - amount - serviceFee;
-            if (updatedSourceBalance < 0) return (false, null, null);
+            if (IsAboveMinimum(sourceAccount.AccountType, updatedSourceBalance)) return (false, null, null);
 
             await _databaseProxy.UpdateAccountBalance(updatedSourceBalance, sourceAccount.AccountNumber);
 
@@ -126,7 +126,7 @@ namespace Assignment1.Engine
                     serviceFee = await GetServiceFee(account.AccountNumber, TransactionType.Withdraw);
                     updatedBalance -= amount;
                     updatedBalance -= serviceFee;
-                    if (updatedBalance < 0)
+                    if (IsAboveMinimum(account.AccountType, updatedBalance))
                     {
                         return (false, account.Balance);
                     }
@@ -171,6 +171,11 @@ namespace Assignment1.Engine
                 TransactionType.Transfer => new decimal(0.2),
                 _ => 0
             };
+        }
+
+        public static bool IsAboveMinimum(char accountType, decimal balance)
+        {
+            return (accountType == 'S' && balance >= 0) || (accountType == 'C' && balance >= 200);
         }
     }
 }

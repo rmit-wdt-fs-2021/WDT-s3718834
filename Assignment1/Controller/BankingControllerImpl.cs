@@ -34,41 +34,8 @@ namespace Assignment1.Controller
 
         public override void Login()
         {
-
-            var loginStatus = LoginStatus.Initial;
-            while (loginStatus != LoginStatus.Success)
-            {
-                var (loginId, password) = View.Login(loginStatus);
-
-                if (loginStatus == LoginStatus.MaxAttempts)
-                {
-                    Exit();
-                    return; // TODO Remove this when I figure out how to properly exit
-                }
-
-                try
-                {
-                    var loginAttemptTask = Engine.LoginAttempt(loginId, password);
-                    
-                    View.Loading();
-
-                    loginAttemptTask.Wait();
-                    LoggedInCustomer = loginAttemptTask.Result;
-                    loginStatus = LoginStatus.Success;
-                }
-                catch (LoginFailedException)
-                {
-                    loginStatus = LoginStatus.IncorrectPassword;
-                }
-                catch (LoginAttemptsExceededException)
-                {
-                    loginStatus = LoginStatus.MaxAttempts;
-                }
-            }
-
+            View.Login();
             View.MainMenu(LoggedInCustomer);
-
-
         }
 
         public override void TransactionHistory()

@@ -181,7 +181,7 @@ namespace Assignment1.View
             Console.WriteLine("*************************************************************");
         }
 
-        public (Account sourceAccount, Account destinationAccount, decimal amount) Transfer(
+        public void Transfer(
             in List<Account> originalAccounts)
         {
             while (true)
@@ -217,84 +217,85 @@ namespace Assignment1.View
                                   $"({GetFullAccountType(sourceAccount.AccountType)}),  ${sourceAccount.Balance}\n");
 
 
-                Account destinationAccount;
+                Account destinationAccount = null;
                 Console.WriteLine("Please input account to transfer to");
+                
                 /*
                  * If the user has other accounts to choose then they get an option to choose them along with the raw account number input.
-                 * Due to the user being able to input their 
+                 * Due to the user to this we cannot use the SelectAccount() method.
                  */
                 if (accounts.Count > 0) 
                 {
-                    Console.WriteLine("Please enter one of the options below or type in an account number");
-                    for (var i = 0; i < accounts.Count; i++)
+                    while (destinationAccount == null)
                     {
-                        Console.WriteLine(
-                            $"{i + 1}: {accounts[i].AccountNumber} ({GetFullAccountType(accounts[i].AccountType)}) ${accounts[i].Balance}");
-                    }
-
-                    Console.WriteLine($"{accounts.Count + 1}: Other Account");
-                    Console.Write($"{accounts.Count + 2}: Cancel\n");
-
-                    var accountMenuChoice = TerminalTools.GetAcceptableInput(accounts.Count + 2);
-
-                    while (true)
-                    {
-                        Console.Write("Your input: ");
-
-                        var input = Console.ReadLine();
-
-                        if (!int.TryParse(input, out var numericalInput)) continue;
-
-                        if (numericalInput > 0 && numericalInput <= accounts.Count)
+                        Console.WriteLine("Please enter one of the options below or type in an account number");
+                        for (var i = 0; i < accounts.Count; i++)
                         {
-                            destinationAccount = accounts[numericalInput - 1];
-                            break;
+                            Console.WriteLine(
+                                $"{i + 1}: {accounts[i].AccountNumber} ({GetFullAccountType(accounts[i].AccountType)}) ${accounts[i].Balance}");
                         }
 
-                        if (numericalInput == accounts.Count + 1)
-                        {
-                            return (null, null, 0);
-                        }
+                        Console.WriteLine($"{accounts.Count + 1}: Other Account");
+                        Console.Write($"{accounts.Count + 2}: Cancel\n");
 
-                        if (numericalInput >= 1000 && numericalInput < 10000)
+                        var accountMenuChoice = TerminalTools.GetAcceptableInput(accounts.Count + 2);
+                        if (accountMenuChoice <= accounts.Count)
                         {
-                            destinationAccount = Controller.GetAccount(numericalInput);
-                            if (destinationAccount != null) break;
+                            destinationAccount = accounts[accountMenuChoice - 1];
                         }
-
-                        Console.WriteLine("\nPlease provide a correct input");
+                        else if(accountMenuChoice == accounts.Count + 1)
+                        {
+                            try
+                            {
+                                destinationAccount = InputAccount();
+                            }
+                            catch (InputCancelException)
+                            {
+                                Console.WriteLine("\n");
+                            }
+                        } else if (accountMenuChoice == accounts.Count + 2)
+                        {
+                            Transfer(originalAccounts);
+                            return;
+                        }
                     }
                 }
                 else
                 {
-                    while (true)
+                    try
                     {
-                        Console.Write("Account number: ");
-                        var input = Console.ReadLine();
-
-                        if (input != null && input.Length == 4 && int.TryParse(input, out var inputAccountNumber))
-                        {
-                            destinationAccount = Controller.GetAccount(inputAccountNumber);
-                            if (destinationAccount != null) break;
-                        }
-
-                        Console.WriteLine("\nPlease input a valid account number");
+                        destinationAccount = InputAccount();
+                    }
+                    catch (InputCancelException)
+                    {
+                        Transfer(accounts);
+                        return;
                     }
                 }
 
+                /*
+                 * Getting the amount to transfer
+                 */
                 try
                 {
-                    var inputCurrency = TerminalTools.GetCurrencyInput("\nPlease input transfer amount\n",
+                    var currencyInput = TerminalTools.GetCurrencyInput("\nPlease input transfer amount\n",
                         "Please input a valid transfer amount\n", input => input > 0 && input <= sourceAccount.Balance);
-                    return (sourceAccount, destinationAccount, inputCurrency);
+
+                    
+                    TransferResponse(Controller.MakeTransfer(sourceAccount, destinationAccount, currencyInput),
+                        sourceAccount, destinationAccount, currencyInput);
                 }
                 catch (InputCancelException)
                 {
+                    Transfer(accounts);
+                    return;
                 }
+                
+               
             }
         }
 
-        public void TransferResponse(bool wasSuccess, in Account sourceAccount, in Account destinationAccount,
+        private void TransferResponse(bool wasSuccess, in Account sourceAccount, in Account destinationAccount,
             decimal amount)
         {
             if (wasSuccess)
@@ -326,6 +327,36 @@ namespace Assignment1.View
 
             Console.WriteLine("\nPress any key to continue...");
             Console.ReadKey();
+        }
+        
+        private Account InputAccount()
+        {
+            while (true)
+            {
+                Console.Write("Account number (Enter nothing to cancel): ");
+                var input = Console.ReadLine();
+
+                if (input == "")
+                {
+                    throw new InputCancelException();
+                }
+
+                if (input != null && input.Length == 4 && int.TryParse(input, out var inputAccountNumber))
+                {
+                    var account =  Controller.GetAccount(inputAccountNumber);
+                    if (account != null)
+                    {
+                        return account;
+                    }
+                    
+                    Console.WriteLine("\nAccount provided doesn't exist\n");
+                }
+                else
+                {
+                    Console.WriteLine("\nPlease input a valid account number \n");
+                }
+            }
+            
         }
 
         public void Loading()

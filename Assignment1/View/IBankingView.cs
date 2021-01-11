@@ -18,8 +18,7 @@ namespace Assignment1.View
         public (Account account, TransactionType transactionType, decimal amount) AtmTransaction(in List<Account> accounts);
 
         public void TransactionResponse(bool wasSuccess, TransactionType transactionType, decimal amount, decimal newBalance);
-        public (Account sourceAccount, Account destinationAccount, decimal amount) Transfer(in List<Account> accounts);
-        public void TransferResponse(bool wasSuccess, in Account sourceAccount, in Account destinationAccount, decimal amount);
+        public void Transfer(in List<Account> accounts);
         public void Loading();
     }
 }

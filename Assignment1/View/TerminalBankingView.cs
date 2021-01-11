@@ -219,12 +219,12 @@ namespace Assignment1.View
 
                 Account destinationAccount = null;
                 Console.WriteLine("Please input account to transfer to");
-                
+
                 /*
                  * If the user has other accounts to choose then they get an option to choose them along with the raw account number input.
                  * Due to the user to this we cannot use the SelectAccount() method.
                  */
-                if (accounts.Count > 0) 
+                if (accounts.Count > 0)
                 {
                     while (destinationAccount == null)
                     {
@@ -243,7 +243,7 @@ namespace Assignment1.View
                         {
                             destinationAccount = accounts[accountMenuChoice - 1];
                         }
-                        else if(accountMenuChoice == accounts.Count + 1)
+                        else if (accountMenuChoice == accounts.Count + 1)
                         {
                             try
                             {
@@ -253,7 +253,8 @@ namespace Assignment1.View
                             {
                                 Console.WriteLine("\n");
                             }
-                        } else if (accountMenuChoice == accounts.Count + 2)
+                        }
+                        else if (accountMenuChoice == accounts.Count + 2)
                         {
                             Transfer(originalAccounts);
                             return;
@@ -281,7 +282,8 @@ namespace Assignment1.View
                     var currencyInput = TerminalTools.GetCurrencyInput("\nPlease input transfer amount\n",
                         "Please input a valid transfer amount\n", input => input > 0 && input <= sourceAccount.Balance);
 
-                    var (success, updatedSourceAccount, updatedDestinationAccount) = Controller.MakeTransfer(sourceAccount, destinationAccount, currencyInput);
+                    var (success, updatedSourceAccount, updatedDestinationAccount) =
+                        Controller.MakeTransfer(sourceAccount, destinationAccount, currencyInput);
                     TransferResponse(success, updatedSourceAccount, updatedDestinationAccount, currencyInput);
                 }
                 catch (InputCancelException)
@@ -289,8 +291,6 @@ namespace Assignment1.View
                     Transfer(accounts);
                     return;
                 }
-                
-               
             }
         }
 
@@ -327,7 +327,7 @@ namespace Assignment1.View
             Console.WriteLine("\nPress any key to continue...");
             Console.ReadKey();
         }
-        
+
         private Account InputAccount()
         {
             while (true)
@@ -342,12 +342,12 @@ namespace Assignment1.View
 
                 if (input != null && input.Length == 4 && int.TryParse(input, out var inputAccountNumber))
                 {
-                    var account =  Controller.GetAccount(inputAccountNumber);
+                    var account = Controller.GetAccount(inputAccountNumber);
                     if (account != null)
                     {
                         return account;
                     }
-                    
+
                     Console.WriteLine("\nAccount provided doesn't exist\n");
                 }
                 else
@@ -355,7 +355,99 @@ namespace Assignment1.View
                     Console.WriteLine("\nPlease input a valid account number \n");
                 }
             }
-            
+        }
+
+        public void AtmTransaction(in List<Account> accounts)
+        {
+            while (true)
+            {
+                Clear();
+                Console.WriteLine("-- ATM Transaction -- \n");
+                var selectedAccount = TerminalTools.ChooseFromList(accounts, "Please select account: \n");
+
+                if (selectedAccount == null)
+                {
+                    return;
+                }
+
+                Clear();
+                Console.WriteLine("-- ATM Transaction -- \n");
+                Console.WriteLine(
+                    $"Using account: {selectedAccount.AccountNumber} ({GetFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
+                Console.WriteLine("Please select a transaction type\n");
+                Console.WriteLine("1: Deposit\n2: Withdraw\n3: Different account\n4: Main menu");
+                var transactionTypeInput = TerminalTools.GetAcceptableInput(4);
+
+                switch (transactionTypeInput)
+                {
+                    case 1:
+                        Clear();
+                        Console.WriteLine("-- ATM Transaction -- \n");
+                        Console.WriteLine(
+                            $"Using account: {selectedAccount.AccountNumber} ({GetFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
+
+                        try
+                        {
+                            var currencyInput = TerminalTools.GetCurrencyInput(
+                                "Please enter how much you would like to deposit (Input nothing to return): \n",
+                                "\nPlease input a correct deposit amount\n\n", input => input > 0);
+                            
+                            var (wasSuccess, newBalance) = Controller.MakeAtmTransaction(selectedAccount, TransactionType.Deposit, currencyInput);
+                            TransactionResponse(wasSuccess, TransactionType.Deposit, currencyInput, newBalance);
+                            return;
+                        }
+                        catch (InputCancelException)
+                        {
+                            continue;
+                        }
+
+                    case 2:
+                        Clear();
+                        Console.WriteLine("-- ATM Transaction -- \n");
+                        Console.WriteLine(
+                            $"Using account: {selectedAccount.AccountNumber} ({GetFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
+
+                        try
+                        {
+                            var currencyInput = TerminalTools.GetCurrencyInput(
+                                "Please enter how much you would like to withdraw (Input nothing to return): \n",
+                                "\nPlease input a correct withdraw amount\n\n",
+                                input => input > 0 && input < selectedAccount.Balance);
+                            
+                            var (wasSuccess, newBalance) = Controller.MakeAtmTransaction(selectedAccount, TransactionType.Withdraw, currencyInput);
+                            TransactionResponse(wasSuccess, TransactionType.Withdraw, currencyInput, newBalance);
+                            return;
+                        }
+                        catch (InputCancelException)
+                        {
+                            continue;
+                        }
+                    case 3:
+                        continue;
+                    case 4:
+                        return;
+                    default:
+                        Console.WriteLine("Fatal Error: Incorrect input go through in ATM Transaction menu");
+                        return;
+                }
+            }
+        }
+
+        private static void TransactionResponse(bool wasSuccess, TransactionType transactionType, decimal amount,
+            decimal newBalance)
+        {
+            if (wasSuccess)
+            {
+                Console.WriteLine($"{transactionType} of ${amount} was success\n");
+                Console.WriteLine($"Balance of account is now ${newBalance}");
+            }
+            else
+            {
+                Console.WriteLine($"{transactionType} of ${amount} failed. Contact customer service for assistance\n");
+            }
+
+            Console.WriteLine("Press any key to return to account selection");
+            Console.ReadKey();
         }
 
         public void Loading()
@@ -378,95 +470,6 @@ namespace Assignment1.View
         {
             Console.Clear();
             Console.WriteLine("Feature currently not implemented. Press any key to continue");
-            Console.ReadKey();
-        }
-
-
-        public (Account account, TransactionType transactionType, decimal amount) AtmTransaction(
-            in List<Account> accounts)
-        {
-            while (true)
-            {
-                Clear();
-                Console.WriteLine("-- ATM Transaction -- \n");
-                var selectedAccount = TerminalTools.ChooseFromList(accounts, "Please select account: \n");
-
-                if (selectedAccount == null)
-                {
-                    return (null, TransactionType.Deposit, 0);
-                }
-
-                Clear();
-                Console.WriteLine("-- ATM Transaction -- \n");
-                Console.WriteLine(
-                    $"Using account: {selectedAccount.AccountNumber} ({GetFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
-                Console.WriteLine("Please select a transaction type\n");
-                Console.WriteLine("1: Deposit\n2: Withdraw\n3: Different account\n4: Main menu");
-                var transactionTypeInput = TerminalTools.GetAcceptableInput(4);
-
-                switch (transactionTypeInput)
-                {
-                    case 1:
-                        Clear();
-                        Console.WriteLine("-- ATM Transaction -- \n");
-                        Console.WriteLine(
-                            $"Using account: {selectedAccount.AccountNumber} ({GetFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
-
-                        try
-                        {
-                            var result = TerminalTools.GetCurrencyInput(
-                                "Please enter how much you would like to deposit (Input nothing to return): \n",
-                                "\nPlease input a correct deposit amount\n\n", input => input > 0);
-                            return (selectedAccount, TransactionType.Deposit, result);
-                        }
-                        catch (InputCancelException)
-                        {
-                            continue;
-                        }
-
-                    case 2:
-                        Clear();
-                        Console.WriteLine("-- ATM Transaction -- \n");
-                        Console.WriteLine(
-                            $"Using account: {selectedAccount.AccountNumber} ({GetFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
-
-                        try
-                        {
-                            var result = TerminalTools.GetCurrencyInput(
-                                "Please enter how much you would like to withdraw (Input nothing to return): \n",
-                                "\nPlease input a correct withdraw amount\n\n",
-                                input => input > 0 && input < selectedAccount.Balance);
-                            return (selectedAccount, TransactionType.Deposit, result);
-                        }
-                        catch (InputCancelException)
-                        {
-                            continue;
-                        }
-                    case 3:
-                        continue;
-                    case 4:
-                        return (null, TransactionType.Deposit, 0);
-                    default:
-                        Console.WriteLine("Fatal Error: Incorrect input go through in ATM Transaction menu");
-                        return (null, TransactionType.Deposit, 0);
-                }
-            }
-        }
-
-        public void TransactionResponse(bool wasSuccess, TransactionType transactionType, decimal amount,
-            decimal newBalance)
-        {
-            if (wasSuccess)
-            {
-                Console.WriteLine($"{transactionType} of ${amount} was success\n");
-                Console.WriteLine($"Balance of account is now ${newBalance}");
-            }
-            else
-            {
-                Console.WriteLine($"{transactionType} of ${amount} failed. Contact customer service for assistance\n");
-            }
-
-            Console.WriteLine("Press any key to return to account selection");
             Console.ReadKey();
         }
     }

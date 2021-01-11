@@ -18,6 +18,7 @@ namespace Assignment1.Controller
 
         public abstract void Start();
         public abstract void Login();
+        public abstract int ValidateLogin(int loginId, string password);
         public abstract void AtmTransaction();
         public abstract void Transfer();
         public abstract void TransactionHistory();

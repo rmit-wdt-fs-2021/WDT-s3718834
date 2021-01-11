@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Assignment1.Controller;
+using Assignment1.Engine;
 using Assignment1.Enum;
 using Assignment1.POCO;
 
@@ -18,55 +19,71 @@ namespace Assignment1.View
             this.Controller = controller;
         }
 
-        public (string login, string password) Login(LoginStatus loginStatus)
+        public int Login()
         {
+
+            var warningMessage = "";
             while (true)
             {
+                
                 Clear();
                 Console.WriteLine("-- Login -- \n");
 
-                switch (loginStatus)
+                if (warningMessage != "")
                 {
-                    case LoginStatus.IncorrectId:
-                        Console.WriteLine("Provided login ID was incorrect. A login ID must be 8 digits\n");
-                        break;
-                    case LoginStatus.IncorrectPassword:
-                        Console.WriteLine("Provided login ID and password do not match\n");
-                        break;
-                    case LoginStatus.Initial:
-                        break;
-                    case LoginStatus.MaxAttempts:
-                        Console.WriteLine("Exceeded the number of login attempts. Press any key to exit");
-                        Console.ReadKey();
-                        return (null, null);
-                    case LoginStatus.Success:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(loginStatus), loginStatus, null);
+                    Console.WriteLine("\n" + warningMessage);
                 }
 
                 Console.WriteLine("Please provide your details below:");
 
                 Console.Write("Login ID: ");
                 var loginId = Console.ReadLine();
-
-                if (loginId != null && loginId.Length == 8 && int.TryParse(loginId, out _))
+                if (loginId != null && loginId.Length == 8 && int.TryParse(loginId, out var loginIdNumerical))
                 {
-                    Console.Write("Password: ");
 
-                    var passwordBuilder = new StringBuilder();
-                    var inputKey = Console.ReadKey();
-                    while (inputKey.Key != ConsoleKey.Enter)
+                    var password = GetSecureInput("Password: ");
+                    
+                    if (password.Length == 0)
                     {
-                        passwordBuilder.Append(inputKey.KeyChar);
-                        inputKey = Console.ReadKey();
+                        warningMessage = "Please input a valid password";
+                        continue;
                     }
 
-                    return (loginId, passwordBuilder.ToString());
+                    try
+                    {
+                        return Controller.ValidateLogin(loginIdNumerical, password);;
+                    }
+                    catch (LoginFailedException)
+                    {
+                        warningMessage = "Provided login ID and password do not match";
+                    }
+                    catch (LoginAttemptsExceededException)
+                    {
+                        warningMessage = "Exceeded the number of login attempts. Press any key to exit";
+                    }
+                }
+                else
+                {
+                    warningMessage = "Provided login ID was incorrect. A login ID must be 8 digits\n";
                 }
 
-                loginStatus = LoginStatus.IncorrectId;
+                
             }
+        }
+
+        private static string GetSecureInput(string inputMessage)
+        {
+            Console.Write(inputMessage);
+
+            var stringBuilder = new StringBuilder();
+            var inputKey = Console.ReadKey(true);
+            while (inputKey.Key != ConsoleKey.Enter)
+            {
+                stringBuilder.Append(inputKey.KeyChar);
+                inputKey = Console.ReadKey();
+            }
+
+            return stringBuilder.ToString();
         }
 
         public void MainMenu(Customer loggedInCustomer)

@@ -8,7 +8,7 @@ namespace Assignment1.View
     public interface IBankingView
     {
         public void Start(BankingController controller);
-        public (string login, string password) Login(LoginStatus loginStatus);
+        public int Login();
 
         public void MainMenu(Customer loggedInCustomer);
 

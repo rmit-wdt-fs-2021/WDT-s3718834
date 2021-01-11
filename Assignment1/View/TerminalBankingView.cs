@@ -306,11 +306,16 @@ namespace Assignment1.View
                         Console.WriteLine("\nPlease input a valid account number");
                     }
                 }
-
-                var (escaped, result) = TerminalTools.GetCurrencyInput("\nPlease input transfer amount\n",
-                    "Please input a valid transfer amount\n", input => input > 0 && input <= sourceAccount.Balance);
-                if (escaped) continue;
-                return (sourceAccount, destinationAccount, result);
+                
+                try
+                {
+                    var inputCurrency = TerminalTools.GetCurrencyInput("\nPlease input transfer amount\n",
+                        "Please input a valid transfer amount\n", input => input > 0 && input <= sourceAccount.Balance);
+                    return (sourceAccount, destinationAccount, inputCurrency);
+                }
+                catch (InputCancelException)
+                {
+                }
             }
         }
 
@@ -400,30 +405,35 @@ namespace Assignment1.View
                         Console.WriteLine(
                             $"Using account: {selectedAccount.AccountNumber} ({GetFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
 
-                        var (escaped, result) = TerminalTools.GetCurrencyInput(
-                            "Please enter how much you would like to deposit (Input nothing to return): \n",
-                            "\nPlease input a correct deposit amount\n\n", input => input > 0);
-
-                        if (escaped) continue;
-                        return (selectedAccount, TransactionType.Deposit, result);
+                        try
+                        {
+                            var result = TerminalTools.GetCurrencyInput(
+                                "Please enter how much you would like to deposit (Input nothing to return): \n",
+                                "\nPlease input a correct deposit amount\n\n", input => input > 0);
+                            return (selectedAccount, TransactionType.Deposit, result);
+                        }
+                        catch (InputCancelException)
+                        {
+                            continue;
+                        }
+                        
                     case 2:
                         Clear();
                         Console.WriteLine("-- ATM Transaction -- \n");
                         Console.WriteLine(
                             $"Using account: {selectedAccount.AccountNumber} ({GetFullAccountType(selectedAccount.AccountType)}), ${selectedAccount.Balance}\n");
 
-                        var (success, inputAmount) = TerminalTools.GetCurrencyInput(
-                            "Please enter how much you would like to withdraw (Input nothing to return): \n",
-                            "\nPlease input a correct withdraw amount\n\n",
-                            input => input > 0 && input < selectedAccount.Balance);
-
-                        if (success)
+                        try
+                        {
+                            var result = TerminalTools.GetCurrencyInput(
+                                "Please enter how much you would like to withdraw (Input nothing to return): \n",
+                                "\nPlease input a correct withdraw amount\n\n",
+                                input => input > 0 && input < selectedAccount.Balance);
+                            return (selectedAccount, TransactionType.Deposit, result);
+                        }
+                        catch (InputCancelException)
                         {
                             continue;
-                        }
-                        else
-                        {
-                            return (selectedAccount, TransactionType.Withdraw, inputAmount);
                         }
                     case 3:
                         continue;

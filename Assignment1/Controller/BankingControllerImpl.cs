@@ -98,20 +98,6 @@ namespace Assignment1.Controller
             task.Wait();
         }
 
-        // TODO Implement
-        public override void ModifyProfile()
-        {
-            View.WorkInProgress();
-            View.MainMenu(_loggedInCustomer);
-        }
-
-        // TODO Implement
-        public override void ApplyForLoan()
-        {
-            View.WorkInProgress();
-            View.MainMenu(_loggedInCustomer);
-        }
-
         public override void Logout()
         {
             _loggedInCustomer = null;

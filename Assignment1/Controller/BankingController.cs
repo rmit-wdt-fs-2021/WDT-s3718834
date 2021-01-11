@@ -29,8 +29,6 @@ namespace Assignment1.Controller
         public abstract (bool wasSuccess, decimal newBalance) MakeAtmTransaction(Account account, TransactionType transactionType, decimal amount);
 
         public abstract void TransactionHistory();
-        public abstract void ModifyProfile();
-        public abstract void ApplyForLoan();
         public abstract void Logout();
         public abstract void Exit();
         public abstract List<Transaction> GetTransactions(Account account);

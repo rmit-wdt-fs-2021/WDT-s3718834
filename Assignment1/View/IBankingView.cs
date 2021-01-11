@@ -14,7 +14,6 @@ namespace Assignment1.View
 
         public void ShowTransactions(in List<Account> accounts);
         public void Clear();
-        public void WorkInProgress();
         public void AtmTransaction(in List<Account> accounts);
         public void Transfer(in List<Account> accounts);
         public void Loading();

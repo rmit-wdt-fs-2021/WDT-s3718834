@@ -81,13 +81,11 @@ namespace Assignment1.View
                               "1: ATM Transaction\n" +
                               "2: Transfer\n" +
                               "3: My Statements\n" +
-                              "4: Modify profile\n" +
-                              "5: Apply for loan\n" +
-                              "6: Logout\n" +
-                              "7: Exit\n");
+                              "4: Logout\n" +
+                              "5: Exit\n");
 
 
-            switch (TerminalTools.GetAcceptableInput(7))
+            switch (TerminalTools.GetAcceptableInput(5))
             {
                 case 1:
                     Controller.AtmTransaction();
@@ -99,15 +97,9 @@ namespace Assignment1.View
                     Controller.TransactionHistory();
                     break;
                 case 4:
-                    Controller.ModifyProfile();
-                    break;
-                case 5:
-                    Controller.ApplyForLoan();
-                    break;
-                case 6:
                     Controller.Logout();
                     break;
-                case 7:
+                case 5:
                     Controller.Exit();
                     break;
                 default:

@@ -21,7 +21,10 @@ namespace Assignment1.Controller
         public abstract int ValidateLogin(int loginId, string password);
         public abstract void AtmTransaction();
         public abstract void Transfer();
-        public abstract bool MakeTransfer(Account sourceAccount, Account destinationAccount, decimal amount);
+
+        public abstract (bool success, Account updatedSourceAccount, Account updatedDestinationAccount) MakeTransfer(
+            Account sourceAccount, Account destinationAccount, decimal amount);
+
         public abstract void TransactionHistory();
         public abstract void ModifyProfile();
         public abstract void ApplyForLoan();

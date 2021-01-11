@@ -281,9 +281,8 @@ namespace Assignment1.View
                     var currencyInput = TerminalTools.GetCurrencyInput("\nPlease input transfer amount\n",
                         "Please input a valid transfer amount\n", input => input > 0 && input <= sourceAccount.Balance);
 
-                    
-                    TransferResponse(Controller.MakeTransfer(sourceAccount, destinationAccount, currencyInput),
-                        sourceAccount, destinationAccount, currencyInput);
+                    var (success, updatedSourceAccount, updatedDestinationAccount) = Controller.MakeTransfer(sourceAccount, destinationAccount, currencyInput);
+                    TransferResponse(success, updatedSourceAccount, updatedDestinationAccount, currencyInput);
                 }
                 catch (InputCancelException)
                 {
@@ -295,7 +294,7 @@ namespace Assignment1.View
             }
         }
 
-        private void TransferResponse(bool wasSuccess, in Account sourceAccount, in Account destinationAccount,
+        private static void TransferResponse(bool wasSuccess, in Account sourceAccount, in Account destinationAccount,
             decimal amount)
         {
             if (wasSuccess)

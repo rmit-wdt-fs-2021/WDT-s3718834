@@ -16,18 +16,19 @@ namespace Assignment1.Engine
         public Task<List<Account>> GetAccounts(Customer customer);
         public Task<List<Transaction>> GetTransactions(Account account);
 
-        public Task<bool> MakeTransfer(Account sourceAccount, Account destinationAccount, decimal amount);
+        public Task<(bool success, Account updatedSourceAccount, Account updatedDestinationAccount)> MakeTransfer(
+            Account sourceAccount, Account destinationAccount, decimal amount);
 
-        public Task<(bool wasSuccess, decimal endingBalance)> MakeTransaction(Account account, TransactionType transactionType, decimal amount);
+        public Task<(bool wasSuccess, decimal endingBalance)> MakeTransaction(Account account,
+            TransactionType transactionType, decimal amount);
+
         public Task<Account> GetAccount(int accountNumber);
-
     }
 
     public class LoginAttemptsExceededException : Exception
     {
         public LoginAttemptsExceededException() : base("User reached the max number of login attempts allowed")
         {
-
         }
     }
 
@@ -37,6 +38,4 @@ namespace Assignment1.Engine
         {
         }
     }
-
-
 }

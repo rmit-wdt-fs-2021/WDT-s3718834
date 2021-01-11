@@ -19,7 +19,7 @@ namespace Assignment1.View
             this.Controller = controller;
         }
 
-        public int Login()
+        public void Login()
         {
             var warningMessage = "";
             while (true)
@@ -36,7 +36,7 @@ namespace Assignment1.View
 
                 Console.Write("Login ID: ");
                 var loginId = Console.ReadLine();
-                if (loginId != null && loginId.Length == 8 && int.TryParse(loginId, out var loginIdNumerical))
+                if (loginId != null && loginId.Length == 8)
                 {
                     var password = TerminalTools.GetSecureInput("Password: ");
 
@@ -48,7 +48,11 @@ namespace Assignment1.View
 
                     try
                     {
-                        return Controller.ValidateLogin(loginIdNumerical, password);
+                        if (!Controller.ValidateLogin(loginId, password))
+                        {
+                            Login();
+                        }
+                        return;
                     }
                     catch (LoginFailedException)
                     {

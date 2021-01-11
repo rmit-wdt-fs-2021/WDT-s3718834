@@ -27,8 +27,24 @@ namespace Assignment1.Controller
 
         public override void Login()
         {
-            View.Login();
-            View.MainMenu(LoggedInCustomer);
+            View.MainMenu(_loggedInCustomer);
+        }
+
+        public override int ValidateLogin(int loginId, string password)
+        {
+            _loggedInCustomer = PerformWithLoading(Engine.LoginAttempt(loginId, password));
+
+            return _loggedInCustomer.CustomerId;
+        }
+
+        public override (bool wasSuccess, decimal newBalance) MakeAtmTransaction(Account account,
+            TransactionType transactionType,
+            decimal amount)
+        {
+            var (wasSuccess, endingBalance) =
+                PerformWithLoading(Engine.MakeTransaction(account, transactionType, amount));
+
+            return (wasSuccess, endingBalance);
         }
 
         public override void TransactionHistory()
@@ -44,6 +60,17 @@ namespace Assignment1.Controller
             View.MainMenu(_loggedInCustomer);
         }
 
+        public override (bool success, Account updatedSourceAccount, Account updatedDestinationAccount) MakeTransfer(
+            Account sourceAccount,
+            Account destinationAccount, decimal amount)
+        {
+            var (success, updatedSourceAccount, updatedDestinationAccount) =
+                PerformWithLoading(Engine.MakeTransfer(sourceAccount, destinationAccount, amount));
+
+            return (success, updatedSourceAccount,
+                updatedDestinationAccount);
+        }
+
         public override List<Transaction> GetTransactions(Account account)
         {
             return PerformWithLoading(Engine.GetTransactions(account));
@@ -52,6 +79,19 @@ namespace Assignment1.Controller
         public override Account GetAccount(int accountNumber)
         {
             return PerformWithLoading(Engine.GetAccount(accountNumber));
+        }
+
+        private T PerformWithLoading<T>(Task<T> task)
+        {
+            View.Loading();
+            task.Wait();
+            return task.Result;
+        }
+
+        private void PerformVoidWithLoading(Task task)
+        {
+            View.Loading();
+            task.Wait();
         }
 
         // TODO Implement

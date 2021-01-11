@@ -9,6 +9,9 @@ namespace Assignment1.View
 {
     public class TerminalBankingView : IBankingView
     {
+        
+        private const int TransactionsPerPage = 4;
+        
         private BankingController Controller { get; set; }
 
         public void Start(BankingController controller)
@@ -115,93 +118,36 @@ namespace Assignment1.View
             var account = TerminalTools.ChooseFromList(accounts, "Please select an account:\n");
             var transactions = Controller.GetTransactions(account);
 
-
-            var escaped = false;
-            var index = 1;
-            while (!escaped)
+            if (transactions.Count <= TransactionsPerPage)
             {
-                ShowTransactionPage(transactions, index - 1, index + 2);
+                ShowTransactionPage(transactions,0, TransactionsPerPage - 1);
+                Console.WriteLine("Press any key to continue");
+                Console.ReadKey();
+                return;
+            }
+            
+            var index = 0;
+            while (true)
+            {
+                ShowTransactionPage(transactions, index, index + (TransactionsPerPage - 1));
 
-                var backPage = (index > 3);
-                var nextPage = (index + 3 < transactions.Count);
-
-                switch (backPage)
+                var options = new List<(string text, int indexChange)>();
+                if(index > 3) options.Add(("Previous Page", -TransactionsPerPage));
+                if(index + 3 < transactions.Count) options.Add(("Next Page", TransactionsPerPage));
+                
+                for (var i = 0; i < options.Count; i++)
                 {
-                    case false when !nextPage:
-                        escaped = true;
-                        break;
-                    case true when nextPage:
-                        Console.WriteLine("\nPlease provide your input\n" +
-                                          "1: Next Page\n" +
-                                          "2: Previous Page\n" +
-                                          "3: Cancel");
-                        switch (TerminalTools.GetAcceptableInput(3))
-                        {
-                            case 1:
-                                index += 4;
-                                break;
-                            case 2:
-                                index -= 4;
-                                break;
-                            case 3:
-                                escaped = true;
-                                break;
-                            default:
-                                Console.WriteLine(
-                                    "Fatal Error: Invalid input got through in transaction history options");
-                                escaped = true;
-                                break;
-                        }
-
-                        break;
-                    case true:
-                        Console.WriteLine("\nPlease provide your input\n" +
-                                          "1: Previous Page\n" +
-                                          "2: Cancel");
-                        switch (TerminalTools.GetAcceptableInput(3))
-                        {
-                            case 1:
-                                index -= 4;
-                                break;
-                            case 2:
-                                escaped = true;
-                                break;
-                            default:
-                                Console.WriteLine(
-                                    "Fatal Error: Invalid input got through in transaction history options");
-                                escaped = true;
-                                break;
-                        }
-
-                        break;
-                    default:
-                    {
-                        Console.WriteLine("\nPlease provide your input\n" +
-                                          "1: Next Page\n" +
-                                          "2: Cancel");
-                        switch (TerminalTools.GetAcceptableInput(3))
-                        {
-                            case 1:
-                                index += 4;
-                                break;
-                            case 2:
-                                escaped = true;
-                                break;
-                            default:
-                                Console.WriteLine(
-                                    "Fatal Error: Invalid input got through in transaction history options");
-                                escaped = true;
-                                break;
-                        }
-
-                        break;
-                    }
+                    Console.WriteLine($"{i + 1}: {options[i].text}");
                 }
+
+                Console.WriteLine($"{options.Count + 1}: Exit");
+                var input = TerminalTools.GetAcceptableInput(options.Count + 1);
+
+                if (input == options.Count + 1) break;
+
+                index += options[input - 1].indexChange;
             }
 
-            if (transactions.Count > 4) return;
-            Console.WriteLine("Press any key to continue");
-            Console.ReadKey();
         }
 
         private static void ShowTransactionPage(in IReadOnlyList<Transaction> transactions, int startIndex, int endIndex)

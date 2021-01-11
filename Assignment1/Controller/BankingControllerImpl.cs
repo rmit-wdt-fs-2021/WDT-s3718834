@@ -9,8 +9,7 @@ namespace Assignment1.Controller
 {
     public class BankingControllerImpl : BankingController
     {
-
-        public Customer LoggedInCustomer { get; private set; }
+        private Customer _loggedInCustomer;
 
         public BankingControllerImpl(IBankingEngine engine, IBankingView view) : base(engine, view)
         {
@@ -20,163 +19,116 @@ namespace Assignment1.Controller
         public override void Start()
         {
             View.Start(this);
-            Task engineStartTask = Engine.Start(this);
-            
-            View.Loading();
+            PerformVoidWithLoading(Engine.Start(this));
 
-            engineStartTask.Wait();
-            if (engineStartTask.IsCompleted)
-            {
-                Login();
-                View.MainMenu(LoggedInCustomer); 
-            }
+            Login();
+            View.MainMenu(_loggedInCustomer);
         }
 
         public override void Login()
         {
+            View.Login();
+            View.MainMenu(_loggedInCustomer);
+        }
 
-            var loginStatus = LoginStatus.Initial;
-            while (loginStatus != LoginStatus.Success)
-            {
-                var (loginId, password) = View.Login(loginStatus);
+        public override bool ValidateLogin(string loginId, string password)
+        {
+            var loginAttempt = PerformWithLoading(Engine.LoginAttempt(loginId, password));
+            if (loginAttempt == null) return false;
 
-                if (loginStatus == LoginStatus.MaxAttempts)
-                {
-                    Exit();
-                    return; // TODO Remove this when I figure out how to properly exit
-                }
+            _loggedInCustomer = loginAttempt;
 
-                try
-                {
-                    var loginAttemptTask = Engine.LoginAttempt(loginId, password);
-                    
-                    View.Loading();
+            return true;
+        }
 
-                    loginAttemptTask.Wait();
-                    LoggedInCustomer = loginAttemptTask.Result;
-                    loginStatus = LoginStatus.Success;
-                }
-                catch (LoginFailedException)
-                {
-                    loginStatus = LoginStatus.IncorrectPassword;
-                }
-                catch (LoginAttemptsExceededException)
-                {
-                    loginStatus = LoginStatus.MaxAttempts;
-                }
-            }
+        public override (bool wasSuccess, decimal newBalance) MakeAtmTransaction(Account account,
+            TransactionType transactionType,
+            decimal amount)
+        {
+            var (wasSuccess, endingBalance) =
+                PerformWithLoading(Engine.MakeTransaction(account, transactionType, amount));
 
-            View.MainMenu(LoggedInCustomer);
-
-
+            return (wasSuccess, endingBalance);
         }
 
         public override void TransactionHistory()
         {
-            var getAccountsTask = Engine.GetAccounts(LoggedInCustomer);
-            
-            View.Loading();
-            getAccountsTask.Wait();
-            
-            View.ShowTransactions(getAccountsTask.Result);
-            View.MainMenu(LoggedInCustomer);
+            View.ShowTransactions(PerformWithLoading(Engine.GetAccounts(_loggedInCustomer)));
+            View.MainMenu(_loggedInCustomer);
         }
 
         public override void Transfer()
         {
-            var getAccountsTask = Engine.GetAccounts(LoggedInCustomer);
-            
-            View.Loading();
-            getAccountsTask.Wait();
-            
-            var (sourceAccount, destinationAccount, amount) = View.Transfer(getAccountsTask.Result);
+            View.Transfer(PerformWithLoading(Engine.GetAccounts(_loggedInCustomer)));
 
-            if (sourceAccount != null)
-            {
-                var transferTask = Engine.MakeTransfer(sourceAccount, destinationAccount, amount);
-                View.Loading();
+            View.MainMenu(_loggedInCustomer);
+        }
 
-                transferTask.Wait();
-                
-                if (transferTask.Result)
-                {
-                    View.TransferResponse(transferTask.Result, sourceAccount, destinationAccount, amount);
-                }
+        public override (bool success, Account updatedSourceAccount, Account updatedDestinationAccount) MakeTransfer(
+            Account sourceAccount,
+            Account destinationAccount, decimal amount)
+        {
+            var (success, updatedSourceAccount, updatedDestinationAccount) =
+                PerformWithLoading(Engine.MakeTransfer(sourceAccount, destinationAccount, amount));
 
-                Transfer();
-            }
-
-
-            View.MainMenu(LoggedInCustomer);
+            return (success, updatedSourceAccount,
+                updatedDestinationAccount);
         }
 
         public override List<Transaction> GetTransactions(Account account)
         {
-            var getTransactionsTask = Engine.GetTransactions(account);
-            
-            View.Loading();
-            getTransactionsTask.Wait();
-
-            return getTransactionsTask.Result;
+            return PerformWithLoading(Engine.GetTransactions(account));
         }
 
         public override Account GetAccount(int accountNumber)
         {
-            var accountExistsTask = Engine.GetAccount(accountNumber);
+            return PerformWithLoading(Engine.GetAccount(accountNumber));
+        }
+
+        private T PerformWithLoading<T>(Task<T> task)
+        {
             View.Loading();
-            accountExistsTask.Wait();
-            
-            return accountExistsTask.Result;
+            task.Wait();
+            return task.Result;
+        }
+
+        private void PerformVoidWithLoading(Task task)
+        {
+            View.Loading();
+            task.Wait();
         }
 
         // TODO Implement
         public override void ModifyProfile()
         {
             View.WorkInProgress();
-            View.MainMenu(LoggedInCustomer);
+            View.MainMenu(_loggedInCustomer);
         }
 
         // TODO Implement
         public override void ApplyForLoan()
         {
             View.WorkInProgress();
-            View.MainMenu(LoggedInCustomer);
+            View.MainMenu(_loggedInCustomer);
         }
 
         public override void Logout()
         {
-            LoggedInCustomer = null;
+            _loggedInCustomer = null;
             View.Clear();
             Login();
         }
 
         public override void AtmTransaction()
         {
-            while (true)
-            {
-                var getAccountsTask = Engine.GetAccounts(LoggedInCustomer);
-            
-                View.Loading();
-                getAccountsTask.Wait();
-                
-                var (account, transactionType, amount) = View.AtmTransaction(getAccountsTask.Result);
-                if (account == null)
-                {
-                    View.MainMenu(LoggedInCustomer);
-                }
-                else
-                {
-                    var transactionTask = Engine.MakeTransaction(account, transactionType, amount);
-                    View.Loading();
-                    transactionTask.Wait();
-                    var (wasSuccess, endingBalance) = transactionTask.Result;
-                    
-                    View.TransactionResponse(wasSuccess, transactionType, amount, endingBalance);
-                    continue;
-                }
+            var getAccountsTask = Engine.GetAccounts(_loggedInCustomer);
 
-                break;
-            }
+            View.Loading();
+            getAccountsTask.Wait();
+
+            View.AtmTransaction(getAccountsTask.Result);
+
+            View.MainMenu(_loggedInCustomer);
         }
 
         public override void Exit()

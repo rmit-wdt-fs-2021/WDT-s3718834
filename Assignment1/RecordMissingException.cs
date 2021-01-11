@@ -5,10 +5,9 @@ namespace Assignment1
 {
     public class RecordMissingException : Exception
     {
-        public RecordMissingException()
+        public RecordMissingException() : base("Failed to retrieve any records")
         {
         }
-
         public RecordMissingException(string message) : base(message)
         {
         }

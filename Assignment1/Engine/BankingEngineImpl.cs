@@ -69,7 +69,7 @@ namespace Assignment1.Engine
         {
             if (amount < 0) return (false, null, null);
 
-            var serviceFee = GetServiceFee(sourceAccount.AccountNumber, TransactionType.Transfer);
+            var serviceFee = await GetServiceFee(sourceAccount.AccountNumber, TransactionType.Transfer);
 
             var updatedSourceBalance = sourceAccount.Balance - amount - serviceFee;
             if (updatedSourceBalance < 0) return (false, null, null);
@@ -78,15 +78,20 @@ namespace Assignment1.Engine
 
             await _databaseProxy.AddTransactionBulk(new List<Transaction>
             {
-                new Transaction((char) TransactionType.Transfer, sourceAccount.AccountNumber,
+                new Transaction((char) TransactionType.Transfer,
+                    sourceAccount.AccountNumber,
                     destinationAccount.AccountNumber, amount, null, DateTime.UtcNow),
-                new Transaction((char) TransactionType.ServiceCharge, sourceAccount.AccountNumber,
-                    sourceAccount.AccountNumber, serviceFee,
-                    serviceFee == 0 ? "wavered transfer fee (one of first 4)" : "transfer fee", DateTime.UtcNow),
-
                 new Transaction((char) TransactionType.Deposit,
                     destinationAccount.AccountNumber, sourceAccount.AccountNumber, amount, null, DateTime.UtcNow)
             });
+
+            if (serviceFee > 0)
+            {
+                await _databaseProxy.AddTransaction(new Transaction((char) TransactionType.ServiceCharge,
+                    sourceAccount.AccountNumber,
+                    sourceAccount.AccountNumber, serviceFee,
+                    "transfer fee", DateTime.UtcNow));
+            }
 
             await _databaseProxy.UpdateAccountBalance(destinationAccount.Balance + amount,
                 destinationAccount.AccountNumber);
@@ -115,7 +120,7 @@ namespace Assignment1.Engine
                     updatedBalance += amount;
                     break;
                 case TransactionType.Withdraw:
-                    serviceFee = GetServiceFee(account.AccountNumber, TransactionType.Withdraw);
+                    serviceFee = await GetServiceFee(account.AccountNumber, TransactionType.Withdraw);
                     updatedBalance -= amount;
                     updatedBalance -= serviceFee;
                     if (updatedBalance < 0)
@@ -134,12 +139,12 @@ namespace Assignment1.Engine
             await _databaseProxy.AddTransaction(new Transaction((char) transactionType,
                 account.AccountNumber, account.AccountNumber, amount, null, DateTime.UtcNow));
 
-            if (transactionType == TransactionType.Withdraw)
+            if (transactionType == TransactionType.Withdraw && serviceFee > 0)
             {
                 await _databaseProxy.AddTransaction(new Transaction((char) TransactionType.ServiceCharge,
                     account.AccountNumber,
                     account.AccountNumber, serviceFee,
-                    serviceFee == 0 ? "wavered service fee (one of first 4)" : "withdrawal fee", DateTime.UtcNow));
+                    "withdrawal fee", DateTime.UtcNow));
             }
 
             return (true, updatedBalance);
@@ -150,8 +155,12 @@ namespace Assignment1.Engine
             return await _databaseProxy.GetAccount(accountNumber);
         }
 
-        private decimal GetServiceFee(int accountNumber, TransactionType transactionType)
+        private async Task<decimal> GetServiceFee(int accountNumber, TransactionType transactionType)
         {
+            var numberOfPreviousTransactions = await _databaseProxy.GetServiceFeeTransactionCounts(accountNumber);
+
+            if (numberOfPreviousTransactions < 4) return 0;
+            
             return transactionType switch
             {
                 // Value of the service fees are declared here because const initializers must be compile time (new decimal() isnt)

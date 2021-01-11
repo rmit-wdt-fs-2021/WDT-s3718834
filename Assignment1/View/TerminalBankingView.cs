@@ -64,7 +64,7 @@ namespace Assignment1.View
             }
         }
 
-        public void MainMenu(Customer loggedInCustomer)
+        public void MainMenu(in Customer loggedInCustomer)
         {
             Clear();
             Console.WriteLine("-- Main Menu --\n");
@@ -110,7 +110,7 @@ namespace Assignment1.View
         }
 
 
-        public void ShowTransactions(List<Account> accounts)
+        public void ShowTransactions(in List<Account> accounts)
         {
             var account = TerminalTools.ChooseFromList(accounts, "Please select an account:\n");
             var transactions = Controller.GetTransactions(account);
@@ -204,7 +204,7 @@ namespace Assignment1.View
             Console.ReadKey();
         }
 
-        private static void ShowTransactionPage(IReadOnlyList<Transaction> transactions, int startIndex, int endIndex)
+        private static void ShowTransactionPage(in IReadOnlyList<Transaction> transactions, int startIndex, int endIndex)
         {
             for (var i = startIndex; i <= endIndex && i < transactions.Count; i++)
             {
@@ -225,7 +225,7 @@ namespace Assignment1.View
         }
 
         public (Account sourceAccount, Account destinationAccount, decimal amount) Transfer(
-            List<Account> originalAccounts)
+            in List<Account> originalAccounts)
         {
             while (true)
             {
@@ -319,7 +319,7 @@ namespace Assignment1.View
             }
         }
 
-        public void TransferResponse(bool wasSuccess, Account sourceAccount, Account destinationAccount, decimal amount)
+        public void TransferResponse(bool wasSuccess, in Account sourceAccount, in Account destinationAccount, decimal amount)
         {
             if (wasSuccess)
             {
@@ -376,7 +376,7 @@ namespace Assignment1.View
         }
 
 
-        public (Account account, TransactionType transactionType, decimal amount) AtmTransaction(List<Account> accounts)
+        public (Account account, TransactionType transactionType, decimal amount) AtmTransaction(in List<Account> accounts)
         {
             while (true)
             {

@@ -179,7 +179,7 @@ namespace Assignment1.View
                     $"Destination account #:\t{transaction.DestinationAccountNumber}\n" +
                     $"Amount:\t\t\t{transaction.Amount}\n" +
                     $"Comment:\t\t{transaction.Comment}\n" +
-                    $"Time:\t\t\t{transaction.TransactionTimeUtc}\n");
+                    $"Time:\t\t\t{transaction.TransactionTimeUtc.ToLocalTime()}\n");
             }
 
             Console.WriteLine("*************************************************************");
@@ -459,7 +459,7 @@ namespace Assignment1.View
             Console.WriteLine("\nLoading ... \n");
         }
 
-        private static string GetFullAccountType(char accountType)
+        public static string GetFullAccountType(char accountType)
         {
             return accountType == 'S' ? "Savings" : "Checking";
         }

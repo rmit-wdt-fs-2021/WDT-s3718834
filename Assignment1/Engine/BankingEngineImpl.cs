@@ -75,12 +75,12 @@ namespace Assignment1.Engine
             await _databaseProxy.AddTransactionBulk(new List<Transaction>
             {
                 new Transaction((char) TransactionType.Transfer, sourceAccount.AccountNumber,
-                    destinationAccount.AccountNumber, amount, null, DateTime.Now),
+                    destinationAccount.AccountNumber, amount, null, DateTime.UtcNow),
                 new Transaction((char) TransactionType.ServiceCharge, sourceAccount.AccountNumber,
-                    sourceAccount.AccountNumber, new decimal(0.2), "transfer task", DateTime.Now),
+                    sourceAccount.AccountNumber, new decimal(0.2), "transfer task", DateTime.UtcNow),
 
                 new Transaction((char) TransactionType.Deposit,
-                    destinationAccount.AccountNumber, sourceAccount.AccountNumber, amount, null, DateTime.Now)
+                    destinationAccount.AccountNumber, sourceAccount.AccountNumber, amount, null, DateTime.UtcNow)
             });
 
             await _databaseProxy.UpdateAccountBalance(destinationAccount.Balance + amount,
@@ -124,13 +124,13 @@ namespace Assignment1.Engine
             await _databaseProxy.UpdateAccountBalance(updatedBalance, account.AccountNumber);
 
             await _databaseProxy.AddTransaction(new Transaction((char) transactionType,
-                account.AccountNumber, account.AccountNumber, amount, null, DateTime.Now));
+                account.AccountNumber, account.AccountNumber, amount, null, DateTime.UtcNow));
 
             if (transactionType == TransactionType.Withdraw)
             {
                 await _databaseProxy.AddTransaction(new Transaction((char) TransactionType.ServiceCharge,
                     account.AccountNumber,
-                    account.AccountNumber, new decimal(0.1), "withdrawal fee", DateTime.Now));
+                    account.AccountNumber, new decimal(0.1), "withdrawal fee", DateTime.UtcNow));
             }
 
             return (true, updatedBalance);

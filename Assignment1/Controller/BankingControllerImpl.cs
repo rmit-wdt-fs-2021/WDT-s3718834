@@ -9,7 +9,6 @@ namespace Assignment1.Controller
 {
     public class BankingControllerImpl : BankingController
     {
-
         public Customer LoggedInCustomer { get; private set; }
 
         public BankingControllerImpl(IBankingEngine engine, IBankingView view) : base(engine, view)
@@ -21,14 +20,14 @@ namespace Assignment1.Controller
         {
             View.Start(this);
             Task engineStartTask = Engine.Start(this);
-            
+
             View.Loading();
 
             engineStartTask.Wait();
             if (engineStartTask.IsCompleted)
             {
                 Login();
-                View.MainMenu(LoggedInCustomer); 
+                View.MainMenu(LoggedInCustomer);
             }
         }
 
@@ -41,10 +40,10 @@ namespace Assignment1.Controller
         public override void TransactionHistory()
         {
             var getAccountsTask = Engine.GetAccounts(LoggedInCustomer);
-            
+
             View.Loading();
             getAccountsTask.Wait();
-            
+
             View.ShowTransactions(getAccountsTask.Result);
             View.MainMenu(LoggedInCustomer);
         }
@@ -52,27 +51,11 @@ namespace Assignment1.Controller
         public override void Transfer()
         {
             var getAccountsTask = Engine.GetAccounts(LoggedInCustomer);
-            
+
             View.Loading();
             getAccountsTask.Wait();
-            
-            var (sourceAccount, destinationAccount, amount) = View.Transfer(getAccountsTask.Result);
 
-            if (sourceAccount != null)
-            {
-                var transferTask = Engine.MakeTransfer(sourceAccount, destinationAccount, amount);
-                View.Loading();
-
-                transferTask.Wait();
-                
-                if (transferTask.Result)
-                {
-                    View.TransferResponse(transferTask.Result, sourceAccount, destinationAccount, amount);
-                }
-
-                Transfer();
-            }
-
+            View.Transfer(getAccountsTask.Result);
 
             View.MainMenu(LoggedInCustomer);
         }
@@ -80,7 +63,7 @@ namespace Assignment1.Controller
         public override List<Transaction> GetTransactions(Account account)
         {
             var getTransactionsTask = Engine.GetTransactions(account);
-            
+
             View.Loading();
             getTransactionsTask.Wait();
 
@@ -92,7 +75,7 @@ namespace Assignment1.Controller
             var accountExistsTask = Engine.GetAccount(accountNumber);
             View.Loading();
             accountExistsTask.Wait();
-            
+
             return accountExistsTask.Result;
         }
 
@@ -119,31 +102,14 @@ namespace Assignment1.Controller
 
         public override void AtmTransaction()
         {
-            while (true)
-            {
-                var getAccountsTask = Engine.GetAccounts(LoggedInCustomer);
-            
-                View.Loading();
-                getAccountsTask.Wait();
-                
-                var (account, transactionType, amount) = View.AtmTransaction(getAccountsTask.Result);
-                if (account == null)
-                {
-                    View.MainMenu(LoggedInCustomer);
-                }
-                else
-                {
-                    var transactionTask = Engine.MakeTransaction(account, transactionType, amount);
-                    View.Loading();
-                    transactionTask.Wait();
-                    var (wasSuccess, endingBalance) = transactionTask.Result;
-                    
-                    View.TransactionResponse(wasSuccess, transactionType, amount, endingBalance);
-                    continue;
-                }
+            var getAccountsTask = Engine.GetAccounts(LoggedInCustomer);
 
-                break;
-            }
+            View.Loading();
+            getAccountsTask.Wait();
+
+            View.AtmTransaction(getAccountsTask.Result);
+
+            View.MainMenu(LoggedInCustomer);
         }
 
         public override void Exit()

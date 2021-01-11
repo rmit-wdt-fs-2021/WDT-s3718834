@@ -64,24 +64,34 @@ namespace Assignment1.Engine
             return await _databaseProxy.GetTransactions(account.AccountNumber);
         }
 
-        public async Task<(bool success, Account updatedSourceAccount, Account updatedDestinationAccount)> MakeTransfer(Account sourceAccount, Account destinationAccount, decimal amount)
+        public async Task<(bool success, Account updatedSourceAccount, Account updatedDestinationAccount)> MakeTransfer(
+            Account sourceAccount, Account destinationAccount, decimal amount)
         {
             if (amount < 0) return (false, null, null);
 
-            var updatedSourceBalance = sourceAccount.Balance - amount - new decimal(0.2);
+            var serviceFee = await GetServiceFee(sourceAccount.AccountNumber, TransactionType.Transfer);
+
+            var updatedSourceBalance = sourceAccount.Balance - amount - serviceFee;
             if (updatedSourceBalance < 0) return (false, null, null);
 
             await _databaseProxy.UpdateAccountBalance(updatedSourceBalance, sourceAccount.AccountNumber);
+
             await _databaseProxy.AddTransactionBulk(new List<Transaction>
             {
-                new Transaction((char) TransactionType.Transfer, sourceAccount.AccountNumber,
+                new Transaction((char) TransactionType.Transfer,
+                    sourceAccount.AccountNumber,
                     destinationAccount.AccountNumber, amount, null, DateTime.UtcNow),
-                new Transaction((char) TransactionType.ServiceCharge, sourceAccount.AccountNumber,
-                    sourceAccount.AccountNumber, new decimal(0.2), "transfer task", DateTime.UtcNow),
-
                 new Transaction((char) TransactionType.Deposit,
                     destinationAccount.AccountNumber, sourceAccount.AccountNumber, amount, null, DateTime.UtcNow)
             });
+
+            if (serviceFee > 0)
+            {
+                await _databaseProxy.AddTransaction(new Transaction((char) TransactionType.ServiceCharge,
+                    sourceAccount.AccountNumber,
+                    sourceAccount.AccountNumber, serviceFee,
+                    "transfer fee", DateTime.UtcNow));
+            }
 
             await _databaseProxy.UpdateAccountBalance(destinationAccount.Balance + amount,
                 destinationAccount.AccountNumber);
@@ -102,14 +112,17 @@ namespace Assignment1.Engine
                 return (false, updatedBalance);
             }
 
+            decimal serviceFee = 0;
+
             switch (transactionType)
             {
                 case TransactionType.Deposit:
                     updatedBalance += amount;
                     break;
                 case TransactionType.Withdraw:
+                    serviceFee = await GetServiceFee(account.AccountNumber, TransactionType.Withdraw);
                     updatedBalance -= amount;
-                    updatedBalance -= new decimal(0.1); // Service fee
+                    updatedBalance -= serviceFee;
                     if (updatedBalance < 0)
                     {
                         return (false, account.Balance);
@@ -126,11 +139,12 @@ namespace Assignment1.Engine
             await _databaseProxy.AddTransaction(new Transaction((char) transactionType,
                 account.AccountNumber, account.AccountNumber, amount, null, DateTime.UtcNow));
 
-            if (transactionType == TransactionType.Withdraw)
+            if (transactionType == TransactionType.Withdraw && serviceFee > 0)
             {
                 await _databaseProxy.AddTransaction(new Transaction((char) TransactionType.ServiceCharge,
                     account.AccountNumber,
-                    account.AccountNumber, new decimal(0.1), "withdrawal fee", DateTime.UtcNow));
+                    account.AccountNumber, serviceFee,
+                    "withdrawal fee", DateTime.UtcNow));
             }
 
             return (true, updatedBalance);
@@ -139,6 +153,21 @@ namespace Assignment1.Engine
         public async Task<Account> GetAccount(int accountNumber)
         {
             return await _databaseProxy.GetAccount(accountNumber);
+        }
+
+        private async Task<decimal> GetServiceFee(int accountNumber, TransactionType transactionType)
+        {
+            var numberOfPreviousTransactions = await _databaseProxy.GetServiceFeeTransactionCounts(accountNumber);
+
+            if (numberOfPreviousTransactions < 4) return 0;
+            
+            return transactionType switch
+            {
+                // Value of the service fees are declared here because const initializers must be compile time (new decimal() isnt)
+                TransactionType.Withdraw => new decimal(0.1),
+                TransactionType.Transfer => new decimal(0.2),
+                _ => 0
+            };
         }
     }
 }

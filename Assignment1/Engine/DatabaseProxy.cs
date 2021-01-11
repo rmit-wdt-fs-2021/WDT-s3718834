@@ -227,6 +227,16 @@ namespace Assignment1.Engine
                     (DateTime) dataRow["TransactionTimeUTC"])).ToList();
         }
 
+        public async Task<int> GetServiceFeeTransactionCounts(int accountNumber)
+        {
+            var command = CreateCommand("SELECT COUNT(*) FROM [Transaction] WHERE (TransactionType = 'W' OR TransactionType = 'T') AND AccountNumber = @accountNumber");
+            command.Parameters.AddWithValue("accountNumber", accountNumber);
+            
+            var data = await GetDataTable(command);
+
+            return (int) data.Select()[0][0]; // Get the count
+        }
+
 
         private SqlCommand CreateCommand(string commandString)
         {

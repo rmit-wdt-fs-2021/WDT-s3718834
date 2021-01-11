@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Assignment1.Engine;
+using Assignment1.Enum;
 using Assignment1.POCO;
 using Assignment1.View;
 
@@ -24,6 +25,8 @@ namespace Assignment1.Controller
 
         public abstract (bool success, Account updatedSourceAccount, Account updatedDestinationAccount) MakeTransfer(
             Account sourceAccount, Account destinationAccount, decimal amount);
+
+        public abstract (bool wasSuccess, decimal newBalance) MakeAtmTransaction(Account account, TransactionType transactionType, decimal amount);
 
         public abstract void TransactionHistory();
         public abstract void ModifyProfile();

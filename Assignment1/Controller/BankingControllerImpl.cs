@@ -9,7 +9,7 @@ namespace Assignment1.Controller
 {
     public class BankingControllerImpl : BankingController
     {
-        public Customer LoggedInCustomer { get; private set; }
+        private Customer _loggedInCustomer;
 
         public BankingControllerImpl(IBankingEngine engine, IBankingView view) : base(engine, view)
         {
@@ -19,16 +19,10 @@ namespace Assignment1.Controller
         public override void Start()
         {
             View.Start(this);
-            Task engineStartTask = Engine.Start(this);
+            PerformVoidWithLoading(Engine.Start(this));
 
-            View.Loading();
-
-            engineStartTask.Wait();
-            if (engineStartTask.IsCompleted)
-            {
-                Login();
-                View.MainMenu(LoggedInCustomer);
-            }
+            Login();
+            View.MainMenu(_loggedInCustomer);
         }
 
         public override void Login()
@@ -39,77 +33,58 @@ namespace Assignment1.Controller
 
         public override void TransactionHistory()
         {
-            var getAccountsTask = Engine.GetAccounts(LoggedInCustomer);
-
-            View.Loading();
-            getAccountsTask.Wait();
-
-            View.ShowTransactions(getAccountsTask.Result);
-            View.MainMenu(LoggedInCustomer);
+            View.ShowTransactions(PerformWithLoading(Engine.GetAccounts(_loggedInCustomer)));
+            View.MainMenu(_loggedInCustomer);
         }
 
         public override void Transfer()
         {
-            var getAccountsTask = Engine.GetAccounts(LoggedInCustomer);
+            View.Transfer(PerformWithLoading(Engine.GetAccounts(_loggedInCustomer)));
 
-            View.Loading();
-            getAccountsTask.Wait();
-
-            View.Transfer(getAccountsTask.Result);
-
-            View.MainMenu(LoggedInCustomer);
+            View.MainMenu(_loggedInCustomer);
         }
 
         public override List<Transaction> GetTransactions(Account account)
         {
-            var getTransactionsTask = Engine.GetTransactions(account);
-
-            View.Loading();
-            getTransactionsTask.Wait();
-
-            return getTransactionsTask.Result;
+            return PerformWithLoading(Engine.GetTransactions(account));
         }
 
         public override Account GetAccount(int accountNumber)
         {
-            var accountExistsTask = Engine.GetAccount(accountNumber);
-            View.Loading();
-            accountExistsTask.Wait();
-
-            return accountExistsTask.Result;
+            return PerformWithLoading(Engine.GetAccount(accountNumber));
         }
 
         // TODO Implement
         public override void ModifyProfile()
         {
             View.WorkInProgress();
-            View.MainMenu(LoggedInCustomer);
+            View.MainMenu(_loggedInCustomer);
         }
 
         // TODO Implement
         public override void ApplyForLoan()
         {
             View.WorkInProgress();
-            View.MainMenu(LoggedInCustomer);
+            View.MainMenu(_loggedInCustomer);
         }
 
         public override void Logout()
         {
-            LoggedInCustomer = null;
+            _loggedInCustomer = null;
             View.Clear();
             Login();
         }
 
         public override void AtmTransaction()
         {
-            var getAccountsTask = Engine.GetAccounts(LoggedInCustomer);
+            var getAccountsTask = Engine.GetAccounts(_loggedInCustomer);
 
             View.Loading();
             getAccountsTask.Wait();
 
             View.AtmTransaction(getAccountsTask.Result);
 
-            View.MainMenu(LoggedInCustomer);
+            View.MainMenu(_loggedInCustomer);
         }
 
         public override void Exit()

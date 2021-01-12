@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Assignment1.Engine;
 using Assignment1.Enum;
@@ -119,7 +121,7 @@ namespace Assignment1.Controller
 
         public override void Exit()
         {
-            // TODO Put in the real method for exiting
+            Environment.Exit(0);
         }
     }
 }

@@ -125,7 +125,7 @@ namespace Assignment1.View
         {
             return !int.TryParse(input, out var numericalInput)
                 ? (false, 0)
-                : ((numericalInput > 0 && numericalInput < maxInput), numericalInput);
+                : ((numericalInput > 0 && numericalInput <= maxInput), numericalInput);
         }
     }
 }

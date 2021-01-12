@@ -1,5 +1,8 @@
 ﻿namespace Assignment1.Data
 {
+    /// <summary>
+    /// Basic DTO for customer data
+    /// </summary>
     public class Customer
     {
         public int CustomerId { get; set; }

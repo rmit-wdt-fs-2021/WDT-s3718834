@@ -4,6 +4,10 @@ using System.Text;
 
 namespace Assignment1.View
 {
+    /// <summary>
+    /// Provides methods for the terminal view implementations to reduce repeated code and convenience.
+    /// Isnt moved to a class library due to its use of the InputCancelException 
+    /// </summary>
     public static class TerminalTools
     {
         /// <summary>

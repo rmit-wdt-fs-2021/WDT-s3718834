@@ -1,5 +1,8 @@
 ﻿namespace Assignment1.Data
 {
+    /// <summary>
+    /// Basic DTO for account data
+    /// </summary>
     public class Account
     {
         public int AccountNumber { get; set; }

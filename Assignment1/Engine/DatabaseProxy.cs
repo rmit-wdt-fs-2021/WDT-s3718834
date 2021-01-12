@@ -100,7 +100,7 @@ namespace Assignment1.Engine
             }
         }
 
-        public async Task<(int customerId, string passwordHash)> GetPasswordHashAndCustomerId(string loginId)
+        public async Task<(int customerId, string passwordHash)> GetPasswordHashAndCustomerId(int loginId)
         {
             var command = CreateCommand("SELECT C.CustomerID, PasswordHash FROM Login JOIN Customer C on C.CustomerID = Login.CustomerID WHERE Login.LoginID = @loginID");
             command.Parameters.AddWithValue("@loginID", loginId);
@@ -108,7 +108,7 @@ namespace Assignment1.Engine
             var data = await GetDataTable(command);
 
             var dataRows = data.Select();
-            if (dataRows.Length <= 0) throw new RecordMissingException("No login with provided id exists");
+            if (dataRows.Length <= 0) throw new LoginFailedException();
            
             var dataRow = dataRows[0];
             return ((int) dataRow["CustomerId"], dataRow["PasswordHash"].ToString());

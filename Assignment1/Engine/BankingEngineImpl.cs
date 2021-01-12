@@ -41,7 +41,7 @@ namespace Assignment1.Engine
             }
         }
 
-        public async Task<Customer> LoginAttempt(string loginId, string password)
+        public async Task<Customer> LoginAttempt(int loginId, string password)
         {
             var existingHashTask = _databaseProxy.GetPasswordHashAndCustomerId(loginId);
 
@@ -126,7 +126,7 @@ namespace Assignment1.Engine
                     serviceFee = await GetServiceFee(account.AccountNumber, TransactionType.Withdraw);
                     updatedBalance -= amount;
                     updatedBalance -= serviceFee;
-                    if (IsAboveMinimum(account.AccountType, updatedBalance))
+                    if (!IsAboveMinimum(account.AccountType, updatedBalance))
                     {
                         return (false, account.Balance);
                     }

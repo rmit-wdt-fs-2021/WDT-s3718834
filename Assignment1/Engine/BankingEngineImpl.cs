@@ -126,7 +126,7 @@ namespace Assignment1.Engine
                     serviceFee = await GetServiceFee(account.AccountNumber, TransactionType.Withdraw);
                     updatedBalance -= amount;
                     updatedBalance -= serviceFee;
-                    if (IsAboveMinimum(account.AccountType, updatedBalance))
+                    if (!IsAboveMinimum(account.AccountType, updatedBalance))
                     {
                         return (false, account.Balance);
                     }

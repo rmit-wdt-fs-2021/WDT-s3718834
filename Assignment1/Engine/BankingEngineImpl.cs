@@ -45,7 +45,17 @@ namespace Assignment1.Engine
         {
             var existingHashTask = _databaseProxy.GetPasswordHashAndCustomerId(loginId);
 
-            var (customerId, passwordHash) = await existingHashTask;
+            int customerId;
+            string passwordHash;
+            try
+            {
+                (customerId, passwordHash) = await existingHashTask;
+            }
+            catch (RecordMissingException)
+            {
+                throw new LoginFailedException();
+            }
+             
 
             if (SimpleHashing.PBKDF2.Verify(passwordHash, password))
             {
@@ -155,7 +165,14 @@ namespace Assignment1.Engine
 
         public async Task<Account> GetAccount(int accountNumber)
         {
-            return await _databaseProxy.GetAccount(accountNumber);
+            try
+            {
+                return await _databaseProxy.GetAccount(accountNumber);
+            }
+            catch (RecordMissingException)
+            {
+                return null;
+            }
         }
 
         private async Task<decimal> GetServiceFee(int accountNumber, TransactionType transactionType)

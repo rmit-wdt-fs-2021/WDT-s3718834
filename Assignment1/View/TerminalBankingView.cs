@@ -29,7 +29,7 @@ namespace Assignment1.View
 
                 if (warningMessage != "")
                 {
-                    Console.WriteLine("\n" + warningMessage);
+                    Console.WriteLine(warningMessage + "\n");
                 }
 
                 Console.WriteLine("Please provide your details below:");
@@ -66,7 +66,7 @@ namespace Assignment1.View
                 }
                 else
                 {
-                    warningMessage = "Provided login ID was incorrect. A login ID must be 8 digits\n";
+                    warningMessage = "Provided login ID was incorrect. A login ID must be 8 digits";
                 }
             }
         }

@@ -36,8 +36,6 @@ namespace Assignment1.Controller
         public override bool ValidateLogin(int loginId, string password)
         {
             var loginAttempt = PerformWithLoading(Engine.LoginAttempt(loginId, password));
-            if (loginAttempt == null) return false;
-
             _loggedInCustomer = loginAttempt;
 
             return true;
@@ -90,7 +88,19 @@ namespace Assignment1.Controller
         private T PerformWithLoading<T>(Task<T> task)
         {
             View.Loading();
-            task.Wait();
+
+            try
+            {
+                task.Wait();
+            }
+            catch (AggregateException aggregateException)
+            {
+                foreach (var exception in aggregateException.InnerExceptions)
+                {
+                    throw exception;
+                }
+            }
+
             return task.Result;
         }
 

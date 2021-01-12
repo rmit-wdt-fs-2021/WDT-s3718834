@@ -48,11 +48,7 @@ namespace Assignment1.View
 
                     try
                     {
-                        if (!Controller.ValidateLogin(loginIdNumerical, password))
-                        {
-                            Login();
-                        }
-
+                        Controller.ValidateLogin(loginIdNumerical, password);
                         return;
                     }
                     catch (LoginFailedException)

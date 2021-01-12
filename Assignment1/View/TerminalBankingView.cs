@@ -194,7 +194,16 @@ namespace Assignment1.View
                 Console.WriteLine("Please provide the account to transfer from (source)\n");
 
                 // Will throw exception if the user cancelled their input
-                var sourceAccount = TerminalTools.ChooseFromList(accounts, "Please select an account: \n");
+                
+                Account sourceAccount;
+                try
+                {
+                    sourceAccount = TerminalTools.ChooseFromList(accounts, "Please select an account: \n");
+                }
+                catch (InputCancelException)
+                {
+                    return;
+                }
 
                 accounts.Remove(
                     sourceAccount); // Remove the source account so it cannot be selected as the destination account
@@ -262,7 +271,7 @@ namespace Assignment1.View
                     }
                     catch (InputCancelException)
                     {
-                        Transfer(accounts);
+                        Transfer(originalAccounts);
                         return;
                     }
                 }
@@ -283,7 +292,7 @@ namespace Assignment1.View
                 }
                 catch (InputCancelException)
                 {
-                    Transfer(accounts);
+                    Transfer(originalAccounts);
                     return;
                 }
             }
@@ -358,13 +367,18 @@ namespace Assignment1.View
             {
                 Clear();
                 Console.WriteLine("-- ATM Transaction -- \n");
-                var selectedAccount = TerminalTools.ChooseFromList(accounts, "Please select account: \n");
 
-                if (selectedAccount == null)
+                Account selectedAccount;
+                try
+                {
+                    selectedAccount = TerminalTools.ChooseFromList(accounts, "Please select account: \n");
+                }
+                catch (InputCancelException)
                 {
                     return;
                 }
-
+                
+                
                 Clear();
                 Console.WriteLine("-- ATM Transaction -- \n");
                 Console.WriteLine(

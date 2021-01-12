@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Assignment1
+﻿namespace Assignment1.Enum
 {
     public enum TransactionType
     {
-        Deposit,
-        Withdraw
+        Deposit = 'D',
+        Withdraw = 'W',
+        Transfer = 'T',
+        ServiceCharge = 'S'
     }
 }

@@ -1,131 +1,137 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Net.Mime;
+using System.Threading.Tasks;
+using Assignment1.Engine;
+using Assignment1.Enum;
+using Assignment1.POCO;
+using Assignment1.View;
 
-namespace Assignment1
+namespace Assignment1.Controller
 {
     public class BankingControllerImpl : BankingController
     {
+        private Customer _loggedInCustomer;
 
-        public User LoggedInUser { get; private set; }
-
-        public BankingControllerImpl(BankingEngine engine, BankingView view) : base(engine, view)
+        public BankingControllerImpl(IBankingEngine engine, IBankingView view) : base(engine, view)
         {
         }
 
 
         public override void Start()
         {
-            Engine.Start(this);
             View.Start(this);
+            PerformVoidWithLoading(Engine.Start(this));
 
-            //Login();
-            LoggedInUser = Engine.LoginAttempt("", "");
-            View.MainMenu(LoggedInUser); // Skipping login for testing
+            Login();
+            View.MainMenu(_loggedInCustomer);
         }
 
         public override void Login()
         {
+            View.Login();
+            View.MainMenu(_loggedInCustomer);
+        }
 
-            LoginStatus loginStatus = LoginStatus.Initial;
-            while (loginStatus != LoginStatus.Success)
-            {
-                (string loginID, string password) loginDetails = View.Login(loginStatus);
+        public override bool ValidateLogin(int loginId, string password)
+        {
+            var loginAttempt = PerformWithLoading(Engine.LoginAttempt(loginId, password));
+            _loggedInCustomer = loginAttempt;
 
-                if (loginStatus == LoginStatus.MaxAttempts)
-                {
-                    Exit();
-                    return; // TODO Remove this when I figure out how to properly exit
-                }
+            return true;
+        }
 
-                try
-                {
-                    LoggedInUser = Engine.LoginAttempt(loginDetails.loginID, loginDetails.password);
-                    loginStatus = LoginStatus.Success;
-                }
-                catch (LoginFailedException e)
-                {
-                    loginStatus = LoginStatus.IncorrectPassword;
-                }
-                catch (LoginAttemptsExcededException e)
-                {
-                    loginStatus = LoginStatus.MaxAttempts;
-                }
-            }
+        public override (bool wasSuccess, decimal newBalance) MakeAtmTransaction(Account account,
+            TransactionType transactionType,
+            decimal amount)
+        {
+            var (wasSuccess, endingBalance) =
+                PerformWithLoading(Engine.MakeTransaction(account, transactionType, amount));
 
-            View.MainMenu(LoggedInUser);
-
-
+            return (wasSuccess, endingBalance);
         }
 
         public override void TransactionHistory()
         {
-            View.ShowTransactions(Engine.GetAccounts(LoggedInUser));
-            View.MainMenu(LoggedInUser);
+            View.ShowTransactions(PerformWithLoading(Engine.GetAccounts(_loggedInCustomer)));
+            View.MainMenu(_loggedInCustomer);
         }
 
         public override void Transfer()
         {
-            (Account sourceAccount, Account destinationAccount, double amount) transferDetails = View.Transfer(Engine.GetAccounts(LoggedInUser));
+            View.Transfer(PerformWithLoading(Engine.GetAccounts(_loggedInCustomer)));
 
-            if (transferDetails.sourceAccount != null)
-            {
-                bool transferResult = Engine.MakeTransfer(transferDetails.sourceAccount, transferDetails.destinationAccount, transferDetails.amount);
-                if (transferResult)
-                {
-                    View.TransferResponse(transferResult, transferDetails.sourceAccount, transferDetails.destinationAccount, transferDetails.amount);
-                }
+            View.MainMenu(_loggedInCustomer);
+        }
 
-                Transfer();
-            }
+        public override (bool success, Account updatedSourceAccount, Account updatedDestinationAccount) MakeTransfer(
+            Account sourceAccount,
+            Account destinationAccount, decimal amount)
+        {
+            var (success, updatedSourceAccount, updatedDestinationAccount) =
+                PerformWithLoading(Engine.MakeTransfer(sourceAccount, destinationAccount, amount));
 
-
-            View.MainMenu(LoggedInUser);
+            return (success, updatedSourceAccount,
+                updatedDestinationAccount);
         }
 
         public override List<Transaction> GetTransactions(Account account)
         {
-            return Engine.GetTransactions(account);
+            return PerformWithLoading(Engine.GetTransactions(account));
         }
 
-
-        // TODO Implement
-        public override void ModifyProfile()
+        public override Account GetAccount(int accountNumber)
         {
-            View.WorkInProgress();
-            View.MainMenu(LoggedInUser);
+            return PerformWithLoading(Engine.GetAccount(accountNumber));
         }
 
-        // TODO Implement
-        public override void ApplyForLoan()
+        private T PerformWithLoading<T>(Task<T> task)
         {
-            View.WorkInProgress();
-            View.MainMenu(LoggedInUser);
+            View.Loading();
+
+            try
+            {
+                task.Wait();
+            }
+            catch (AggregateException aggregateException)
+            {
+                foreach (var exception in aggregateException.InnerExceptions)
+                {
+                    throw exception;
+                }
+            }
+
+            return task.Result;
+        }
+
+        private void PerformVoidWithLoading(Task task)
+        {
+            View.Loading();
+            task.Wait();
         }
 
         public override void Logout()
         {
-            LoggedInUser = null;
+            _loggedInCustomer = null;
             View.Clear();
             Login();
         }
 
         public override void AtmTransaction()
         {
-            (Account account, TransactionType transactionType, double amount) transactionDetails = View.AtmTransaction(Engine.GetAccounts(LoggedInUser));
-            if (transactionDetails.account == null)
-            {
-                View.MainMenu(LoggedInUser);
-            }
-            else
-            {
-                (bool wasSuccess, double endingBalance) transactionResult = Engine.MakeTransaction(transactionDetails.account, transactionDetails.transactionType, transactionDetails.amount);
-                View.TransactionResponse(transactionResult.wasSuccess, transactionDetails.transactionType, transactionDetails.amount, transactionResult.endingBalance);
-                AtmTransaction();
-            }
+            var getAccountsTask = Engine.GetAccounts(_loggedInCustomer);
+
+            View.Loading();
+            getAccountsTask.Wait();
+
+            View.AtmTransaction(getAccountsTask.Result);
+
+            View.MainMenu(_loggedInCustomer);
         }
 
         public override void Exit()
         {
-            // TODO Put in the real method for exitting
+            Environment.Exit(0);
         }
     }
 }

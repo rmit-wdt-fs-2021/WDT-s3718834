@@ -1,22 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Assignment1.View;
 
-namespace Assignment1
+namespace Assignment1.POCO
 {
     public class Account
     {
         public int AccountNumber { get; set; }
         public char AccountType { get; set; }
-        public int CustomerID { get; set; }
-        public double Balance { get; set; }
+        public int CustomerId { get; set; }
+        public decimal Balance { get; set; }
 
-        public Account(int accountNumber, char accountType, int customerID, double balance)
+        public Account(int accountNumber, char accountType, int customerId, decimal balance)
         {
             AccountNumber = accountNumber;
             AccountType = accountType;
-            CustomerID = customerID;
+            CustomerId = customerId;
             Balance = balance;
+        }
+
+        public override string ToString()
+        {
+            var fullAccountType = AccountType == 'S' ? "Savings" : "Checking";
+            return $"{AccountNumber} ({fullAccountType}), ${Balance}";
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Assignment1.View
 
                 Console.Write("Login ID: ");
                 var loginId = Console.ReadLine();
-                if (loginId != null && loginId.Length == 8)
+                if (loginId != null && loginId.Length == 8 && int.TryParse(loginId, out var loginIdNumerical))
                 {
                     var password = TerminalTools.GetSecureInput("Password: ");
 
@@ -48,7 +48,7 @@ namespace Assignment1.View
 
                     try
                     {
-                        if (!Controller.ValidateLogin(loginId, password))
+                        if (!Controller.ValidateLogin(loginIdNumerical, password))
                         {
                             Login();
                         }

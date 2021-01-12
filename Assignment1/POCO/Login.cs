@@ -2,11 +2,11 @@
 {
     public class Login
     {
-        public string LoginId { get; set; }
+        public int LoginId { get; set; }
         public int CustomerId { get; set; }
         public string PasswordHash { get; set; }
 
-        public Login(string loginId, int customerId, string passwordHash)
+        public Login(int loginId, int customerId, string passwordHash)
         {
             LoginId = loginId;
             CustomerId = customerId;

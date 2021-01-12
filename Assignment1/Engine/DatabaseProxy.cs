@@ -100,7 +100,7 @@ namespace Assignment1.Engine
             }
         }
 
-        public async Task<(int customerId, string passwordHash)> GetPasswordHashAndCustomerId(string loginId)
+        public async Task<(int customerId, string passwordHash)> GetPasswordHashAndCustomerId(int loginId)
         {
             var command = CreateCommand("SELECT C.CustomerID, PasswordHash FROM Login JOIN Customer C on C.CustomerID = Login.CustomerID WHERE Login.LoginID = @loginID");
             command.Parameters.AddWithValue("@loginID", loginId);

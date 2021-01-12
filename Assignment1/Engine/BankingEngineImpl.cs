@@ -41,7 +41,7 @@ namespace Assignment1.Engine
             }
         }
 
-        public async Task<Customer> LoginAttempt(string loginId, string password)
+        public async Task<Customer> LoginAttempt(int loginId, string password)
         {
             var existingHashTask = _databaseProxy.GetPasswordHashAndCustomerId(loginId);
 

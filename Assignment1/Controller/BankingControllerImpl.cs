@@ -33,7 +33,7 @@ namespace Assignment1.Controller
             View.MainMenu(_loggedInCustomer);
         }
 
-        public override bool ValidateLogin(string loginId, string password)
+        public override bool ValidateLogin(int loginId, string password)
         {
             var loginAttempt = PerformWithLoading(Engine.LoginAttempt(loginId, password));
             if (loginAttempt == null) return false;

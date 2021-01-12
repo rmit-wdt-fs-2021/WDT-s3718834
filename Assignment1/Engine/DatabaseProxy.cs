@@ -26,9 +26,8 @@ namespace Assignment1.Engine
 
         public async Task<bool> CustomersExist()
         {
-            var dataTable = await GetDataTable("SELECT * FROM Customer");
-            
-            return dataTable.Rows.Count > 0;
+            var dataTable = await GetDataTable("SELECT COUNT(*) FROM Customer");
+            return (int) dataTable.Select()[0][0] > 0;
         }
 
         public async Task AddCustomer(Customer customer)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Assignment1.Controller;
 using Assignment1.Engine;
 using Assignment1.Enum;
@@ -482,6 +483,16 @@ namespace Assignment1.View
             Console.Clear();
             Console.WriteLine("Feature currently not implemented. Press any key to continue");
             Console.ReadKey();
+        }
+    }
+    
+    /// <summary>
+    /// Thrown when the user cancels their input into the terminal
+    /// </summary>
+    public class InputCancelException : Exception
+    {
+        public InputCancelException() : base("The user cancelled their input and the cancellation wasn't caught")
+        {
         }
     }
 }

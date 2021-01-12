@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Assignment1.POCO;
+using Assignment1.Data;
 using ConfigurationLibrary;
 using Microsoft.Data.SqlClient;
 

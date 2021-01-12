@@ -1,6 +1,4 @@
-﻿using Assignment1.View;
-
-namespace Assignment1.POCO
+﻿namespace Assignment1.Data
 {
     public class Account
     {

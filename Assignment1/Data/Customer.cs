@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Assignment1.POCO
+﻿namespace Assignment1.Data
 {
     public class Customer
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Assignment1.POCO;
+using Assignment1.Data;
 using ConfigurationLibrary;
 using Newtonsoft.Json;
 

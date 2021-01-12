@@ -139,7 +139,7 @@ namespace Assignment1.Engine
             var data = await GetDataTable(command);
 
             var dataRows = data.Select();
-            if (dataRows.Length <= 0) throw new RecordMissingException();
+            if (dataRows.Length <= 0) throw new RecordMissingException("No login with provided login id exists");
 
             var dataRow =
                 dataRows[0]; // Gets the first record because there should only be result due to database constraints
@@ -228,7 +228,7 @@ namespace Assignment1.Engine
 
             var dataSet = data.Select();
 
-            if (dataSet.Length == 0) throw new RecordMissingException();
+            if (dataSet.Length == 0) throw new RecordMissingException("No account with provided account number exists");
 
             return dataSet.Select(dataRow =>
                 new Account(
@@ -314,7 +314,7 @@ namespace Assignment1.Engine
 
             return (int) data.Select()[0][0]; // Get the count
         }
-        
+
         /// <summary>
         /// Creates a SQL command from the provided string 
         /// </summary>
@@ -348,11 +348,25 @@ namespace Assignment1.Engine
             return await Task.Run(() =>
             {
                 var table = new DataTable();
-                
+
                 new SqlDataAdapter(sqlCommand).Fill(table);
 
                 return table;
             });
+        }
+    }
+
+    /// <summary>
+    /// Thrown when the database proxy didn't find a record
+    /// </summary>
+    public class RecordMissingException : Exception
+    {
+        public RecordMissingException() : base("Failed to retrieve any records")
+        {
+        }
+
+        public RecordMissingException(string message) : base(message)
+        {
         }
     }
 }

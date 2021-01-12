@@ -56,10 +56,6 @@ namespace Assignment1.View
                     {
                         warningMessage = "Provided login ID and password do not match";
                     }
-                    catch (LoginAttemptsExceededException)
-                    {
-                        warningMessage = "Exceeded the number of login attempts. Press any key to exit";
-                    }
                 }
                 else
                 {

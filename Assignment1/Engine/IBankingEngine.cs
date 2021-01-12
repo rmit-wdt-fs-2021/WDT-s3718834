@@ -24,14 +24,7 @@ namespace Assignment1.Engine
 
         public Task<Account> GetAccount(int accountNumber);
     }
-
-    public class LoginAttemptsExceededException : Exception
-    {
-        public LoginAttemptsExceededException() : base("User reached the max number of login attempts allowed")
-        {
-        }
-    }
-
+    
     public class LoginFailedException : Exception
     {
         public LoginFailedException() : base("Login attempt failed")

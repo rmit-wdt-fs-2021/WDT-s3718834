@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Assignment1.Controller;
+using Assignment1.Data;
 
 namespace Assignment1.View
 {
@@ -130,6 +132,46 @@ namespace Assignment1.View
             return !int.TryParse(input, out var numericalInput)
                 ? (false, 0)
                 : ((numericalInput > 0 && numericalInput <= maxInput), numericalInput);
+        }
+        
+        
+        /// <returns>The account that the user selected</returns>
+        /// <exception cref="InputCancelException">Thrown when the user selects the cancel input option</exception>
+        
+        /// <summary>
+        /// Allows the user to input an account number, validating the account exists and returning it. 
+        /// </summary>
+        /// <param name="controller">The controller this method can use to verify the account input</param>
+        /// <returns>The account that user input</returns>
+        /// <exception cref="InputCancelException">Thrown when the user chooses to cancel account input</exception>
+        public static Account InputAccount(BankingController controller)
+        {
+            while (true)
+            {
+                Console.Write("Account number (Enter nothing to cancel): ");
+                var input = Console.ReadLine();
+
+                if (input == "")
+                {
+                    throw new InputCancelException();
+                }
+
+                // Ensure that the account number is correct before spending resources accessing the database
+                if (input != null && input.Length == 4 && int.TryParse(input, out var inputAccountNumber))
+                {
+                    var account = controller.GetAccount(inputAccountNumber); // Attempt to access an account with the input account number
+                    if (account != null) // Check that account exists 
+                    {
+                        return account;
+                    }
+
+                    Console.WriteLine("\nAccount provided doesn't exist\n");
+                }
+                else
+                {
+                    Console.WriteLine("\nPlease input a valid account number \n");
+                }
+            }
         }
     }
 }

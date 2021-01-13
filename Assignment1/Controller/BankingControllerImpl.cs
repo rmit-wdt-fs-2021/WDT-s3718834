@@ -113,7 +113,6 @@ namespace Assignment1.Controller
         public override void Logout()
         {
             _loggedInCustomer = null;
-            View.Clear();
             Login();
         }
 

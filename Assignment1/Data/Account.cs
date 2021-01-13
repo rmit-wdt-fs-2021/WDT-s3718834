@@ -20,8 +20,16 @@
 
         public override string ToString()
         {
-            var fullAccountType = AccountType == 'S' ? "Savings" : "Checking";
-            return $"{AccountNumber} ({fullAccountType}), ${Balance}";
+            return $"{AccountNumber} ({GetFullAccountType()}), ${Balance}";
+        }
+        
+        /// <summary>
+        /// Formats the account's account type as a full string
+        /// </summary>
+        /// <returns>The account's account type in a full string</returns>
+        public string GetFullAccountType()
+        {
+            return AccountType == 'S' ? "Savings" : "Checking";
         }
     }
 }

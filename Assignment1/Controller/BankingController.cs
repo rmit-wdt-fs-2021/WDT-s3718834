@@ -96,5 +96,11 @@ namespace Assignment1.Controller
         /// <param name="accountNumber">The account number for the account to retrieve</param>
         /// <returns>The account retrieved</returns>
         public abstract Account GetAccount(int accountNumber);
+
+        /// <summary>
+        /// Called when the startup of either the view or the engine has failed for whatever reason
+        /// </summary>
+        /// <param name="cause">A string explaining the cause</param>
+        public abstract void StartUpFailed(string cause);
     }
 }

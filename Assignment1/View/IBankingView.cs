@@ -50,5 +50,12 @@ namespace Assignment1.View
         /// Displays a loading screen
         /// </summary>
         public void Loading();
+
+        /// <summary>
+        /// Called if the application experiences a fatal error
+        /// </summary>
+        /// <param name="cause">String explain the cause of the application failure</param>
+        public void ApplicationFailed(string cause);
+        
     }
 }

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Assignment1.Controller;
 using Assignment1.Data;
 using Assignment1.Enum;
+using Microsoft.Data.SqlClient;
 using SimpleHashing;
 
 namespace Assignment1.Engine
@@ -31,7 +32,17 @@ namespace Assignment1.Engine
         public async Task Start(BankingController controller)
         {
             this._controller = controller;
-            _databaseProxy = new DatabaseProxy();
+
+            try
+            {
+                _databaseProxy = new DatabaseProxy();
+            }
+            catch (SqlException)
+            {
+                controller.StartUpFailed("Failed to connect to the database");
+                return;
+            }
+            
 
             /*
              * Populates the database if there is no data in it using the data retrieved from the two data seeding APIs
@@ -44,13 +55,24 @@ namespace Assignment1.Engine
 
                 var (customers, accounts, transactions) = await customerDataTask;
 
+                if (customers == null || accounts == null || transactions == null) // If the API failed
+                {
+                    controller.StartUpFailed("Failed to retrieve customer data from API");
+                }
+                
+                var loginData = await loginDataTask; // Await for the API here so database isn't populated if API is failing
+                if (loginData == null) // If the API failed
+                {
+                    controller.StartUpFailed("Failed to retrieve login data from API");
+                }
+
+                
                 // Due to table constraints these need to occur synchronously 
                 await _databaseProxy.AddCustomerBulk(customers);
                 await _databaseProxy.AddAccountBulk(accounts);
                 await _databaseProxy.AddTransactionBulk(transactions);
 
 
-                var loginData = await loginDataTask;
                 await _databaseProxy.AddLoginBulk(loginData);
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using Assignment1.Controller;
 using Assignment1.Data;
 using Assignment1.Engine;
@@ -474,6 +475,20 @@ namespace Assignment1.View
         public void Loading()
         {
             Console.WriteLine("\nLoading ... \n");
+        }
+        
+        /// <summary>
+        /// Displays a message to the user if a fatal unexpected error occurs.
+        /// This will only occur if either the database or the api were unreachable
+        /// </summary>
+        /// <param name="cause"></param>
+        public void ApplicationFailed(string cause)
+        {
+            Console.Clear();
+            Console.WriteLine("An external service has resulting the application failing, details below:");
+            Console.WriteLine(cause);
+            Console.WriteLine("\nPress any key to continue");
+            Console.ReadKey();
         }
     }
 

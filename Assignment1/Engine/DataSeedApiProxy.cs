@@ -21,13 +21,32 @@ namespace Assignment1.Engine
         {
             // Getting the API data
             var httpClient = new HttpClient();
-            var rawJson = await httpClient.GetStringAsync(ConfigurationProvider.GetCustomerDataSeedApiUrl());
 
-            // Converts the api data to object made for this data below. Uses DateFormatString to properly read the dates in the api data
-            var convertedJson = JsonConvert.DeserializeObject<List<CustomerData>>(rawJson, new JsonSerializerSettings()
+            string rawJson;
+            try
             {
-                DateFormatString = "dd/MM/yyyy hh:mm:ss tt"
-            });
+                rawJson = await httpClient.GetStringAsync(ConfigurationProvider.GetCustomerDataSeedApiUrl());
+            }
+            catch (HttpRequestException)
+            {
+                return (null, null, null);
+            }
+
+
+            List<CustomerData> convertedJson;
+            try
+            {
+                // Converts the api data to object made for this data below. Uses DateFormatString to properly read the dates in the api data
+                convertedJson = JsonConvert.DeserializeObject<List<CustomerData>>(rawJson, new JsonSerializerSettings()
+                {
+                    DateFormatString = "dd/MM/yyyy hh:mm:ss tt"
+                });
+            }
+            catch (JsonReaderException)
+            {
+                return (null, null, null);
+            }
+            
 
             
             // Theoretically shouldn't happen. Should only happen if the API is returning no data which are not expected to handle.
@@ -70,9 +89,26 @@ namespace Assignment1.Engine
         public static async Task<IEnumerable<Login>> RetrieveLoginData()
         {
             var httpClient = new HttpClient();
+
+            string rawJson;
+            try
+            {
+                rawJson = await httpClient.GetStringAsync(ConfigurationProvider.GetLoginDataSeedApiUrl());
+            }
+            catch (HttpRequestException)
+            {
+                return (null);
+            }
+
+            try
+            {
+                return JsonConvert.DeserializeObject<List<Login>>(rawJson); // Can convert straight to DTO here 
+            }
+            catch (JsonReaderException)
+            {
+                return null;
+            }
             
-            var rawJson = await httpClient.GetStringAsync(ConfigurationProvider.GetLoginDataSeedApiUrl());
-            return JsonConvert.DeserializeObject<List<Login>>(rawJson); // Can convert straight to DTO here
         }
 
         

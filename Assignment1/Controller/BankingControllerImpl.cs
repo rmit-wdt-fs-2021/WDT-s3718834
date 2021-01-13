@@ -152,7 +152,7 @@ namespace Assignment1.Controller
         {
             return PerformWithLoading(Engine.GetAccount(accountNumber));
         }
-
+        
         /// <summary>
         /// Helper method that performs an async task but calls the View Loading method so that the user knows that back end processing is occuring
         /// </summary>
@@ -190,5 +190,15 @@ namespace Assignment1.Controller
             View.Loading();
             task.Wait();
         }
+        
+        
+        
+        public override void StartUpFailed(string cause)
+        {
+            View.ApplicationFailed(cause);
+            Exit();
+        }
+
+        
     }
 }

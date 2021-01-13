@@ -307,11 +307,10 @@ namespace Assignment1.View
                  */
                 try
                 {
-                    // Gets the transfer amount, ensuring that the amount won't put the account below the account's minimum
+                    // Gets the transfer amount
                     var currencyInput = TerminalTools.GetCurrencyInput("\nPlease input transfer amount\n",
                         "Please input a valid transfer amount\n",
-                        input => input > 0 && BankingEngineImpl.IsAboveMinimum(sourceAccount.AccountType,
-                            sourceAccount.Balance - input));
+                        input => input > 0);
 
                     var (success, updatedSourceAccount, updatedDestinationAccount) =
                         _controller.MakeTransfer(sourceAccount, destinationAccount, currencyInput);

@@ -143,6 +143,7 @@ namespace Assignment1.Engine
             Account sourceAccount, Account destinationAccount, decimal amount)
         {
             if (amount < 0) return (false, null, null); // Transfers must have a value more then 0
+            if (sourceAccount == destinationAccount) return (false, null, null); // source and destination cannot be equal
 
             // Get the service fee that needs to be charged. This keeps in mind if the user has used their 4 free transactions
             var serviceFee = await GetServiceFee(sourceAccount.AccountNumber, TransactionType.Transfer);

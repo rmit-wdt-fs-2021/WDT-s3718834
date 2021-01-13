@@ -106,7 +106,8 @@ namespace Assignment1.View
                     _controller.Exit();
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(); // Will only be reached if the GetAcceptInput() fails to correctly validate
+                    throw
+                        new ArgumentOutOfRangeException(); // Will only be reached if the GetAcceptInput() fails to correctly validate
             }
         }
 
@@ -146,11 +147,11 @@ namespace Assignment1.View
                     ShowTransactionPage(transactions, index, index + (TransactionsPerPage - 1));
 
                     // Stores the menu options. Since there are alteast 2 pages of transactions there will always be atleast one option
-                    var options = new List<(string text, int indexChange)>(); 
-                    
+                    var options = new List<(string text, int indexChange)>();
+
                     // If there are atleast 3 transactions before the current page then the user can go back a page
-                    if (index > 3) options.Add(("Previous Page", -TransactionsPerPage)); 
-                    
+                    if (index > 3) options.Add(("Previous Page", -TransactionsPerPage));
+
                     // If there are atleast 3 transactions after the current page then the user can go forward a page 
                     if (index + 3 < transactions.Count) options.Add(("Next Page", TransactionsPerPage));
 
@@ -272,11 +273,12 @@ namespace Assignment1.View
                         {
                             destinationAccount = accounts[accountMenuChoice - 1];
                         }
-                        else if (accountMenuChoice == accounts.Count + 1) // User wants to input a different account number
+                        else if (accountMenuChoice == accounts.Count + 1
+                        ) // User wants to input a different account number
                         {
                             try
                             {
-                                destinationAccount = TerminalTools.InputAccount(_controller);
+                                destinationAccount = TerminalTools.InputAccount(_controller, sourceAccount.AccountNumber);
                             }
                             catch (InputCancelException)
                             {
@@ -285,7 +287,8 @@ namespace Assignment1.View
                         }
                         else if (accountMenuChoice == accounts.Count + 2)
                         {
-                            Transfer(originalAccounts); // Return to the start of the transfer menu. The user can return to the main menu there
+                            Transfer(
+                                originalAccounts); // Return to the start of the transfer menu. The user can return to the main menu there
                             return;
                         }
                     }
@@ -294,11 +297,12 @@ namespace Assignment1.View
                 {
                     try
                     {
-                        destinationAccount = TerminalTools.InputAccount(_controller);
+                        destinationAccount = TerminalTools.InputAccount(_controller, sourceAccount.AccountNumber);
                     }
                     catch (InputCancelException)
                     {
-                        Transfer(originalAccounts); // Return to the start of the transfer menu. The user can return to the main menu there
+                        Transfer(
+                            originalAccounts); // Return to the start of the transfer menu. The user can return to the main menu there
                         return;
                     }
                 }
@@ -315,7 +319,7 @@ namespace Assignment1.View
 
                     var (success, updatedSourceAccount, updatedDestinationAccount) =
                         _controller.MakeTransfer(sourceAccount, destinationAccount, currencyInput);
-                    
+
                     // Update the user with the result of the transfer
                     TransferResponse(success, updatedSourceAccount, updatedDestinationAccount, currencyInput);
                 }
@@ -337,11 +341,10 @@ namespace Assignment1.View
         private static void TransferResponse(bool wasSuccess, in Account sourceAccount, in Account destinationAccount,
             decimal amount)
         {
-            
             // Print where the funds came from and where they went
-            Console.Write( $"Transfer from {sourceAccount.AccountNumber} ({sourceAccount.GetFullAccountType()}) " +
-                           $"to {destinationAccount.AccountNumber} ({destinationAccount.GetFullAccountType()})");
-            
+            Console.Write($"Transfer from {sourceAccount.AccountNumber} ({sourceAccount.GetFullAccountType()}) " +
+                          $"to {destinationAccount.AccountNumber} ({destinationAccount.GetFullAccountType()})");
+
             if (wasSuccess)
             {
                 Console.WriteLine($"of {amount} was successful");
@@ -349,7 +352,7 @@ namespace Assignment1.View
             else
             {
                 Console.WriteLine($" of {amount} was unsuccessful");
-                Console.WriteLine("Please contact customer service for assistance"); 
+                Console.WriteLine("Please contact customer service for assistance");
             }
 
             Console.WriteLine("\nEnding balances:");
@@ -369,7 +372,7 @@ namespace Assignment1.View
             Console.WriteLine("\nPress any key to continue...");
             Console.ReadKey();
         }
-        
+
         /// <summary>
         /// Displays the interface for making an atm transaction to the terminal 
         /// </summary>
@@ -397,7 +400,7 @@ namespace Assignment1.View
                 Console.WriteLine(
                     $"Using account: {selectedAccount.AccountNumber} ({selectedAccount.GetFullAccountType()}), ${selectedAccount.Balance}\n");
                 Console.WriteLine("Please select a transaction type\n");
-                
+
                 Console.WriteLine("1: Deposit\n" +
                                   "2: Withdraw\n" +
                                   "3: Different account\n" +
@@ -406,8 +409,9 @@ namespace Assignment1.View
 
                 if (transactionTypeInput <= 2) // User input 1 or 2 (Deposit or withdraw)
                 {
-                    var transactionType = (transactionTypeInput == 1) ? TransactionType.Deposit : TransactionType.Withdraw;
-                    
+                    var transactionType =
+                        (transactionTypeInput == 1) ? TransactionType.Deposit : TransactionType.Withdraw;
+
                     Console.Clear();
                     Console.WriteLine("-- ATM Transaction -- \n");
                     Console.WriteLine(
@@ -418,12 +422,13 @@ namespace Assignment1.View
                         // Get the amount the user wished to deposit / withdraw
                         var currencyInput = TerminalTools.GetCurrencyInput(
                             $"Please enter how much you would like to {transactionType.ToString().ToLower()} (Input nothing to return): \n",
-                            $"\nPlease input a correct {transactionType.ToString().ToLower()} amount\n\n",  input => input > 0);
+                            $"\nPlease input a correct {transactionType.ToString().ToLower()} amount\n\n",
+                            input => input > 0);
 
                         // Attempts to perform the transaction
                         var (wasSuccess, newBalance) = _controller.MakeAtmTransaction(selectedAccount,
                             transactionType, currencyInput);
-                        
+
                         // Updates the user with the result of the transaction
                         TransactionResponse(wasSuccess, transactionType, currencyInput, newBalance);
                         return;
@@ -432,7 +437,8 @@ namespace Assignment1.View
                     {
                         continue;
                     }
-                } 
+                }
+
                 switch (transactionTypeInput)
                 {
                     case 3: // User selected "Different account" so we loop back to the start
@@ -440,7 +446,6 @@ namespace Assignment1.View
                     case 4: // User selected "Exit" so we leave the menu
                         return;
                 }
-                
             }
         }
 
@@ -468,7 +473,7 @@ namespace Assignment1.View
             Console.ReadKey();
         }
 
-        
+
         /// <summary>
         /// A simple loading message when the application is waiting on a backend process to finish
         /// </summary>
@@ -476,7 +481,7 @@ namespace Assignment1.View
         {
             Console.WriteLine("\nLoading ... \n");
         }
-        
+
         /// <summary>
         /// Displays a message to the user if a fatal unexpected error occurs.
         /// This will only occur if either the database or the api were unreachable

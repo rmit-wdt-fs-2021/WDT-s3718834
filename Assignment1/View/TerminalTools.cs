@@ -133,18 +133,18 @@ namespace Assignment1.View
                 ? (false, 0)
                 : ((numericalInput > 0 && numericalInput <= maxInput), numericalInput);
         }
-        
-        
+
+
         /// <returns>The account that the user selected</returns>
         /// <exception cref="InputCancelException">Thrown when the user selects the cancel input option</exception>
-        
         /// <summary>
         /// Allows the user to input an account number, validating the account exists and returning it. 
         /// </summary>
         /// <param name="controller">The controller this method can use to verify the account input</param>
+        /// <param name="sourceAccountNumber">Account number to check to ensure the input account doesn't match</param>
         /// <returns>The account that user input</returns>
         /// <exception cref="InputCancelException">Thrown when the user chooses to cancel account input</exception>
-        public static Account InputAccount(BankingController controller)
+        public static Account InputAccount(BankingController controller, int sourceAccountNumber)
         {
             while (true)
             {
@@ -159,6 +159,12 @@ namespace Assignment1.View
                 // Ensure that the account number is correct before spending resources accessing the database
                 if (input != null && input.Length == 4 && int.TryParse(input, out var inputAccountNumber))
                 {
+                    if (sourceAccountNumber == inputAccountNumber)
+                    {
+                        Console.WriteLine("\nDestination account must not be same as the source account\n");
+                        continue;
+                    }
+                    
                     var account = controller.GetAccount(inputAccountNumber); // Attempt to access an account with the input account number
                     if (account != null) // Check that account exists 
                     {

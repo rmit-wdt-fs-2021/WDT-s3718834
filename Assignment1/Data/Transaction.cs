@@ -1,7 +1,10 @@
 ﻿using System;
 
-namespace Assignment1.POCO
+namespace Assignment1.Data
 {
+    /// <summary>
+    /// Basic DTO for transaction data
+    /// </summary>
     public class Transaction
     {
         public int TransactionId { get; set; } // Is set automatically

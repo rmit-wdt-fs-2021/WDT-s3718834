@@ -1,7 +1,8 @@
-﻿using Assignment1.View;
-
-namespace Assignment1.POCO
+﻿namespace Assignment1.Data
 {
+    /// <summary>
+    /// Basic DTO for account data
+    /// </summary>
     public class Account
     {
         public int AccountNumber { get; set; }
@@ -19,8 +20,16 @@ namespace Assignment1.POCO
 
         public override string ToString()
         {
-            var fullAccountType = AccountType == 'S' ? "Savings" : "Checking";
-            return $"{AccountNumber} ({fullAccountType}), ${Balance}";
+            return $"{AccountNumber} ({GetFullAccountType()}), ${Balance}";
+        }
+        
+        /// <summary>
+        /// Formats the account's account type as a full string
+        /// </summary>
+        /// <returns>The account's account type in a full string</returns>
+        public string GetFullAccountType()
+        {
+            return AccountType == 'S' ? "Savings" : "Checking";
         }
     }
 }

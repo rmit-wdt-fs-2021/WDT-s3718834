@@ -1,5 +1,8 @@
-﻿namespace Assignment1.POCO
+﻿namespace Assignment1.Data
 {
+    /// <summary>
+    /// Basic DTO for login data
+    /// </summary>
     public class Login
     {
         public int LoginId { get; set; }
